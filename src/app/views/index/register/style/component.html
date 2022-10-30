@@ -1,0 +1,21 @@
+<div class="panel" *ngFor="let category of categories">
+    <div class="panel-heading">
+        <span class="badge badge-light badge-counter">{{categoryCounter(category)}}</span>{{category.title}}
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-3"
+                 style="margin-bottom: 10px;"
+                 *ngFor="let style of category.styles">
+                <div class="form-check">
+                    <label nz-checkbox
+                           (ngModelChange)="change(style)"
+                           [(ngModel)]="style.checked">{{style.title}}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clear text-right">
+    <button class="btn btn-success" (click)="submit()" i18n>Next</button>
+</div>

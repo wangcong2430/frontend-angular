@@ -1,0 +1,16 @@
+<ng-template let-item="data">
+  <ng-container *ngIf="state === 'loading'">
+    <nz-spin nzSimple class="d-inline-block mr-2"></nz-spin><nz-tag [nzColor]="'#2db7f5'">打包中</nz-tag>
+    <p class="mt-2">{{data?.data?.name}}</p>
+    <!-- <a nz-button nzType="primary" download="{{data?.data?.link}}"  href="{{data?.data?.link}}" nzSize="small">下载</a> -->
+  </ng-container>
+  <ng-container *ngIf="state === 'loaded'">
+    <nz-tag [nzColor]="'green'">打包完成</nz-tag>
+    <p class="mt-2">{{data?.data?.name}}</p>
+    <a nz-button nzType="primary" download="{{data?.data?.link}}"  href="{{data?.data?.link}}" nzSize="small">下载</a>
+  </ng-container>
+  <ng-container *ngIf="state === 'error'">
+    <nz-tag [nzColor]="'red'">下载失败</nz-tag>
+    <p class="mt-2">{{data?.data?.msg}}</p>
+  </ng-container>
+</ng-template>

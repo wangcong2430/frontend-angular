@@ -1,0 +1,133 @@
+<!--报价详情-->
+<nz-modal
+  #priceDetail
+  [(nzVisible)]="selectPriceModalData.isShow"
+  [nzTitle]="modalTitle"  
+  [nzContent]="modalContent"
+  nzMaskClosable="false"
+  [nzOkText]="null"
+  [nzWidth]="modalWidth"
+  [nzZIndex]="nzZIndex"
+  (nzOnCancel)="selectPriceModalCancel()"
+>
+
+  <ng-template #modalTitle>
+    <div
+      cdkDrag
+      cdkDragHandle   
+      cdkDragRootElement=".ant-modal-content">{{title}}
+    </div>
+    <ng-container *ngIf="selectPriceModalData.is_separate=='1'">      
+    <nz-radio-group [(ngModel)]="selectPriceModalData.is_separate">
+      <label style="margin-right: 20px;margin-top: 20px;">是否分包</label>
+      <label nz-radio nzValue="1">是</label> 
+      <label nz-radio nzValue="0" [nzDisabled]="true">否</label>    
+    </nz-radio-group>
+    </ng-container>
+
+   
+  </ng-template>
+
+  
+  
+
+
+  <ng-template #modalContent>
+    <ng-container *ngIf="selectPriceModalData.isShow">
+      <ng-container *ngIf=" !selectPriceModalData.data || !workloadUnitList">
+          <div class="example">
+            <nz-spin></nz-spin>
+          </div>
+      </ng-container>
+     
+
+      <ng-container *ngIf="selectPriceModalData.data && workloadUnitList">
+
+        <nz-table #selctPriceTable [nzFrontPagination]="false" [nzShowPagination]="false" [nzSize]="'middle'" [nzData]="selectPriceModalData.data">
+          <thead>
+            <tr>
+              <th >明细名称</th>
+
+              <th *ngIf="this.selectPriceModalData.is_show_pre_workload == '1'">{{pre_workload_title}}</th>
+
+              <th *ngIf="type != 2">报价明细数量及单位</th>
+
+              <th *ngIf="type != 2 && this.selectPriceModalData.price_type !== '1' && selectPriceModalData.showCountPrice && selectPriceModalData.isShowPriceColumn">明细单价</th>
+
+              <th *ngIf="type != 2 && this.selectPriceModalData.price_type !== '1' && selectPriceModalData.showCountPrice && selectPriceModalData.isShowPriceColumn">明细价格</th>
+
+              <th *ngIf="type != 2 && selectPriceModalData.type === '1'">备注</th>
+              <!-- <th *ngIf="type != 2 && selectPriceModalData.type === '1'">附件</th> -->
+              <th *ngIf="type != 2">附件</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- <pre>{{ selctPriceTable.data | json}}</pre> -->
+            <tr *ngFor="let item of selctPriceTable.data;trackBy: trackByFn">
+              <!-- 明细名称  -->
+              <td>{{item?.label ? item?.label : item?.pre_label}}</td>
+
+              <!-- 需求数量及单位 -->
+              <td *ngIf="this.selectPriceModalData.is_show_pre_workload == '1'">
+                {{item.pre_value || item.pre_value == 0 ? item.pre_value : 'NA'}} {{ item.pre_workload_unit_name || ''}}
+              </td>
+
+              <!-- 报价数量及单位 -->
+              <td *ngIf="type != 2" [class.red]="(item.pre_value != item.value) || (item.workload_unit_id != item.pre_workload_unit_id) ">
+                {{item.value ? item.value : 'NA'}} {{ item.workload_unit_name || '' }}
+              </td>
+
+              <!-- 明细单价 -->
+              <td *ngIf="type != 2 && this.selectPriceModalData.price_type !== '1' && selectPriceModalData.showCountPrice && selectPriceModalData.isShowPriceColumn">
+                {{item.price|mycurrency}} {{currency_symbol ? currency_symbol : ''}} <span *ngIf="item.fixed_price_status">固定价</span>
+              </td>
+
+              <!-- 明细价格 -->
+              <td *ngIf="type != 2 &&this.selectPriceModalData.price_type !== '1' && selectPriceModalData.showCountPrice && selectPriceModalData.isShowPriceColumn">
+                {{item.count_price|mycurrency}} {{currency_symbol ? currency_symbol : ''}}
+              </td>
+
+              <!-- 备注 -->
+              <td *ngIf="type != 2 && selectPriceModalData.type === '1'"  [title]="item.remark" >
+                <p class="text-overflow-2" style="width: 200px;">{{item.remark ? item.remark : "NA"}}</p>
+              </td>
+
+              <!-- 附件 -->
+              <!-- <td *ngIf="selectPriceModalData.type === '1' && type != 2"> -->
+              <td *ngIf="type != 2">
+                <ng-container *ngIf="item.file_id&&item.files">
+                  <ng-container *ngFor="let child of item.files">                  
+                  <a [href]="child.url" target="_blank" [nzContent]="child.file_name" nz-popover nzType="primary" style="margin-right: 10px;">下载</a> 
+                  </ng-container>                
+                </ng-container>
+
+                <ng-container *ngIf="item.file_id&&!item.files||item.file_id&&item.files.length==0">
+                  <ng-container *ngFor="let child of item.file_id.toString().split(',')">                  
+                  <a [href]="'/web/file/' + child" target="_blank" >下载</a> 
+                  </ng-container>                                    
+                </ng-container>                                           
+
+                <ng-container *ngIf="item.file_id">
+                  <i *ngIf="item.attachment_desc&&item.attachment_desc!=''" nz-icon nzType="exclamation-circle" nzTheme="outline" nz-popover [nzContent]="contentTemplate" style="margin-left: 10px;color:#000;font-size:20px;" (click)="$event.stopPropagation()"></i>                     
+                  <ng-template #contentTemplate><div style="width: 120px;"> {{item.attachment_desc}}</div> </ng-template>
+                </ng-container>
+                
+                <ng-container *ngIf="!item.file_id">
+                  NA
+                </ng-container>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+
+        <ng-container *ngIf="this.selectPriceModalData.price_type !== '1' && selectPriceModalData.showCountPrice && selectPriceModalData.isShowPriceColumn">
+          <!-- <div class="mt-3">明细总价： {{selectPriceModalData.countPrice|mycurrency}} {{currency?.symbol}}</div> -->
+          <div class="mt-3">明细总价： {{selectPriceModalData.countPrice|mycurrency}} {{currency_symbol ? currency_symbol : ''}}</div>
+        </ng-container>
+        <ng-container *ngIf="this.selectPriceModalData.agency_fees !== '0'">
+          <div class="mt-3">代理费比例： {{selectPriceModalData.agency_fees|mycurrency}} %</div>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+  </ng-template>
+</nz-modal>

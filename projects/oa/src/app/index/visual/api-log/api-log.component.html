@@ -1,0 +1,85 @@
+<app-component-crumb>
+  <button nz-button nzType="primary" (click)="deleteLog()">清理过期记录</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      [showCheckbox]="false"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+<!-- 调用详情  -->
+<nz-modal [(nzVisible)]="formDataShow" [nzTitle]="formDataTitle" [nzOkLoading]="formDataLoading" [nzFooter]="null" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+  <ng-container *ngIf="formDataLoading">
+    <div class="example m-3">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="!formDataLoading">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" style="text-align: left">接口名称</nz-form-label>
+      <nz-form-control [nzSm]="16">
+        <span>{{formData.data.api_name}}</span>
+      </nz-form-control>
+    </nz-form-item>  
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" style="text-align: left">调用方</nz-form-label>
+      <nz-form-control [nzSm]="16">
+        <span>{{formData.app_id}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" style="text-align: left">调用时间</nz-form-label>
+      <nz-form-control [nzSm]="16">
+        <span>{{formData.data.create_time}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" style="text-align: left">调用结果</nz-form-label>
+      <nz-form-control [nzSm]="16">
+        <span>{{formData.data.status}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" style="text-align: left">涉及品类</nz-form-label>
+      <nz-form-control [nzSm]="16">
+        <span>{{formData.data.api_sources.category_power}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" style="text-align: left">涉及的权限</nz-form-label>
+      <nz-form-control [nzSm]="16">
+        <span>{{formData.data.api_sources.auth_item_name}}</span>
+      </nz-form-control>
+    </nz-form-item>
+  </ng-container>
+</nz-modal>

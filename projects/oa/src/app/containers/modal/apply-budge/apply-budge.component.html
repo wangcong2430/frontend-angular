@@ -1,0 +1,329 @@
+
+<nz-modal
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  nzMaskClosable="false"
+  [nzFooter]="null"
+  [nzWidth]="1050"
+  (nzOnCancel)="modalCancel()"
+>
+  <ng-template #modalTitle>
+    <div       
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content">预算申请
+    </div>
+  </ng-template>
+
+  <ng-template #modalContent>
+
+    <ng-container *ngIf="isOpen">
+        <ng-container *ngIf="loading">
+            <div class="example">
+              <nz-spin></nz-spin>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="!loading && info">
+
+            <div nz-row [nzGutter]="24">
+              <div nz-col [nzSpan]="8" *ngIf="applying">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="10" [nzFor]="'field_index'">申请编号 </nz-form-label>
+                  <nz-form-control [nzSm]="14" class="control-padding">
+                      {{ applying['code'] }}
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="10" [nzFor]="'field_index2'">产品名称 </nz-form-label>
+                  <nz-form-control [nzSm]="14" class="control-padding">
+                    {{ info['product_name'] }}
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="10" [nzFor]="'field_index3'">母项目 </nz-form-label>
+                  <nz-form-control [nzSm]="14" class="control-padding">
+                    <ng-container *ngIf="info['projectGroup']">
+                      {{ info['projectGroup']['name'] }}
+                    </ng-container>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </div>
+
+            <div nz-row [nzGutter]="24">
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="10" [nzFor]="'field_index'" nzRequired>预算年度 </nz-form-label>
+                  <nz-form-control [nzSm]="14" class="control-padding">
+                    <ng-container *ngIf="applying">
+                      {{ applying['year'] }}
+                    </ng-container>
+                    <ng-container *ngIf="!applying">
+                      <nz-select style="width: 145px;" (ngModelChange)="selectYearChange($event)" [(ngModel)]="fromData['year']">
+                        <ng-container *ngIf="info['projectBudget']">
+                          <nz-option nzValue="{{ item.year }}" nzLabel="{{ item.year }}" *ngFor="let item of info['projectBudget'];trackBy: trackByFn"></nz-option>
+                        </ng-container>
+                      </nz-select>
+                    </ng-container>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="10" [nzFor]="'field_index2'">可用/品牌预算 </nz-form-label>
+                  <nz-form-control [nzSm]="14" class="control-padding">
+                    {{ fromData['brand_available'] }}/{{ fromData['brand_budget'] }} 元
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="10" [nzFor]="'field_index3'">可用/产品预算 </nz-form-label>
+                  <nz-form-control [nzSm]="14" class="control-padding">
+                    {{ fromData['product_available'] }}/{{ fromData['product_budget'] }} 元
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </div>
+            <div nz-row [nzGutter]="24">
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="10" [nzFor]="'field_index'" nzRequired>预算类型 </nz-form-label>
+                  <nz-form-control [nzSm]="14" class="control-padding">
+                    <ng-container *ngIf="applying">
+                      {{ applying['apply_type_text'] }}
+                    </ng-container>
+                    <ng-container *ngIf="!applying">
+                      <nz-select style="width: 145px;" [(ngModel)]="fromData['apply_type']">
+                        <nz-option nzValue="2" nzLabel="追加"></nz-option>
+                        <nz-option nzValue="3" nzLabel="消减"></nz-option>
+                      </nz-select>
+                    </ng-container>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="10" [nzFor]="'field_index2'" nzRequired>品牌预算 </nz-form-label>
+                  <nz-form-control [nzSm]="14" class="control-padding">
+                    <ng-container *ngIf="applying">
+                      {{ applying['brand_change_sum'] }} 元
+                    </ng-container>
+                    <ng-container *ngIf="!applying">
+                      <nz-input-number style="width: 145px;" [nzMin]="0" [nzMax]="999999999" [nzStep]="1" (ngModelChange)="numberChange($event, 'brand_change_sum')" [(ngModel)]="fromData['brand_change_sum']"></nz-input-number>
+                    </ng-container>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="10" [nzFor]="'field_index3'" nzRequired>产品预算 </nz-form-label>
+                  <nz-form-control [nzSm]="14" class="control-padding">
+                    <ng-container *ngIf="applying">
+                      {{ applying['product_change_sum'] }} 元
+                    </ng-container>
+                    <ng-container *ngIf="!applying">
+                      <nz-input-number style="width: 145px;" [nzMin]="0" [nzMax]="999999999" [nzStep]="1" (ngModelChange)="numberChange($event, 'product_change_sum')" [(ngModel)]="fromData['product_change_sum']"></nz-input-number>
+                    </ng-container>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </div>
+            <div nz-row [nzGutter]="24">
+              <!--<div nz-col [nzSpan]="8">-->
+                <!--<nz-form-item [nzFlex]="true" class="mb-0">-->
+                  <!--<nz-form-label [nzSm]="10" [nzFor]="'field_index'">预算审批人 </nz-form-label>-->
+                  <!--<nz-form-control [nzSm]="14" class="control-padding">-->
+                    <!--{{ info['approve_usernames'] }}-->
+                  <!--</nz-form-control>-->
+                <!--</nz-form-item>-->
+              <!--</div>-->
+              <div nz-col [nzSpan]="8" *ngIf="isMSH">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="10" [nzFor]="'field_index2'" nzRequired>MSH单号 </nz-form-label>
+                  <nz-form-control [nzSm]="14" class="control-padding">
+                    <ng-container *ngIf="applying">
+                      {{ applying['msh_code'] }}
+                    </ng-container>
+                    <ng-container *ngIf="!applying">
+                      <input nz-input [attr.id]="'field_index2'" [(ngModel)]="fromData['msh_code']">
+                    </ng-container>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col [nzSpan]="16" *ngIf="isMSH">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [nzSm]="5" [nzFor]="'field_index3'" nzRequired>MSH截图 </nz-form-label>
+                  <nz-form-control [nzSm]="19" class="control-padding">
+                    <ng-container *ngIf="applying && applying['upload_file_url']">
+                      <a [href]="applying['upload_file_url']" target="_blank">{{ applying['upload_file_name'] }}</a>
+                    </ng-container>
+                    <ng-container *ngIf="!applying">
+                      <nz-upload
+                        class="fl"
+                        nzAction="/web/cos/upload?type=600"
+                        [nzCustomRequest]="cos.customReqs"
+                        [nzBeforeUpload]="cos.beforeUploadImg"
+                        [nzShowUploadList]="false"
+                        (click)="$event.stopPropagation();"
+                        (nzChange)="uploadChange($event, data)">
+                        <button nz-button>
+                          <i nz-icon type="upload" theme="outline"></i><span>{{fromData.file_id ? '重新上传' : '上传'}}</span>
+                        </button>
+                      </nz-upload>
+
+                      <div class="upload-list fl ml-2" *ngIf="fileList">
+                        <a *ngFor="let file of fileList;trackBy: trackByFn">
+                          <i class="paper-clip" nz-icon type="paper-clip" theme="outline"></i>
+                          <span class="fl file-sapn">{{file.name}}</span>
+                          <i class="fl close" nz-icon="" type="close" (click)="closefile()"  class="anticon ng-tns-c24-10 anticon-close ng-star-inserted" ng-reflect-type="close" title="删除文件" ><svg viewBox="64 64 896 896" fill="currentColor" width="1em" height="1em" class="ng-tns-c24-10" data-icon="close" aria-hidden="true"><path d="M563.8 512l262.5-312.9c4.4-5.2.7-13.1-6.1-13.1h-79.8c-4.7 0-9.2 2.1-12.3 5.7L511.6 449.8 295.1 191.7c-3-3.6-7.5-5.7-12.3-5.7H203c-6.8 0-10.5 7.9-6.1 13.1L459.4 512 196.9 824.9A7.95 7.95 0 0 0 203 838h79.8c4.7 0 9.2-2.1 12.3-5.7l216.5-258.1 216.5 258.1c3 3.6 7.5 5.7 12.3 5.7h79.8c6.8 0 10.5-7.9 6.1-13.1L563.8 512z"></path></svg></i>
+                        </a>
+                      </div>
+                    </ng-container>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+              <ng-container *ngIf="applying">
+                <div nz-col [nzSpan]="8">
+                  <nz-form-item [nzFlex]="true" class="mb-0">
+                    <nz-form-label [nzSm]="10" >当前状态 </nz-form-label>
+                    <nz-form-control [nzSm]="14" class="control-padding">
+                      {{ applying['flow_step_text'] }}
+                      <ng-container *ngIf="applying['flow_step'] == '5010'">
+                        <i nz-icon type="question-circle" theme="outline" title="如母项目余额充足，系统晚上会自动完成预算划拨"></i>
+                      </ng-container>
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+                <div nz-col [nzSpan]="8">
+                  <nz-form-item [nzFlex]="true" class="mb-0">
+                    <nz-form-label [nzSm]="10" >当前处理人 </nz-form-label>
+                    <nz-form-control [nzSm]="14" class="control-padding">
+                      {{ applying['curr_approve_names'] }}
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+              </ng-container>
+            </div>
+            <div nz-row [nzGutter]="24" *ngIf="!applying">
+              <div nz-col [nzSpan]="24">
+                <nz-form-item [nzFlex]="true" class="mb-3">
+                  <nz-form-label [ngStyle]="{width: '150px'}">备注 </nz-form-label>
+                  <nz-form-control class="control-padding" style="width: 100%;">
+                    <textarea nz-input rows="3" [(ngModel)]="fromData['apply_memo']"></textarea>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </div>
+            <div nz-row [nzGutter]="24" *ngIf="applying">
+              <div nz-col [nzSpan]="16">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label [ngStyle]="{width: '131px'}">备注 </nz-form-label>
+                  <nz-form-control class="control-padding">
+                    {{ applying['apply_memo'] }}
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </div>
+
+            <div nz-row [nzGutter]="24">
+              <div nz-col [nzSpan]="24">
+                <nz-form-item style="text-align: center" class="mb-0">
+                  <ng-container *ngIf="applying">
+                    <button nz-button nzType="primary" (click)="modalWithdraw()" [nzLoading]="isSubmitLoading" style="margin-right: 16px;">撤回</button>
+                  </ng-container>
+                  <ng-container *ngIf="!applying">
+                    <button nz-button nzType="primary" (click)="modalOk()" [nzLoading]="isSubmitLoading" style="margin-right: 16px;">提交</button>
+                  </ng-container>
+                  <button nz-button nzType="default" (click)="modalCancel()">取消</button>
+                </nz-form-item>
+              </div>
+            </div>
+
+            <!--历史记录-->
+            <nz-tabset>
+              <nz-tab nzTitle="历史申请记录">
+                <ng-container *ngIf="changeLoading && !changeList.list">
+                  <div class="example">
+                    <nz-spin></nz-spin>
+                  </div>
+                </ng-container>
+                <ng-container *ngIf="!changeLoading || changeList.list">
+                  <nz-table
+                    #smallTable
+                    nzSize="small"
+                    [nzFrontPagination]="false"
+                    [(nzTotal)]="changeList.count"
+                    [(nzPageIndex)]="changeList.page_index"
+                    [(nzPageSize)]="changeList.page_size"
+                    (nzPageIndexChange)="getChangeList()"
+                    [nzLoading]="changeLoading"
+                    [nzNoResult]="'暂无数据'"
+                    [nzData]="changeList.list">
+                    <thead>
+                    <tr>
+                      <th *ngFor="let column of changeList.columns;trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                        <ng-container [ngSwitch]="column.type">
+                          <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                        </ng-container>
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let item of smallTable.data;index as i">
+                      <ng-container *ngFor="let column of changeList.columns; trackBy: trackByFn">
+
+                          <ng-container [ngSwitch]="column.key">
+                            <ng-container *ngSwitchCase="'upload_file_url'">
+                              <td style="width: 50px;">
+                                <ng-container *ngIf="item[column.key] && item[column.key] !== ''">
+                                  <a style="color: #0052D9;" href="{{item[column.key]}}" target="_blank">下载</a>
+                                </ng-container>
+                                <ng-container *ngIf="!item[column.key] || item[column.key] === ''">
+                                  NA
+                                </ng-container>
+                              </td>
+                            </ng-container>
+                            <ng-container *ngSwitchCase="'create_time'">
+                              <td style="width: 90px;">{{item[column.key] ? item[column.key] : 'NA'}}</td>
+                            </ng-container>
+                            <ng-container *ngSwitchCase="'remark'">
+                              <td style="max-width: 310px;">
+                                <span *ngIf="item[column.key] == ''">NA</span>
+                                <div class="parent-title" *ngIf="item[column.key]" >
+                                  <ng-container *ngIf="item[column.key] != ''">
+                                  <span nz-popover [nzContent]="contentTemplates">
+                                    {{item[column.key].substring(0, 10) }}
+                                    <span *ngIf="item[column.key].length >= 10">...</span>
+                                  </span>
+                                    <!-- 引用模板，可输出html -->
+                                    <ng-template #contentTemplates><a [innerHTML]="item[column.key]"></a></ng-template>
+                                  </ng-container>
+                                </div>
+                              </td>
+                            </ng-container>
+                            <ng-container *ngSwitchDefault><td>{{item[column.key] ? item[column.key] : 'NA'}}</td></ng-container>
+                          </ng-container>
+
+                      </ng-container>
+                    </tr>
+                    </tbody>
+                  </nz-table>
+                </ng-container>
+              </nz-tab>
+            </nz-tabset>
+          </ng-container>
+    </ng-container>
+
+  </ng-template>
+</nz-modal>
+
+<!--上传进度-->
+<app-modal-upload-plan></app-modal-upload-plan>

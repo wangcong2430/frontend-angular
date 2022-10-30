@@ -1,0 +1,6 @@
+<div *ngIf="to.options && [to.options].length">
+  <ng-container *ngFor="let item of to.options; trackBy: trackByFn">
+    <a *ngIf="!item.type" class="btn btn-primary" href="{{item.url}}" target="_blank" >{{item.label}}</a>
+    <button *ngIf="item.type === 'submit'" type="button" class="btn btn-primary"  (click)="btn_submit(item)" [disabled]="to.disabled">{{item.label}}</button>
+  </ng-container>
+</div>

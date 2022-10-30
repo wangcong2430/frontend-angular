@@ -1,0 +1,6 @@
+.month-select {
+    display: flex;
+}
+.month-select .form-control {
+    margin-right: 5px;
+}

@@ -1,0 +1,47 @@
+<div class="create-demand-tap mt-3">
+    <div class="text-center" *ngIf="radioOptions && radioOptions.length > 0">
+        <div class="ant-form-item-label" style="text-align: left;">
+            <label class="mr-2 mb-0 ant-form-item-label text-danger" style="margin-top: -4px;line-height: 56px;">请选择您要提单的服务品类</label>
+        </div>
+        <nz-checkbox-group [(ngModel)]="radioOptions" (ngModelChange)="OnChanges($event)" ></nz-checkbox-group>
+    </div>
+
+    <ng-container *ngIf="field.fieldGroup.length > 0 && user_role_level == 2">
+        <div class="text-center mt-3" >
+            <p class="ant-alert-info text-body p-2">
+                <ng-container *ngFor="let item of product_cost; trackBy: trackByFn">
+                    {{item.title}}:  <span class="text-danger">{{item?.cost | number: '1.0-3'   }}</span> 元;
+                </ng-container>
+                合计: <span class="text-danger">{{total_cost | number: '1.0-3' }}</span> 元;
+                <span *ngIf="form?.value?.budget_type === 1">可用金额: <span class="text-danger">{{form.value.brand_available ?  (form.value.brand_available | mycurrency) : "0.00"}} 元（品牌预算费用）。</span></span>
+                <span *ngIf="form?.value?.budget_type === 2">可用金额: <span class="text-danger">{{form.value.product_available ?  (form.value.product_available | mycurrency) : "0.00"}} 元（产品预算费用）。</span></span>
+                 请合理安排！（该费用预估仅供参考，最终费用以帐单为准）
+            </p>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="field.fieldGroup.length > 0 && user_role_level == 1">
+        <div class="text-center mt-3" >
+            <p class="ant-alert-info text-body p-2">
+                <ng-container *ngFor="let item of product_number; trackBy: trackByFn">
+                    {{item.title}}:  <span class="text-danger">{{item.num | number: '1.0-3' }}</span> ;
+                </ng-container>
+                合计: <span class="text-danger">{{total_num | number: '1.0-3' }}</span>;
+            </p>
+        </div>
+    </ng-container>
+
+    <ng-container *ngFor="let field of field.fieldGroup; trackBy: trackByFn; let i = index; ">
+        <ng-container *ngIf="field.formControl.value.id == '118' && !to['from']">
+            <p class="p-3 border my-3" target="_blank">{{field.formControl.value.title}}类别需要到<a href="http://ulink.oa.com/uc/#/home/index">ULink</a>平台进行下单操作</p>{{to['from']}}
+        </ng-container>
+        <ng-container *ngIf="!(field.formControl.value.id == '118' && !to['from'])">
+            <formly-group
+                [field]="field"
+                [options]="options"
+                [form]="formControl">
+            </formly-group>
+        </ng-container>
+    </ng-container>
+</div>
+

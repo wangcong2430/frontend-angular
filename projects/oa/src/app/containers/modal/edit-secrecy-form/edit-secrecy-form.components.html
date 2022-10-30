@@ -1,0 +1,30 @@
+<!-- 选择供应商 -->
+<nz-modal
+*ngIf="isVisible"
+class="select-contract"
+nzMaskClosable="false"
+[nzWidth]="'500px'"
+[(nzVisible)]="isVisible"
+[nzTitle]="modalTitle"
+nzMaskClosable="false"
+[nzOkLoading]="isOkLoading"
+[nzBodyStyle]="{ padding: '12px 16px' }"
+[nzOkDisabled]="modal_ok_disable"
+(nzOnCancel)="close()"
+(nzOnOk)="submit()">
+
+<ng-template #modalTitle>
+  <div       
+  cdkDrag
+  cdkDragHandle
+  cdkDragRootElement=".ant-modal-content">{{titleName}} 
+</div>
+</ng-template>
+
+  <!-- {{model|json}} -->
+  <ng-container *ngIf="isVisible">
+    <form autocomplete="off">
+      <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
+    </form>
+  </ng-container>
+</nz-modal>

@@ -1,0 +1,145 @@
+
+<ng-container *ngIf="data && data.length > 0">
+  <ng-container *ngIf="edit">
+    <div class="attribute-edit-component">
+      <ng-container *ngFor="let item of data; trackBy: trackByFn">
+        <ng-container *ngIf="item.attr_type == '1' && item.form_num == 1">
+          <div class="attribute-item">
+            <label [class.ant-form-item-required]="required && item.is_required == 1">{{item.title}}
+              <i nz-icon *ngIf="item.form_remark" nz-popover [nzContent]="contentTemplate" type="question-circle" theme="outline" ></i>
+              <ng-template #contentTemplate ><div  style="width: 420px;word-break: break-all!important;" [innerHTML]="item.form_remark"></div></ng-template>
+            </label>
+            <input  [class.has-warning]="item.check_status === '1'"
+                    class="attribute-control mx-1 d-flex justify-content-between w-100 has-warning"
+                    style="width: 100%;"
+                    nz-input
+                    nzSize="small"
+                    autocomplete="off"
+                    [(ngModel)]="item.value"
+                    [ngModelOptions]="{standalone: true}"
+                    (ngModelChange)="modelChange($event)">
+            <div class="attribute-unit" *ngIf="item.form_unit">{{item.form_unit}}</div>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="item.attr_type == '1' && item.form_num > 1">
+          <div class="attribute-item">
+            <label [class.ant-form-item-required]="required && item.is_required == 1" >{{item.title}}
+              <i nz-icon *ngIf="item.form_remark" nz-popover [nzContent]="contentTemplate" type="question-circle" theme="outline" ></i>
+              <ng-template #contentTemplate ><div  style="width: 420px;word-break: break-all!important;" [innerHTML]="item.form_remark"></div></ng-template>
+            </label>
+            <div class="attribute-control d-flex justify-content-between w-100">
+              <ng-container *ngFor="let o of item.options; trackBy: trackByFn; let index = index " >
+                  <input nz-input
+                         [(ngModel)]="o.value"
+                         [ngModelOptions]="{standalone: true}"
+                         autocomplete="off"
+                         type="number"
+                         class="mx-1"
+                         [class.has-warning]="item.check_status == '1'"
+                         nzSize="small"
+                         [placeholder]="o.label"
+                         (ngModelChange)="modelChange()">
+                  {{(index + 1) >= item.options.length ? '' : item.form_separator }}
+              </ng-container>
+            </div>
+            <div class="attribute-unit" *ngIf="item.form_unit">{{item.form_unit}}</div>
+          </div>
+        </ng-container>
+
+
+        <ng-container  *ngIf="item.attr_type == '2'&&!item.label_type">
+          <div class="attribute-item">
+            <label [class.ant-form-item-required]="required && item.is_required == 1">{{ item.title }}
+              <i nz-icon *ngIf="item.form_remark" nz-popover [nzContent]="contentTemplate" type="question-circle" theme="outline" ></i>
+              <ng-template #contentTemplate ><div  style="width: 420px;word-break: break-all!important;" [innerHTML]="item.form_remark"></div></ng-template>
+            </label>
+            <div class="attribute-control d-flex justify-content-between w-100">
+              <nz-select style="width: 100%;"
+                         [class.has-warning]="item.check_status == '1'"
+                         class="mx-1"
+                         nzSize="small"
+                         [nzMode]="item.multiple == '1' ? 'multiple' : 'default'"
+                         [(ngModel)]="item.value"
+                         nzAllowClear
+                         nzPlaceHolder=""
+                         (ngModelChange)="modelChange()">
+                <ng-container *ngFor="let o of item.options; trackBy: trackByFn; let index = index">
+                  <nz-option [nzValue]="o" [nzLabel]="o"></nz-option>
+                </ng-container>
+              </nz-select>
+            </div>
+          </div>
+        </ng-container>
+
+
+
+
+        <ng-container *ngIf="item.attr_type == '2'&&item.is_show==1&&item.label_type==1">
+          <div class="attribute-item">
+            <label [class.ant-form-item-required]="required && item.is_required == 1">{{ item.title }}
+              <i nz-icon *ngIf="item.form_remark" nz-popover [nzContent]="contentTemplate" type="question-circle" theme="outline" ></i>
+              <ng-template #contentTemplate ><div  style="width: 420px;word-break: break-all!important;" [innerHTML]="item.form_remark"></div></ng-template>
+            </label>
+            <div class="attribute-control d-flex justify-content-between w-100">
+              <nz-select style="width: 100%;"
+                         [class.has-warning]="item.check_status == '1'"
+                         class="mx-1"
+                         nzSize="small"
+                         [nzMode]="item.multiple == '1' ? 'multiple' : 'default'"
+                         [(ngModel)]="item.value"
+                         nzAllowClear
+                         nzPlaceHolder=""
+                         (ngModelChange)="modelChange()">
+                <ng-container *ngFor="let o of item.options; trackBy: trackByFn; let index = index">
+                  <nz-option [nzValue]="o" [nzLabel]="o"></nz-option>
+                </ng-container>
+              </nz-select>
+            </div>
+          </div>
+        </ng-container>
+
+
+
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <div *ngIf="!edit" class="attribute-show flex-wrap d-flex align-items-center">
+    <div *ngFor="let item of data; let index = index trackBy: trackByFn" class="w-100" [class.d-none]="collapsed && index > 2">
+      <ng-container *ngIf="item.attr_type == '1' && item.form_num == 1">
+        <span class="attribute-item">
+          <span class="label">{{item.title}}</span>
+          <span [class.text-red]="item.check_status === '1'">{{item.value ? item.value + item.form_unit : 'NA' }}</span>
+        </span>
+      </ng-container>
+
+      <ng-container *ngIf="item.attr_type == '1' && item.form_num > 1">
+        <span class="attribute-item">
+          <span class="label">{{item.title}}</span>
+          <span [class.text-red]="item.check_status === '1'" *ngIf="item.value" >
+            <ng-container *ngFor="let o of item.options; let index = index; trackBy: trackByFn">
+              <span>{{o.value}}</span><span *ngIf="index < (item.options.length - 1)">{{item.form_separator ? item.form_separator : ''}}</span>
+            </ng-container>
+            <span>{{item.value ? item.form_unit : 'NA' }}</span>
+          </span>
+          <span *ngIf="!item.value">NA</span>
+
+        </span>
+      </ng-container>
+
+      <ng-container *ngIf="item.attr_type == '2'&&item.is_show==1&&item.label_type==1">
+        <span class="attribute-item">
+
+          <span class="label">{{item.title}}</span>
+          <span [class.text-red]="item.check_status === '1'">
+            <span>{{item.value ? item.value  + item.form_unit : 'NA' }}</span>
+          </span>
+        </span>
+      </ng-container>
+    </div>
+  </div>
+  <div class="text-primary" *ngIf="data.length > 3" (click)=" collapsed = !collapsed;">{{collapsed ? '展开' : '收起'}}</div>
+</ng-container>
+
+<ng-container *ngIf="!data || data.length === 0"> NA </ng-container>

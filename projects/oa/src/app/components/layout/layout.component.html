@@ -1,0 +1,83 @@
+<nz-layout >
+  <nz-sider
+    class="main-layout-sider fl"
+    [nzWidth]="240"
+    [nzCollapsedWidth]="100"
+    nzCollapsible
+    [(nzCollapsed)]="isCollapsed"
+    [nzTrigger]="triggerTemplate"
+    style="overflow: auto; height: 100vh; left: 0;">
+    <div class="logo d-flex align-items-center">
+      <img width="36px" height="36px" src="assets/images/header-logo-new2.png" >
+      <div *ngIf="!isCollapsed" class="system-title">腾讯互娱<br/>服务外包平台</div>
+    </div>
+    <div class="menu-trigger" [class.anticon-menu-fold]="!isCollapsed" [class.anticon-menu-unfold]="isCollapsed" (click)="toCollapsed()">
+      <i *ngIf="!isCollapsed" class="anticon  anticon-left"></i>
+      <i *ngIf="isCollapsed" class="anticon anticon-right"></i>
+    </div>
+
+    <ng-container *ngIf="menus.length > 0">
+      <ul nz-menu [nzTheme]="'dark'" [nzMode]="'inline'" [nzInlineCollapsed]="isCollapsed">
+        <ng-template [ngIf]="menus.length">
+          <ng-template ngFor [ngForOf]="menus" let-item>
+            <ng-template [ngIf]="item.children">
+              <li nz-submenu [(nzOpen)]="openMap[item.id]" (nzOpenChange)="openHandler(item.id)">
+              <span title>
+                <i nz-icon [type]="item.icon" theme="outline"></i><span class="nav-text">{{item.name}}</span>
+                <ng-container *ngIf="menuService.parentNumber[item.id]">
+                  <span *ngIf="menuService.parentNumber[item.id]" class="start-100 mx-1 translate-middle badge rounded-pill px-2" style="background-color: #f5222d; font-size: 12px;">
+                    {{ menuService.parentNumber[item.id] > 999 ? 999 : menuService.parentNumber[item.id] }}
+                  </span>
+                </ng-container>
+              </span>
+                <ul>
+                  <li nz-menu-item [nzSelected]="menuService.curr_menu.id == itemChildren.id" *ngFor="let itemChildren of item.children; trackBy: trackByFn">
+                    <ng-container *ngIf="itemChildren['url'].indexOf('dcs/') === -1">
+                      <a [routerLink]="[itemChildren.url]"  [queryParams]="itemChildren.query">{{itemChildren.name | translate}}
+                        <span *ngIf="itemChildren.node_key && menuService.backlogNumber[itemChildren.node_key]" class="mx-1 start-100 translate-middle badge rounded-pill px-2" style="background-color: #f5222d; font-size: 12px;">
+                          {{ menuService.backlogNumber[itemChildren.node_key] > 999 ? 999 : menuService.backlogNumber[itemChildren.node_key] }}
+                        </span>
+                      </a>
+                    </ng-container>
+
+                    <ng-container *ngIf="!(itemChildren['url'].indexOf('dcs/') === -1)">
+                      <a target="_blank" [href]="itemChildren.url | link">{{itemChildren.name | translate}}
+                        <span *ngIf="itemChildren.node_key && menuService.backlogNumber[itemChildren.node_key]" class="mx-1 start-100 translate-middle badge rounded-pill px-2" style="background-color: #f5222d; font-size: 12px;">
+                          {{ menuService.backlogNumber[itemChildren.node_key] > 999 ? 999 : menuService.backlogNumber[itemChildren.node_key] }}
+                        </span>
+                      </a>
+                    </ng-container>
+                  </li>
+                </ul>
+              </li>
+            </ng-template>
+          </ng-template>
+        </ng-template>
+      </ul>
+    </ng-container>
+  </nz-sider>
+
+  <nz-layout class="main-layout-body" style="position: relative; background-color: #f5f5f5;">
+
+    <nz-header class="p-0" style=" height: 48px;">
+      <app-component-header [user]="user"></app-component-header>
+    </nz-header>
+
+    <nz-content style="min-height: auto; position: relative;"  class="pb-5">
+      <ng-content select="router-outlet"></ng-content>
+      <div *ngIf="messageService.isAllLoading" class="ant-modal-mask" style="text-align: center; padding-top: 200px;background-color: rgba(0, 0, 0, 0.15);" [ngStyle]="{zIndex: '10100'}">
+        <nz-spin style="width: 520px;transform-origin: -268px 127px 0px; display: inline-block;" nzTip='处理中，请稍等。。。' [nzSize]="'large'" [nzSpinning]="messageService.isAllLoading" [nzSpinning]="true"></nz-spin>
+      </div>
+    </nz-content>
+
+    <nz-back-top></nz-back-top>
+
+    <nz-footer style="text-align: center;" class="py-3 border-top">
+      <app-component-footer></app-component-footer>
+    </nz-footer>
+  </nz-layout>
+</nz-layout>
+<ng-template #trigger>
+  <!-- <i class="anticon anticon-up"></i> -->
+  <i nz-icon type="up" theme="outline"></i>
+</ng-template>

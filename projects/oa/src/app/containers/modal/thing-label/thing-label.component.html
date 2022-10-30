@@ -1,0 +1,59 @@
+<nz-modal
+  [(nzVisible)]="isOpen"
+  #thingLabel
+  [nzTitle]="modalTitle"
+  [nzZIndex]="nzZIndex"
+  [nzWidth]="750"
+  nzMaskClosable="false"
+  [nzOkLoading]="isOkLoading"
+  nzOkText="保存"
+  (nzOnCancel)="modalCancel()"
+  (nzOnOk)="handleOk()"
+>
+
+<ng-template #modalTitle>
+  <div
+    cdkDrag
+    cdkDragRootElement=".ant-modal-content"
+    cdkDragHandle>
+    标签编辑 
+  </div>
+</ng-template>
+
+  <ng-container *ngIf="loading">
+    <div class="example">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading">
+    <ng-container *ngFor="let item of list; trackBy: trackByFn">
+      <p class="bg-primary mb-0 p-2 text-white">{{item['category']}}
+        <span *ngFor="let thing of item['thing']; trackBy: trackByFn">
+          <th>{{thing.thing_names}}</th>
+        </span>
+      </p>
+      <nz-table nzTemplateMode #thingTable>
+        <thead>
+          <tr>
+            <ng-container *ngFor="let column of columns; trackBy: trackByFn">
+              <th class="text-center" style="max-width: 75%">{{column.label}}</th>
+            </ng-container>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <ng-container *ngFor="let column of columns; trackBy: trackByFn">
+              <td><app-label-edit [required]="required" [(data)]="item[column.key]" edit="true"></app-label-edit></td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </nz-table>
+    </ng-container>
+    <div class="mt-2"><a style="text-decoration: underline" target="_blank" href="https://wbp-1258344700.cos.ap-guangzhou.myqcloud.com/public/static/%E4%BE%9B%E5%BA%94%E5%95%86%E4%BA%A4%E4%BB%98%E6%A0%87%E7%AD%BE%E8%AF%B4%E6%98%8E%EF%BC%88FOR%E9%9C%80%E6%B1%82%E6%96%B9%EF%BC%89.pdf" download="https://wbp-1258344700.cos.ap-guangzhou.myqcloud.com/public/static/%E4%BE%9B%E5%BA%94%E5%95%86%E4%BA%A4%E4%BB%98%E6%A0%87%E7%AD%BE%E8%AF%B4%E6%98%8E%EF%BC%88FOR%E9%9C%80%E6%B1%82%E6%96%B9%EF%BC%89.pdf">点我下载 《IEG美术需求.交付标签说明》</a></div>
+  </ng-container>
+</nz-modal>
+
+
+
+

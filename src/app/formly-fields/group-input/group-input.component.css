@@ -1,0 +1,41 @@
+.formly-fields-group-input .fa-plus-circle {
+    font-size: 1.2rem;
+    margin-left: 120px;
+    color: #999;
+    cursor: pointer;
+}
+.formly-fields-group-input .fa-plus-circle:hover {
+    color: #666;
+}
+.formly-fields-group-input .is-invalid {
+    border: 1px solid #dc3545;
+}
+.group-input {
+    display: flex;
+}
+.group-input .fa-close{
+    padding: 0 5px;
+    font-size: 1rem;
+    color: #999;
+    cursor: pointer;
+    height: 1rem;
+    margin-top: 0.7rem;
+}
+.group-input .fa-close:hover{
+    color: #666;
+}
+.group-input-item {
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+}
+.group-input-item>input {
+    padding: .375rem .75rem;
+    font-size: .875rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+}

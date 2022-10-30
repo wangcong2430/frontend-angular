@@ -1,0 +1,46 @@
+.upload{
+  width: 500px;
+  height: 50px;
+  line-height: 50px;
+  border: 2px solid #ccc;
+  padding-left: 20px;
+  font-size: 18px;
+  color: #bbb;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.upload-btn {
+  background: #0052D9;
+  color: #fff;
+  margin-left: 20px;
+}
+.txt {
+  background: #0052D9;
+  color: #fff;
+  height: 50px;
+  line-height: 50px;
+  vertical-align: middle;
+}
+
+.table {
+  margin-top: 20px;
+}
+
+.table tr th {
+  background: #E8EFFB;
+  font-family: PingFangSC-Regular;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(0,0,0,0.90);
+  line-height: 22px;
+  text-align: center;
+  width: 25%;
+}
+.table tr td {
+  text-align: center;
+  width: 25%;
+  border: none;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}

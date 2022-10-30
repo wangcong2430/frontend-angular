@@ -1,0 +1,152 @@
+:host ::ng-deep .table-content {
+  min-height: 200px;
+}
+:host ::ng-deep .red-border{
+  border:1px solid red;
+}
+:host ::ng-deep .no-border-top{
+  border-top:0;
+}
+:host ::ng-deep .ant-spin-nested-loading > div > .ant-spin {
+  min-height: 100px;
+}
+:host ::ng-deep .black-border{
+  border:1px solid #e8e8e8;
+}
+:host ::ng-deep .ant-table-expanded-row th{
+  background: none !important;
+}
+:host ::ng-deep .children-tr{
+  background: #fff;
+}
+:host ::ng-deep .parent-th .parent-title{
+  margin-right: 16px;
+  float: left;
+}
+:host ::ng-deep .parent-th{
+  color: #fff;
+}
+:host ::ng-deep .children-th{
+  background: #dedede;
+  background: #f3f3f3;
+  color: #fff;
+}
+:host ::ng-deep .body-border {
+  border: 1px solid #e7e7f0;
+  margin-left: -6px;
+  margin-right: -6px;
+}
+
+:host ::ng-deep .ant-table-tbody > tr > td {
+  padding: 16px 8px;
+}
+
+:host ::ng-deep .ant-table-middle tr.ant-table-expanded-row td > .ant-table-wrapper{
+  margin: 0
+}
+
+:host ::ng-deep .ant-table-tbody .checked {
+  background-color: #F9FBFF;
+}
+
+:host ::ng-deep .ant-table-tbody > tr:hover > td {
+  background-color: #F9FBFF;
+}
+
+:host ::ng-deep .ant-card-body{
+  padding: 12px;
+}
+
+
+:host ::ng-deep  .ant-table-fixed-header .ant-table-scroll .ant-table-header  {
+  margin-bottom: 0 !important;
+}
+
+:host ::ng-deep .children-tr .ant-table-header  tr th,
+:host ::ng-deep .children-tr .ant-table-tbody > tr > td  {
+  padding: 8px 4px;
+  max-width: 120px;
+  position: relative;
+  min-width: 120px;
+  width: 120px;
+  word-wrap: break-word;
+}
+
+
+:host ::ng-deep .children-tr .ant-table-tbody > tr > td  {
+  height: 116px;
+}
+
+:host ::ng-deep .children-tr .ant-table-tbody > tr:hover > td  {
+  background-color: #F9FBFF;
+}
+
+
+
+:host ::ng-deep tr.ant-table-expanded-row td > .ant-table-wrapper {
+  margin: 0;
+}
+
+
+:host ::ng-deep .preview {
+  padding: 16px;
+  margin: 0;
+  margin: 0;
+  position: fixed;
+  background-color: white;
+  top: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100000;
+}
+
+.thing-copy-hover {
+  opacity: 0;
+}
+
+.thing-code:hover .thing-copy-hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+:host ::ng-deep input::-webkit-outer-spin-button,
+                  input::-webkit-inner-spin-button {
+                      -webkit-appearance: none;
+                  }
+                  input[type="number"]{
+                      -moz-appearance: textfield;
+                  }
+:host ::ng-deep .ant-table-thead > tr > .tableTH > span>div{
+  display:flex;
+  justify-content: flex-start;
+  width:100%;
+}
+:host ::ng-deep .ant-table-thead > tr > .tableTH > span{
+  width:100%;
+}
+:host ::ng-deep pre{
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+:host ::ng-deep .body-pagination  .ant-btn-default {
+  background-color: #2575e6!important ;
+  color: #fff;
+}
+:host ::ng-deep .body-pagination  .ant-btn-default:hover {
+  background-color: #2575e6!important ;
+  color: #fff;
+}
+:host ::ng-deep .body-pagination .ant-btn-primary{
+  background-color: #2575e6!important ;
+  color: #fff;
+}
+:host ::ng-deep #changeHight{
+  width:100%;
+  height:55px;
+  transition:width 2s;
+  word-break: break-all;
+  word-wrap: break-word;
+  text-align: left;
+  overflow: hidden;
+}

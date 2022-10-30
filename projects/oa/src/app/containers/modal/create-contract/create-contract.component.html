@@ -1,0 +1,493 @@
+
+
+<nz-modal
+  #createContract
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  nzMaskClosable="false"
+  [nzContent]="modalContent"
+  nzMaskClosable="false"
+  [nzWidth]="1350"
+  [nzZIndex]="nzZIndex"
+  (nzOnCancel)="modalCancel()"
+  (nzOnOk)="modalSubmit()"
+>
+
+<ng-template #modalTitle>
+  <div
+    cdkDrag
+    cdkDragHandle
+    cdkDragRootElement=".ant-modal-content"> {{title}}
+  </div>
+</ng-template>
+
+  <ng-template #modalContent>
+    <ng-container *ngIf="loading">
+      <div class="example">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading">
+      <div class="thing-modal">
+        <div class="modal-section p-0 mb-2">
+          <div class="modal-section-title mb-2">
+            <span class="font-weight-bold">合同信息</span>
+          </div>
+          <div nz-row [nzGutter]="24">
+            <ng-container *ngFor="let item of formConfig; trackBy: trackByFn">
+              <div nz-col [nzSpan]="item.span" *ngIf="!item.hide">
+                <nz-form-item [nzFlex]="true">
+                  <nz-form-label
+                    class="item-label"
+                    [nzFor]="item.key"
+                    [nzRequired]="item.required || (item.key == 'limit' && dataModal['contract_type'] == 2) || false">
+                    {{ item.label }}
+                  </nz-form-label>
+                  <nz-form-control class="item-control">
+                      <ng-container [ngSwitch]="item.type">
+
+                        <ng-container *ngSwitchCase="'search-select'">
+                          <nz-select
+                            [ngStyle]="{width: '100%'}"
+                            nzAllowClear
+                            nzShowSearch
+                            [disabled]="item['disabled']"
+                            [nzServerSearch]="true"
+                            (nzOnSearch)="onSearchChange($event, item.key, item['searchUrl'])"
+                            (ngModelChange)="onSelectChange($event, item.key)"
+                            [(ngModel)]="dataModal[item.key]">
+                            <nz-option *ngIf="isSearchSelect[item.key]" nzDisabled nzCustomContent>
+                              <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                            </nz-option>
+                            <ng-container *ngFor="let option of optionSearchs[item.key]; trackBy: trackByFn">
+                              <nz-option *ngIf="!isSearchSelect[item.key]" [nzLabel]="option['label']" [nzValue]="option['value']"></nz-option>
+                            </ng-container>
+                          </nz-select>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'select'">
+                          <nz-select
+                            nzShowSearch
+                            [disabled]="item['disabled']"
+                            [nzFilterOption]="filterOption"
+                            [nzMode]="item.nzMode ? item.nzMode : 'default'"
+                            (ngModelChange)="onSelectChange($event, item.key)"
+                            (nzOnSearch)="onSearch($event, item)"
+                            [(ngModel)]="dataModal[item.key]">
+                            <ng-container *ngFor="let option of item.options; trackBy: trackByFn">
+                              <nz-option [nzLabel]="option['label']" [nzDisabled]="option['disabled']"  [nzValue]="option['value']"></nz-option>
+                            </ng-container>
+                          </nz-select>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'date-picker'">
+                          <nz-date-picker
+                            [nzFormat] = "'yyyy-MM-dd'"
+                            [(ngModel)]="dataModal[item.key]"
+                            (ngModelChange)="onSelectChange($event, item.key)"
+                          ></nz-date-picker>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'textarea'">
+                          <textarea
+                            nz-input
+                            [(ngModel)]="dataModal[item.key]"
+                            [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+                          ></textarea>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'upload-file'">
+                          <nz-upload
+                            class="fl"
+                            nzAction="/web/cos/upload?type=1700"
+                            style="height: 40px"
+                            [nzCustomRequest]="cos.customReqs"
+                            [nzBeforeUpload]="cos.beforeUploadFile"
+                            [nzShowUploadList]="false"
+                            (click)="$event.stopPropagation();"
+                            (nzChange)="uploadChange($event, data)">
+                            <button class="fl" nz-button>
+                              <i nz-icon type="upload"></i><span>上传</span>
+                            </button>
+                            <span class="fl hint-title" [ngStyle]="{marginTop: '8px', marginLeft: '5px'}">{{dataModal[item.dataName]}}</span>
+                          </nz-upload>
+                          <nz-popconfirm *ngIf="dataModal[item.key] && dataModal[item.key] > 0" [nzTitle]="'确定要删除？'" (nzOnConfirm)="delUploadFile()">
+                            <a nz-popconfirm class="fl" ><i nz-icon nzType="delete" nzTheme="fill"></i></a>
+                          </nz-popconfirm>
+
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'tree-select'">
+                          <nz-tree-select
+                            class="thing-modal-tree-select"
+                            nzShowSearch
+                            nzPlaceHolder="可输入关键字搜索"
+                            [nzNodes]="deptCoaTree"
+                            [(ngModel)]="dataModal[item.key]"
+                            [nzDropdownMatchSelectWidth]="false"
+                            [nzMultiple]="true"
+                            [nzShowLine]="true"
+                            [nzDropdownStyle]="{'max-heith': '400px'}"
+                            (ngModelChange)="onTreeSelectChange($event, item.key)"
+                          >
+                          </nz-tree-select>
+                        </ng-container>
+
+                        <ng-container *ngSwitchCase="'input'">
+                          <input nz-input [(ngModel)]="dataModal[item.key]" [attr.id]="item.key" [disabled]="item['disabled']" (blur)="inputModelChange(item, dataModal)">
+                        </ng-container>
+
+                        <ng-container *ngSwitchDefault>
+                          <span style="line-height: 1.5; display: inline-block">{{dataModal[item.key] | format}}</span>
+                        </ng-container>
+
+                        <ng-container *ngIf="item.btn">
+                          <button nz-button style="width: 20%; margin-left: 8px;" width="60px" nzSize="small" nzType="primary" (click)="onBtn(item.key)">{{item.btn}}</button>
+                        </ng-container>
+
+                      </ng-container>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- 决策相关信息 -->
+        <div class="modal-section p-0 mb-2">
+          <div class="modal-section-title">
+            <span class="font-weight-bold">决策相关信息 <button nz-button nzSize="small" nzType="primary" (click)="addDesInfo(dataModal.dec_order_data)">新增</button></span>
+          </div>
+          <nz-table
+            #DecInfoTable
+            [nzBordered]="true"
+            [nzData]="dataModal.dec_order_data"
+            [nzPageSize]="5"
+            [nzShowPagination]="true"
+            [nzFrontPagination]="true"
+          >
+            <thead>
+              <tr>
+                <th style="width: 200px;">决策单号</th>
+                <th>决策类型</th>
+                <th>项目名称</th>
+                <th>决策说明</th>
+                <th style="width: 300px;">附件</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let item of DecInfoTable.data; let i= index; trackBy: trackByFn">
+                <tr>
+                  <td>
+                    <!-- 决策单号 -->
+                    <nz-select
+                      nzShowSearch
+                      *ngIf="item['status'] == 1"
+                      [nzFilterOption]="filterOption"
+                      [(ngModel)]="item['dec_order_code']"
+                      (ngModelChange)="decOrderCodeChange($event, item)">
+                      <ng-container *ngFor="let option of dec_order_code_options; trackBy: trackByFn">
+                        <nz-option [nzLabel]="option['dec_order_code']" [nzValue]="option['dec_order_code']"></nz-option>
+                      </ng-container>
+                    </nz-select>
+                    <span *ngIf="item['status'] != 1">{{ item['dec_order_code'] || 'NA' }}</span>
+                  </td>
+                  <td>
+                    {{ item['dec_type_name'] || "NA" }}
+                  </td>
+                  <td>
+                    {{ item['dec_project_name'] || "NA" }}
+                  </td>
+                  <td>
+                    <textarea *ngIf="item['status'] == 1" rows="2" nz-input [(ngModel)]="item['remark']"></textarea>
+                    <span *ngIf="item['status'] != 1">{{item['remark']}}</span>
+                  </td>
+                  <td>
+                    <ng-container *ngIf="item.dec_file_id > 0 ">
+                      {{item.dec_file_name || ''}}
+                      <a style="margin-right: 9px" [href]="'web/file/' + item['dec_file_id']" target="_blank">
+                        <i nz-icon type="cloud-download" theme="outline"></i>下载
+                      </a>
+
+                      <nz-popconfirm *ngIf="item['status'] == 1" [nzTitle]="'确定要删除？'" (nzOnConfirm)="decDelFile(item)">
+                        <button nz-popconfirm nz-button nzType="link">删除</button>
+                      </nz-popconfirm>
+                    </ng-container>
+                    <ng-container *ngIf="!item.dec_file_id && item['status'] == 1">
+                      <nz-upload
+                        [nzAction]="'/web/cos/upload?type=2300&id=' + item.dec_id"
+                        [nzShowUploadList]="false"
+                        [nzBeforeUpload]="cos.beforeUploadFile"
+                        [nzCustomRequest]="cos.customReqs"
+                        (nzChange)="decUploadChange($event, item)">
+                          <button nz-button nzType="link">上传</button>
+                      </nz-upload>
+                    </ng-container>
+                  </td>
+                  <td>
+                    <a class="text-primary" *ngIf="item['status'] == 1" (click)="delDecRowBody(i)">删除</a>
+                    <span *ngIf="item['status'] != 1">删除</span>
+
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </nz-table>
+        </div>
+
+
+        <!--我方主体,供应商品类,银行账号--->
+        <div class="modal-section p-0 mb-2">
+          <div class="modal-section-title">
+            <span class="font-weight-bold">我方主体明细<b style="color: #f5222d;">(银行账号应与合同系统录入的合同保持一致)</b></span>
+          </div>
+          <nz-table
+            #qqUserTable
+            [nzSize]="'small'"
+            [nzShowPagination]="false"
+            [nzBordered]="true"
+            [nzData]="orgList"
+          >
+            <thead>
+            <tr>
+              <th nzWidth="300px"><span class="ant-form-item-required">我方主体</span></th>
+              <th nzWidth="300px"><span class="ant-form-item-required">供应商服务品类</span></th>
+              <th nzWidth="300px"><span class="ant-form-item-required">供应商银行账号</span></th>
+              <th nzWidth="150px">操作</th>
+            </tr>
+            </thead>
+            <ng-container *ngFor="let item of orgList; let i= index; trackBy: trackByFn">
+              <tr>
+                <td>
+                  <nz-select
+                    [ngStyle]="{width: '100%', maxWidth: '350px'}"
+                    nzShowSearch
+                    [nzServerSearch]="true"
+                    [nzFilterOption]="filterOption"
+                    (ngModelChange)="onOrgIdChange($event, item)"
+                    [(ngModel)]="item['org_id']">
+                    <ng-container *ngFor="let option of contractOptions; trackBy: trackByFn">
+                      <nz-option *ngIf="!isSearchSelect[item.key]" [nzLabel]="option['company_name']" [nzValue]="option['org_id']"></nz-option>
+                    </ng-container>
+                  </nz-select>
+                </td>
+                <td>
+                  <nz-select
+                    *ngIf="contractInfo[item.org_id]"
+                    [ngStyle]="{width: '100%', maxWidth: '350px'}"
+                    nzShowSearch
+                    [nzServerSearch]="true"
+                    (ngModelChange)="onCategoryChange($event, item)"
+                    [nzFilterOption]="filterOption"
+                    [(ngModel)]="item['category_id']">
+                    <ng-container *ngFor="let option of contractInfo[item.org_id].category_name_list; trackBy: trackByFn">
+                      <nz-option [nzLabel]="option['category_name']" [nzValue]="option['category_id']"></nz-option>
+                    </ng-container>
+                  </nz-select>
+                </td>
+                <td>
+                  <nz-select
+                    *ngIf="item.org_id && item.category_id && contractInfo[item.org_id] && contractInfo[item.org_id].categoryObj[item.category_id] "
+                    [ngStyle]="{width: '100%', maxWidth: '350px'}"
+                    nzShowSearch
+                    [nzServerSearch]="true"
+                    [nzFilterOption]="filterOption"
+                    (ngModelChange)="accountBankChange($event, item)"
+                    [(ngModel)]="item['vendor_site_id']">
+                    <ng-container *ngFor="let option of contractInfo[item.org_id].categoryObj[item.category_id].account_list; trackBy: trackByFn">
+                      <nz-option [nzLabel]="option['account_supplier_bank']" [nzValue]="option['vendor_site_id']"></nz-option>
+                    </ng-container>
+                  </nz-select>
+
+                </td>
+                <td>
+                  <a class="text-primary mr-2" (click)="addTableRowBody(1)">添加一行</a>
+                  <a class="text-primary" (click)="delTableRowBody(1, i)">删除</a>
+                </td>
+              </tr>
+            </ng-container>
+            <tbody>
+            </tbody>
+          </nz-table>
+        </div>
+
+        <!-- 合同品类明细 -->
+        <div class="modal-section p-0 mb-2">
+          <div class="modal-section-title">
+            <span class="font-weight-bold">合同品类明细</span>
+          </div>
+          <nz-table
+            #qqUserTable
+            [nzSize]="'small'"
+            [nzShowPagination]="false"
+            [nzBordered]="true"
+            [nzData]="cateContractList"
+          >
+            <thead>
+            <tr>
+              <th><span class="ant-form-item-required">品类</span></th>
+              <th>制作明细</th>
+              <th>制作等级</th>
+              <th><span class="ant-form-item-required">下限</span></th>
+              <th><span class="ant-form-item-required">上限</span></th>
+              <th><span class="ant-form-item-required">单位</span></th>
+              <th [ngStyle]="{maxWidth: '300px'}">类别限制范围</th>
+              <th>类别备注</th>
+              <th><span>产品名称</span></th>
+              <th><span>是否合作</span></th>
+              <th width="100px">操作</th>
+            </tr>
+            </thead>
+              <ng-container *ngFor="let item of cateContractList; let i= index; trackBy: trackByFn">
+                <tr>
+                  <td style="width: 100px;">
+                    <nz-cascader
+                      *ngIf="!item['id']"
+                      nzPlaceHolder="...输入关键字搜索"
+                      [nzShowSearch]="true"
+
+                      [nzOptions]="categorytreeOptions"
+                      [nzShowSearch]="{
+                        filter: filter
+                      }"
+                      (ngModelChange)="onSelectChange($event, 'all_category_id', item)"
+                      [(ngModel)]="item['all_category_id']">
+                    </nz-cascader>
+                    <ng-container *ngIf="item['id']">
+                      <span [innerHTML]="item.category_names"></span>
+                    </ng-container>
+                  </td>
+                  <td  style="width: 100px;">
+                    <nz-select
+                      *ngIf="item['category_id'] && produceBreakdownObj[item['category_id']]"
+                      nzShowSearch
+
+                      [nzFilterOption]="filterOption"
+                      (ngModelChange)="onSelectChange($event, 'produce_breakdown', item)"
+                      [(ngModel)]="item['produce_breakdown_id']">
+                      <nz-option [nzLabel]="'ALL'" [nzValue]="'0'"></nz-option>
+                      <ng-container *ngFor="let option of produceBreakdownObj[item['category_id']]; trackBy: trackByFn">
+                        <nz-option [nzLabel]="option['label']" [nzValue]="option['value']"></nz-option>
+                      </ng-container>
+                    </nz-select>
+                    <span *ngIf="!item['category_id'] || !produceBreakdownObj[item['category_id'].toString()]">
+                      <nz-select
+                        nzShowSearch
+
+                        [nzFilterOption]="filterOption"
+                        (ngModelChange)="onSelectChange($event, item.key)"
+                        [(ngModel)]="item['produce_breakdown_id']">
+                        <nz-option [nzLabel]="'ALL'" [nzValue]="'0'"></nz-option>
+                      </nz-select>
+                    </span>
+                  </td>
+                  <td  style="width: 100px;">
+                    <nz-select
+                      *ngIf="item['category_id'] && produceGradeObj[item['category_id']]"
+                      nzShowSearch
+
+                      [nzFilterOption]="filterOption"
+                      (ngModelChange)="onSelectChange($event, item.key)"
+                      [(ngModel)]="item['produce_grade_id']">
+                      <nz-option [nzLabel]="'ALL'" [nzValue]="'0'"></nz-option>
+                      <ng-container *ngFor="let option of produceGradeObj[item['category_id']]; trackBy: trackByFn">
+                        <nz-option [nzLabel]="option['label']" [nzValue]="option['value']"></nz-option>
+                      </ng-container>
+                    </nz-select>
+                    <span *ngIf="!item['category_id'] || !produceGradeObj[item['category_id'].toString()]">
+                      <nz-select
+
+                        nzShowSearch
+                        [nzFilterOption]="filterOption"
+                        (ngModelChange)="onSelectChange($event, item.key)"
+                        [(ngModel)]="item['produce_grade_id']">
+                        <nz-option [nzLabel]="'ALL'" [nzValue]="'0'"></nz-option>
+                      </nz-select>
+                    </span>
+                  </td>
+                  <td   style="width: 100px;">
+                    <nz-input-number
+                      [nzMin]="0"
+                      [nzMax]="9999999999"
+                      [nzStep]="2"
+                      [(ngModel)]="item['price_lower']">
+                    </nz-input-number>
+                  </td>
+                  <td style="width: 100px;">
+                    <nz-input-number
+                      [nzMin]="0"
+
+                      [nzMax]="9999999999"
+                      [nzStep]="2"
+                      [(ngModel)]="item['price_upper']">
+                    </nz-input-number>
+                  </td>
+                  <td style="width: 100px;">
+                    <nz-select
+
+                      nzShowSearch
+                      [nzFilterOption]="filterOption"
+                      (ngModelChange)="onSelectChange($event, item.key)"
+                      [(ngModel)]="item['workload_unit_id']">
+                      <ng-container *ngFor="let option of workloadUnitOptions; trackBy: trackByFn">
+                        <nz-option [nzLabel]="option['label']" [nzValue]="option['value']"></nz-option>
+                      </ng-container>
+                    </nz-select>
+                  </td>
+                  <td style="width: 100px;">
+                    <nz-tree-select
+
+                      [nzNodes]="deptChidrenCoaTree"
+                      nzShowSearch
+                      [nzShowLine]="true"
+                      [nzPlaceHolder]="'可输入关键字搜索'"
+                      [(ngModel)]="item['limit']"
+                      [nzMultiple]="true"
+                    >
+                    </nz-tree-select>
+                  </td>
+                  <td style="width: 100px;"><input nz-input [(ngModel)]="item['remark']"></td>
+                  <td style="width: 100px;">
+                    <nz-select
+
+                      nzShowSearch
+                      [nzAllowClear]=true
+                      [nzFilterOption]="filterOption"
+                      (ngModelChange)="onSelectChange($event, 'coa_code', item)"
+                      [(ngModel)]="item['coa_code']">
+                      <ng-container *ngFor="let option of coaCodeOptions; trackBy: trackByFn">
+                        <nz-option [nzLabel]="option['label']" [nzValue]="option['value']"></nz-option>
+                      </ng-container>
+                    </nz-select>
+                  </td>
+                  <td  style="width: 100px;">
+                    <nz-select
+                      [(ngModel)]="item['cooperation_status']">
+                      <nz-option nzLabel="正常" nzValue="1"></nz-option>
+                      <nz-option nzLabel="无合作" nzValue="0"></nz-option>
+                    </nz-select>
+                  </td>
+                  <td  style="width: 100px;">
+                    <a class="text-primary mr-2" (click)="addTableRow(1)">添加一行</a>
+                    <a class="text-primary" (click)="delTableRow(1, i)">删除</a>
+                    <!-- <ng-container *ngIf="btn['key'] === 'del' && item['upload_file_url'] && changeData.isAddRemark === '1'">
+                      <nz-popconfirm [nzTitle]="'确定要删除？'" (nzOnConfirm)="changeRemark(btn['key'], item)">
+                        <a nz-popconfirm style="margin-right: 8px">{{btn['label']}}</a>
+                      </nz-popconfirm>
+                    </ng-container> -->
+
+                  </td>
+                </tr>
+              </ng-container>
+            <tbody>
+            </tbody>
+          </nz-table>
+        </div>
+      </div>
+    </ng-container>
+  </ng-template>
+</nz-modal>
+
+

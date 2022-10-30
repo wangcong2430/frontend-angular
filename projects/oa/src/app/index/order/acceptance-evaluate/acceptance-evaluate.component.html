@@ -1,0 +1,197 @@
+<app-component-crumb>
+  <button nzSize="small" nz-button nzType="primary" (click)="showModal()">新增</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form style="width: 100%" [(data)]="queryFields" [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)">
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table [loading]="listLoading" (getList)="getList($event)" [(list)]="list" [(columns)]="columns"
+      [(pagination)]="pagination" (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)" [(disabledButton)]="disabledButton" [(queryFields)]="queryFields">
+    </app-container-table>
+  </div>
+</ng-container>
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="验收评价" [nzContent]="modalContent" [nzFooter]="modalFooter"
+  nzClassName="acceptance-evaluate" [nzWidth]="'600px'" (nzOnCancel)="handleCancel()">
+
+  <ng-template #modalContent>
+    <form>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="acceptanceTarget">验收评分指标</nz-form-label>
+
+        <nz-form-control [nzSm]="14" [nzXs]="24" >
+          <input nz-input  [(ngModel)]="model.name" id="acceptanceTarget" [ngModelOptions]="{standalone: true}" />
+        </nz-form-control>
+
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="acceptanceTarget">指标类型</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-radio-group [(ngModel)]="model.type" [nzButtonStyle]="'solid'" [ngModelOptions]="{standalone: true}">
+            <label nz-radio-button [nzValue]="0">物件指标</label>
+            <label nz-radio-button [nzValue]="1">周期指标</label>
+            <label nz-radio-button [nzValue]="2">评分指标</label>
+          </nz-radio-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="target_full_mark">指标满分</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input [(ngModel)]="model.target_full_mark" id="target_full_mark"
+            [ngModelOptions]="{standalone: true}" />
+        </nz-form-control>
+      </nz-form-item>
+
+
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="target_category">服务品类</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-select [(ngModel)]="model.category" id="target_category" [ngModelOptions]="{standalone: true}"
+            nzMode="multiple">
+<!--            <nz-option nzLabel="所有" nzValue="0"></nz-option>-->
+            <ng-container *ngFor="let item of categoryOption">
+              <nz-option [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+            </ng-container>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+
+
+      <nz-form-item *ngIf="model.type == 0">
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="email">5星评分描述</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input [(ngModel)]="model.star_describe5" id="starDescribe5" [ngModelOptions]="{standalone: true}" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="model.type == 0">
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="email">4星评分描述</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input [(ngModel)]="model.star_describe4" id="starDescribe4" [ngModelOptions]="{standalone: true}" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="model.type == 0">
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="email">3星评分描述</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input [(ngModel)]="model.star_describe3" id="starDescribe3" [ngModelOptions]="{standalone: true}" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="model.type == 0">
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="email">2星评分描述</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input [(ngModel)]="model.star_describe2" id="starDescribe2" [ngModelOptions]="{standalone: true}" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="model.type == 0">
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="email">1星评分描述</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input nz-input [(ngModel)]="model.star_describe1" id="starDescribe1" [ngModelOptions]="{standalone: true}" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="model.type == 2">
+        <nz-form-item *ngFor="let item of scoreOptions" >
+          <label nz-checkbox  nzValue="item.status"  [(ngModel)]="item.checked" [ngModelOptions]="{standalone: true}"
+             (ngModelChange)="saveKey(item.key,$event)">{{item.title}}</label>
+        </nz-form-item>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="model.type == 1">
+        <nz-table #borderedTable nzBordered  [nzData]="model.dataSet" [nzSize]="'small'" [nzShowPagination]="false" >
+          <thead >
+            <tr>
+              <th nzWidth="7%">排序</th>
+              <th nzWidth="55%" style="text-align: center;">指标描述</th>
+              <th nzWidth="15%">可选评分</th>
+              <th nzWidth="7%">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let data of borderedTable.data;let idx=index">
+              <td>
+                <input type="text" nz-input [(ngModel)]="data.sort" [nzSize]="large"   [ngModelOptions]="{standalone: true}" />
+              </td>
+              <td>
+                <input type="text" nz-input [(ngModel)]="data.title" [nzSize]="large"   [ngModelOptions]="{standalone: true}" />
+              </td>
+              <td>
+                <input type="text" nz-input [(ngModel)]="data.options" [nzSize]="large"  [ngModelOptions]="{standalone: true}"/></td>
+              <td>
+                <a nz-popconfirm nzTitle="确定删除该选项吗?" (nzOnConfirm)="deleteRow(data.id)">删除</a>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+        <form action="">
+          <button nz-button (click)="addRow()" nzType="primary" [nzSize]="'small'" style="float: right;margin-top: 15px;">增加指标选项</button>
+        </form>
+
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="phoneNumber" nzRequired>验收流程</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <ng-container *ngFor="let itemArr of model.acceptanceProcess;let i = index;">
+            <div style="display: flex;margin-bottom: 10px;">
+              <nz-input-group nzCompact>
+                <nz-select [(ngModel)]="itemArr.acceptance_process" nzPlaceHolder="验收流程"
+                  [ngModelOptions]="{standalone: true}" style="width: 35%;">
+                  <ng-container *ngFor="let item of acceptanceProcessArr">
+                    <nz-option [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+                  </ng-container>
+                </nz-select>
+
+                <nz-input-number nzPlaceHolder="验收权重" [(ngModel)]="itemArr.weight" [ngModelOptions]="{standalone: true}"
+                  id="'weight'" style="width: 35%;" [nzMin]="1" [nzMax]="100" [nzStep]="1"></nz-input-number>
+
+                <button nz-button nzType="primary" style="width: 15%;" (click)="del(i)">
+                  <i nz-icon nzType="minus" nzTheme="outline"></i>
+                </button>
+
+                <button nz-button nzType="primary" style="width: 15%;" (click)="add()">
+                  <i nz-icon nzType="plus" nzTheme="outline"></i>
+                </button>
+              </nz-input-group>
+            </div>
+          </ng-container>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>状态</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+
+          <nz-radio-group [(ngModel)]="model.status" [ngModelOptions]="{standalone: true}">
+            <label nz-radio nzValue="0">正常</label>
+            <label nz-radio nzValue="-1">禁用</label>
+          </nz-radio-group>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">取消</button>
+    <button nz-button nzType="primary" (click)="AcceptanceEvaluateSaveAcceptance()"
+      [nzLoading]="isConfirmLoading">确定</button>
+  </ng-template>
+</nz-modal>

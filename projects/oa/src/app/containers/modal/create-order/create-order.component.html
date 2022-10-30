@@ -1,0 +1,209 @@
+<nz-modal
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  nzMaskClosable="false"
+  [nzFooter]="modalFooter"
+  [nzFooter]="null"
+  [nzWidth]="1360"
+  nzClassName="create-order-modal"
+  class="create-order"
+  (nzOnCancel)="modalCancel()"
+>
+
+  <ng-template #modalTitle>
+    <div       
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content"> 生成订单
+    </div>
+  </ng-template>
+
+  <ng-template #modalContent>
+    <ng-container *ngIf="loading">
+      <div class="example">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && columns">
+      <p class="text-danger">接收订单天数：如3月1号拟制订单，并且订单接收天数设定为3天，3月3号订单最终审批通过，供应商需要在3月6号24点前登录系统操作接收订单，否则订单将由系统回收，状态回到待拟制订单。</p>
+      <p>您共选择了{{x}}家供应商的{{y}}个物件，将生成{{m}}张订单。</p>
+
+      <div>
+        <nz-table
+          #nestedTable
+          [nzData]="thingList"
+          nzSize="middle"
+          [nzFrontPagination]="false"
+          [nzShowPagination]="false"
+        >
+          <tbody>
+            <ng-template ngFor let-data [ngForOf]="nestedTable.data" let-i="index" [ngForTrackBy]="trackByFn">
+              <!--父表格内容-->
+              <tr class="parent-th">
+                <ng-container *ngFor="let column of columns; trackBy: trackByFn">
+                  <ng-container *ngIf="!configFields[column.key]">
+
+                    <ng-container [ngSwitch]="column.key">
+                      <ng-container *ngSwitchCase="'index'">
+                        <td><div class="parent-title">{{column.label}}: {{i+1}}</div></td>
+                      </ng-container>
+                      <ng-container *ngSwitchDefault>
+                        <td><div class="parent-title">{{column.label}}: {{data[column.key] && data[column.key] !== '0.00' ? data[column.key] : 'NA'}}</div></td>
+                      </ng-container>
+                    </ng-container>
+
+                  </ng-container>
+                </ng-container>
+              </tr>
+              <!--子表格-->
+              <tr [nzExpand]="true">
+                <td colspan="6" style="padding: 0;">
+                  <nz-descriptions nzBordered nzSize="small" [nzColumn]="nzColumn">
+                  <ng-template ngFor let-field [ngForOf]="fromFields" let-i="index">
+                      <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key != 'tax_type' && field.key != 'tax_value' && field.key != 'mba_item_id'">
+                        <ng-container *ngIf="field.key == 'agent'">
+                          <nz-select   class="w-100 " [(ngModel)]="data['modal'][field.key]" [nzShowSearch]="true"  (ngModelChange)="getUserDept($event, data['modal'])">
+                            <nz-option *ngFor="let item of  data['pm_list'];trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                          </nz-select>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'handling_center'" >
+                          <nz-select  class="w-100 "[(ngModel)]="data['modal'][field.key]" [nzShowSearch]="true">
+                            <nz-option *ngFor="let item of deptData[data['modal']['handling_department']];trackBy: trackByFn" nzValue="{{item.id}}" nzLabel="{{item.name}}"></nz-option>
+                          </nz-select>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'org_id'" >
+                          <nz-select  class="w-100 "[(ngModel)]="data['modal'][field.key]" (ngModelChange)="orgIdChange($event, data)"  [nzShowSearch]="true">
+                            <nz-option *ngFor="let item of org_list; trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                          </nz-select>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'vendor_category_id'" >
+                          <nz-select  class="w-100"[(ngModel)]="data['modal'][field.key]" (ngModelChange)="categoryChange($event, data)" [nzShowSearch]="true">
+                            <nz-option *ngFor="let item of data['category_list']; trackBy: trackByFn" [nzValue]="item.category_id" [nzLabel]="item.category_name"></nz-option>
+                          </nz-select>
+                          <button nz-button class="mt-2" nzSize="small" [nzLoading]="isPullLoading" nzType="default" (click)="pullSupplierSite($event, data)">拉取</button>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'account_bank'" >
+                          <nz-select  class="w-100" [(ngModel)]="data['modal'][field.key]" (ngModelChange)="changeAccountBank($event, data)">
+                            <nz-option *ngFor="let item of data['account_list'] ;trackBy: trackByFn" [nzValue]="item.value" [nzLabel]="item.label"></nz-option>
+                          </nz-select>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'is_auto_payment'" >
+                          <nz-radio-group [(ngModel)]="data['modal'][field.key]">
+                            <label nz-radio nzValue="1">是</label>
+                            <label nz-radio nzValue="0">否</label>
+                          </nz-radio-group>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'receiver_ids' || field.key == 'notice_crowd_ids'" >
+                          <nz-select
+                          class="w-100 "
+                          nzShowSearch
+                          nzAllowClear
+                          [nzMode]="'multiple'"
+                          [nzPlaceHolder]="'...输入关键字搜索'"
+                          [(ngModel)]="data['modal'][field.key]"
+                          [nzServerSearch]="true"
+                          (nzOnSearch)="onOaSearch($event)">
+                          <nz-option *ngIf="isSearchSelect" nzDisabled nzCustomContent>
+                            <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                          </nz-option>
+                          <ng-container *ngFor="let option of optionSearchs; trackBy: trackByFn">
+                            <nz-option *ngIf="!isSearchSelect" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+                          </ng-container>
+                        </nz-select>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'notice_crowd_id'" >
+                          <nz-checkbox-group [(ngModel)]="receiverOptions" (ngModelChange)="noticeChange($event, data['modal'])"></nz-checkbox-group>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'handling_department'" >
+                          <nz-select class="w-100 " [(ngModel)]="data['modal'][field.key]" (ngModelChange)="changeDepartment(data['modal'])" [nzShowSearch]="true">
+                            <nz-option *ngFor="let item of deptOptions;trackBy: trackByFn" nzValue="{{item.id}}" nzLabel="{{item.name}}"></nz-option>
+                          </nz-select>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'order_name'" >
+                          <input nz-input  class="w-100" [(ngModel)]="data['modal'][field.key]" [placeholder]="field?.templateOptions?.placeholder">
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'order_note' || field.key == 'memo'" >
+                          <input nz-input   class="w-100" [(ngModel)]="data['modal'][field.key]" [placeholder]="field?.templateOptions?.placeholder">
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'select_reason' " >
+                          <nz-select  class="w-100" [nzMode]="field['templateOptions']['mode'] || ''" [(ngModel)]="data['modal'][field.key]">
+                            <nz-option *ngFor="let item of field['templateOptions']['options'];trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                          </nz-select>
+                        </ng-container>
+
+
+
+
+                        <ng-container *ngIf="field.key == 'cost_center_code'" >
+                          <nz-select  class="w-100" [(ngModel)]="data['modal'][field.key]">
+                            <nz-option *ngFor="let item of cost_center_options;trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                          </nz-select>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key == 'deadline_day'" >
+                          <nz-input-number class="w-100" [nzMin]="1" [nzStep]="1" [(ngModel)]="data['modal'][field.key]" ></nz-input-number>
+                        </ng-container>
+
+                      </nz-descriptions-item>
+
+                      <nz-descriptions-item  [nzTitle]="nzTitle"  *ngIf="field.key == 'tax_type' && data['contract_tax_type'] && data['contract_tax_type'] == 2"
+                          [nzTitle]="field.templateOptions.label">
+                        <nz-select  class="w-100 " [(ngModel)]="data['modal'][field.key]" (ngModelChange)="changeTax(data, 1)">
+                          <nz-option *ngFor="let item of field['templateOptions']['options'];trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                        </nz-select>
+                      </nz-descriptions-item>
+
+
+                      <ng-container *ngIf="field.key == 'tax_value' && data['contract_tax_type'] == 2 && data['modal']  && data['modal']['tax_type'] && data['modal']['tax_type'] == 1 ">
+                        <nz-descriptions-item  [nzTitle]="nzTitle" >
+                          <nz-select  class="w-100 " [(ngModel)]="data['modal'][field.key]" nzShowSearch="true" (nzOnSearch)="addTaxValue($event, field, data)" (ngModelChange)="changeTax(data, 2)">
+                            <nz-option *ngFor="let item of data['modal']['tax_value_option'];trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                          </nz-select>
+                        </nz-descriptions-item>
+                      </ng-container>
+
+                      <ng-container *ngIf="field.key == 'tax_value' && data['contract_tax_type'] == 2 && data['modal'] && (!data['modal']['tax_type'] || data['modal']['tax_type'] != 1)">
+                        <nz-descriptions-item  [nzTitle]="nzTitle" >
+                          <input nz-input  class="w-100" [(ngModel)]="data['modal'][field.key]" [placeholder]="field?.templateOptions?.placeholder" (blur)="changeTax(data, 2)">
+                        </nz-descriptions-item>
+                      </ng-container>
+
+                      <ng-container *ngIf="field.key == 'mba_item_id' && data['modal']['mba_has_resources'] == 1">
+                        <nz-descriptions-item  [nzTitle]="nzTitle" >
+                          <nz-select  class="w-100 " [(ngModel)]="data['modal'][field.key]">
+                            <nz-option *ngFor="let item of mba_resources;trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                          </nz-select>
+                        </nz-descriptions-item>
+                      </ng-container>
+
+                      <ng-template #nzTitle>
+                        <td class="ant-descriptions-item-label" [class.required]="field.templateOptions.required">{{ field.templateOptions.label }}</td>
+                      </ng-template>
+                    </ng-template>
+                  </nz-descriptions>
+                </td>
+              </tr>
+            </ng-template>
+          </tbody>
+        </nz-table>
+      </div>
+    </ng-container>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="modalCancel()">取消</button>
+    <button nz-button nzType="primary" (click)="modalOk()" [nzLoading]="isSubmitLoading">确定</button>
+  </ng-template>
+</nz-modal>

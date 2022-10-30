@@ -1,0 +1,380 @@
+<ng-container [ngSwitch]="model.price_type">
+
+  <form nz-form [nzLayout]="'inline'">
+		<div style="width: 120px" *ngSwitchCase="'1'">
+			{{model?.quote?.total_price}} {{currencyObj?.symbol}}<span (click)="openTemplate()">(查看模板)</span>
+		</div>
+		<div  style="width: 120px" *ngSwitchCase="'2'">
+			<a class="text-primary" (click)="quote()">
+				<ng-container *ngIf="model?.quote?.total_price">{{ model?.quote?.total_price }} {{currencyObj?.symbol}}</ng-container>
+				<ng-container *ngIf="!model?.quote?.total_price">报价</ng-container>
+			</a>
+		</div>
+      <div  style="width: 300px" *ngSwitchCase="'4'">
+          <form nz-form [nzLayout]="'inline'">
+              <nz-form-item class="mr-2">
+                  <nz-form-label [nzSpan]="10"  nzRequired nzFor="unit">单位</nz-form-label>
+                  <nz-form-control [nzSpan]="14" >
+                      <nz-select style="width: 64px;" [(ngModel)]="model.quote.workload_unit_id" nzSize="small" [ngModelOptions]="{standalone: true}" (ngModelChange)="editWorkloadUnit($event)">
+                          <nz-option *ngFor="let p of to['workload_unit_list'];trackBy: trackByFn" [nzValue]="p.value" [nzLabel]="p.label"></nz-option>
+                      </nz-select>
+                  </nz-form-control>
+              </nz-form-item>
+              <nz-form-item class="mr-0">
+                  <nz-form-label [nzSpan]="10" nzRequired nzFor="unit_price">单价</nz-form-label>
+
+                      <ng-container *ngIf="model.quote.workload_unit_id
+                                          && to['workload_unit_data']
+                                          && to['workload_unit_data'][model.quote.workload_unit_id]
+                                          && to['workload_unit_data'][model.quote.workload_unit_id].tooltipTitle; else elseTip1">
+                          <nz-form-control
+                                [nzSpan]="14"
+                                [nzValidateStatus]="
+                                    to['workload_unit_data'][model.quote.workload_unit_id].price_upper >= model.quote.unit_price
+                                    || (to['workload_unit_data'][model.quote.workload_unit_id].price_upper == 0)
+                                    ? 'success' : 'error'">
+                              <nz-input-number
+                                  nz-tooltip
+                                  autocomplete="off"
+                                  [nzTitle]="tipTemplate1"
+                                  style="width: 72px;"
+                                  [nzMin]="0"
+                                  (ngModelChange)="editUnitPrice($event)"
+                                  nzPrecision="2"
+                                  [(ngModel)]="model.quote.unit_price"
+                                  [ngModelOptions]="{standalone: true}"
+                                  id="unit_price"
+                                  nzSize="small"
+                                  [nzStep]="0.01"></nz-input-number>
+                                  <ng-template #tipTemplate1>
+                                      <ng-container *ngIf="model.quote.workload_unit_id && to['workload_unit_data'] && to['workload_unit_data'][model.quote.workload_unit_id]">
+                                          {{to['workload_unit_data'][model.quote.workload_unit_id].tooltipTitle}}
+                                      </ng-container>
+                                  </ng-template>
+                          </nz-form-control>
+                      </ng-container>
+                      <ng-template #elseTip1>
+                          <nz-form-control [nzSpan]="14">
+                              <nz-input-number
+                                  autocomplete="off"
+                                  style="width: 72px;"
+
+                                  [nzMin]="0"
+                                  (ngModelChange)="editUnitPrice($event)"
+                                  nzPrecision="2"
+                                  [(ngModel)]="model.quote.unit_price"
+                                  [ngModelOptions]="{standalone: true}"
+                                  id="unit_price"
+                                  nzSize="small"
+                                  [nzStep]="0.01">
+                              </nz-input-number>
+                      </nz-form-control>
+                  </ng-template>
+              </nz-form-item>
+              <nz-form-item class="mr-2">
+                  <nz-form-label [nzSpan]="10" nzRequired nzFor="workload">数量</nz-form-label>
+                  <nz-form-control [nzSpan]="14">
+                      <nz-input-number
+                        id="workload"
+                        nzSize="small"
+
+                        style="width: 72px;"
+                        autocomplete="off"
+                        nzPrecision="3"
+                        [nzMin]="0"
+                        [nzStep]="0.001"
+                        [(ngModel)]="model.quote.workload"
+                        [ngModelOptions]="{standalone: true}"
+                        (ngModelChange)="editWorkload($event)">
+
+                    </nz-input-number>
+                  </nz-form-control>
+              </nz-form-item>
+              <nz-form-item class="mr-0">
+                  <nz-form-label nzRequired nzFor="total_price">总价</nz-form-label>
+                  <nz-form-control >
+                      <nz-input-number [nzMin]="0"  style="width: 72px;" autocomplete="off" (ngModelChange)="editTotalPrice($event)" nzPrecision="2"  [ngModelOptions]="{standalone: true}"  [(ngModel)]="model.quote.total_price" id="total_price"  nzSize="small" [nzStep]="0.01"></nz-input-number>
+                  </nz-form-control>
+                  <a class="ml-2 text-primary" style="font-size: 13px; line-height: 39px; ">{{currencyObj?.symbol}}</a>
+              </nz-form-item>
+          </form>
+      </div>
+      <!-- 默认的情况 -->
+      <div  style="width: 300px" *ngSwitchDefault >
+          <form nz-form [nzLayout]="'inline'" *ngIf="model.quote">
+              <nz-form-item class="mr-2">
+                  <nz-form-label [nzSpan]="10"  nzRequired nzFor="unit">单位</nz-form-label>
+                  <nz-form-control [nzSpan]="14" >
+                      <nz-select style="width: 64px;"  [(ngModel)]="model.quote.workload_unit_id"  (ngModelChange)="editUnit($event)" nzSize="small" [ngModelOptions]="{standalone: true}">
+                          <nz-option *ngFor="let p of to['workload_unit_list'];trackBy: trackByFn" [nzValue]="p.value" [nzLabel]="p.label"></nz-option>
+                      </nz-select>
+                  </nz-form-control>
+              </nz-form-item>
+              <nz-form-item class="mr-0">
+                  <nz-form-label [nzSpan]="10" nzRequired nzFor="unit_price">单价</nz-form-label>
+                  <nz-form-control [nzSpan]="14">
+                      <!-- 如果有提示消息 -->
+                      <nz-input-number
+                        style="width: 72px;"
+                        autocomplete="off"
+                        nzPrecision="2"
+                        id="unit_price"
+                        nzSize="small"
+                        nzTrigger="click"
+                        nz-tooltip
+                        [nzTitle]="tipTemplate2"
+                        [nzVisible]="true"
+                        [nzOverlayClassName]="model.quote.workload_unit_id && to['workload_unit_data']
+                           && to['workload_unit_data'][model.quote.workload_unit_id]
+                           && to['workload_unit_data'][model.quote.workload_unit_id]['tooltipTitle'] ? '': 'hide'"
+                        [nzMin]="0"
+                        (ngModelChange)="editUnitPrice($event)"
+                        [(ngModel)]="model.quote.unit_price"
+                        [ngModelOptions]="{standalone: true}"
+                        [nzStep]="0.01">
+                      </nz-input-number>
+                    <ng-template #tipTemplate2>
+                      <ng-container  *ngIf="model.quote.workload_unit_id && to['workload_unit_data'] && to['workload_unit_data'][model.quote.workload_unit_id]">
+                        <p class="text-center mb-0" style="min-width: 32px; max-width: 200px;"  >{{to['workload_unit_data'][model.quote.workload_unit_id].tooltipTitle}}</p>
+                      </ng-container>
+                    </ng-template>
+                  </nz-form-control>
+              </nz-form-item>
+              <nz-form-item class="mr-2">
+                  <nz-form-label [nzSpan]="10" nzRequired nzFor="workload">数量</nz-form-label>
+                  <nz-form-control [nzSpan]="14">
+                     <nz-input-number [nzMin]="0" style="width: 72px;" autocomplete="off" (ngModelChange)="editWorkload($event)" nzPrecision="3"  [ngModelOptions]="{standalone: true}"  [(ngModel)]="model.quote.workload" id="workload"  nzSize="small" [nzStep]="0.001"></nz-input-number>
+                  </nz-form-control>
+              </nz-form-item>
+              <nz-form-item class="mr-0">
+                  <nz-form-label nzRequired nzFor="total_price">总价</nz-form-label>
+                  <nz-form-control>
+                      <nz-input-number [nzMin]="0" style="width: 72px;" autocomplete="off" [disabled]="!!model.quote.produce_breakdown"  [ngModelOptions]="{standalone: true}"  (ngModelChange)="editTotalPrice($event)" nzPrecision="2" [(ngModel)]="model.quote.total_price" id="total_price"  nzSize="small" [nzStep]="0.01"></nz-input-number>
+                  </nz-form-control>
+                  <a class="ml-2 text-primary" style="font-size: 13px; line-height: 39px; ">{{currencyObj?.symbol}}</a>
+              </nz-form-item>
+          </form>
+          <button nz-button [nzSize]="'small'" (click)="quote()"> 按明细报价</button>
+      </div>
+  </form>
+</ng-container>
+
+<!-- 弹窗 -->
+<ng-container>
+  <nz-modal [(nzVisible)]="isModelVisible"
+    nzMaskClosable="false"
+    [nzTitle]="modelTitle"
+    [nzFooter]="modalFooter"
+    [nzContent]="modalContent"
+    nzWidth="960px"
+    [nzZIndex]="1000"
+    [nzBodyStyle]="{padding: 0}"
+    (nzOnCancel)="closeModel()">
+  </nz-modal>
+
+  <ng-template #modalContent>
+    <div class="modal-table" *ngIf="model.price_type === '2' || model.price_type === '3'" >
+        <p class="pl-4 pt-3" *ngIf="to['all_contract_price_remark']">合同备注: {{to['all_contract_price_remark']}}</p>
+
+        <nz-table   #basicTable
+                    nzShowPagination="false"
+                    nzFrontPagination="false"
+                    [nzData]="thing_project_breakdown"
+                    [nzWidthConfig]=" ['64px', '64px', '64px', '64px', '64px', '100px', '84px']">
+            <thead>
+                <tr>
+                    <th>明细名称</th>
+                    <th>需求数量/单位</th>
+                    <th>明细单位</th>
+                    <th>明细数量</th>
+                    <th style="width: 150px;">明细单价</th>
+                    <th>明细价格</th>
+                    <th>备注</th>
+                    <th>合同备注</th>
+                    <th>附件</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of basicTable.data;trackBy: trackByFn">
+                    <td style="width: 84px;" >{{data.label}}</td>
+                    <td style="width: 84px;" >{{data.pre_workload_unit_label ?  data.pre_workload_unit_label : 'NA'}}</td>
+                    <td>
+                        <nz-select
+                            style="width: 84px;"
+                            nzSize="small"
+                            [(ngModel)]="data.workload_unit_id"
+                            (ngModelChange)="onSelectChange(data)">
+                            <nz-option
+                                *ngFor="let p of data.workload_unit_list;trackBy: trackByFn"
+                                [nzValue]="p.value"
+                                [nzLabel]="p.label">
+                            </nz-option>
+                        </nz-select>
+                    </td>
+
+                    <td>
+                        <nz-input-number
+                            style="width: 84px;"
+                            nzSize="small"
+                            [nzPrecision]="3"
+                            [nzStep]="0.001"
+
+                            [(ngModel)]="data.value"
+                            [ngModelOptions]="{standalone: true}"
+                            (ngModelChange)="editBreakdown($event, data)">
+                        </nz-input-number>
+                    </td>
+
+                    <td>
+                        <ng-container *ngIf="data.workload_unit_id && data.workload_unit_data
+                                            && data.workload_unit_data[data.workload_unit_id].tooltipTitle; else elseNoTip">
+                            <nz-form-control [nzValidateStatus]="data.disabled || (data.price_upper == 0) || data.price <= data.price_upper ? 'success' : 'error'">
+                                <nz-input-number
+                                    nz-tooltip
+                                    autocomplete="off"
+                                    nzSize="small"
+                                    nzPrecision="2"
+                                    style="width: 84px;"
+                                    [nzTitle]="tipTemplate"
+                                    [disabled]="data.disabled"
+                                    [(ngModel)]="data.price"
+                                    (ngModelChange)="editBreakdownPrice($event, data)"
+                                    [nzMin]="0"
+                                    [ngModelOptions]="{standalone: true}"
+                                    [nzStep]="0.01">
+                                </nz-input-number>
+                                <span *ngIf="data.disabled" class="mx-1">固定价</span>
+                                <ng-template #tipTemplate>
+                                    {{data['workload_unit_data'][data.workload_unit_id].tooltipTitle}}
+                                </ng-template>
+                                {{model.quote.currency_symbol ? model.quote.currency_symbol : ''}}
+                            </nz-form-control>
+                        </ng-container>
+                        <ng-template #elseNoTip>
+                            <nz-form-control
+                                [nzValidateStatus]="data.disabled || (data.price_upper == 0) || data.price <= data.price_upper ? 'success' : 'error'">
+                                <nz-input-number
+                                    autocomplete="off"
+                                    style="width: 84px;"
+                                    nzPrecision="2"
+                                    nzSize="small"
+                                    [disabled]="data.disabled"
+                                    [(ngModel)]="data.price"
+                                    (ngModelChange)="editBreakdownPrice($event, data)"
+                                    [nzMin]="0"
+                                    [ngModelOptions]="{standalone: true}"
+                                    [nzStep]="0.01">
+                                </nz-input-number>
+                                <span *ngIf="data.disabled" class="mx-1">固定价</span>{{model.quote.currency_symbol ? model.quote.currency_symbol : ''}}
+                            </nz-form-control>
+                        </ng-template>
+                    </td>
+
+                    <td style="width: 84px;" >
+                        <nz-input-number
+                            autocomplete="off"
+                            nzPrecision="2"
+                            style="width: 84px;"
+                            nzSize="small"
+                            [(ngModel)]="data.count_price"
+                            (ngModelChange)="editBreakdownTotal($event, data)"
+                            [nzMin]="0"
+                            [ngModelOptions]="{standalone: true}"
+                            [nzStep]="0.01">
+                        </nz-input-number>{{model.quote.currency_symbol ? model.quote.currency_symbol : ''}}
+                    </td>
+                    <td>
+                      <input
+                          type="textarea"
+                          style="width: 84px;"
+                          nz-input
+                          nzSize="small"
+                          [(ngModel)]="data.remark"
+                          [ngModelOptions]="{standalone: true}">
+                  </td>
+
+                    <td>
+                      <p class="text-overflow-2 mb-0" style="max-width: 120px;" [title]="data.contract_price_remark">
+                        {{data.contract_price_remark ?  data.contract_price_remark : 'NA'}}
+                      </p>
+                    </td>
+
+                    <td  style="width: 84px;">
+                        <ng-container *ngIf="!data.file_id">
+                            <nz-upload
+                              nzAction="'/web/cos/upload?type=1200"
+                              [nzCustomRequest]="cos.customReqs"
+                              [nzBeforeUpload]="cos.beforeUploadFile"
+                              [nzShowUploadList]="false"
+                              (click)="$event.stopPropagation();"
+                              (nzChange)="uploadChange($event, data)">
+                              <span class="text-primary">上传</span>
+                           </nz-upload>
+                        </ng-container>
+                        <ng-container *ngIf="data.file_id">
+                            <nz-popconfirm [nzTitle]="'确定要删除(to delete)？'" (nzOnConfirm)="data['file_id'] = ''">
+                                <a nz-popconfirm class="text-primary"> 删除 </a>
+                            </nz-popconfirm> |
+                            <a target="_blank" class="text-primary" href="{{ '/web/file/' + data['file_id']}}">下载</a>
+                        </ng-container>
+                    </td>
+                </tr>
+            </tbody>
+        </nz-table>
+
+        <div class="p-2">明细总价: {{total_price|mycurrency}} {{model.quote.currency_symbol ? model.quote.currency_symbol : ''}}
+            <nz-popconfirm [nzTitle]="'确定要清空报价？'" (nzOnConfirm)="clearBreakdown()">
+                <a  nz-popconfirm class="text-primary"> 清空报价 </a>
+            </nz-popconfirm>
+        </div>
+    </div>
+    <!-- 查看模板 -->
+
+    <!-- 编辑明细 -->
+    <ng-container *ngIf="model.price_type === '1'">
+        <nz-table #basicTable nzShowPagination="false" [nzData]="model.quote.produce_breakdown">
+            <thead>
+                <tr>
+                    <th>明细名称</th>
+                    <th>明细数量</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of basicTable.data;trackBy: trackByFn" >
+                    <td>{{data.label}}</td>
+                    <td>{{data.value}}</td>
+                </tr>
+            </tbody>
+        </nz-table>
+        <div class="p-2">明细总价: {{model.quote.total_price}} {{model.quote.currency_symbol ? model.quote.currency_symbol : ''}}</div>
+    </ng-container>
+    <!-- 明细总价 -->
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="closeModel()">取消</button>
+    <button nz-button nzType="primary" (click)="saveBreakdown()">确定</button>
+  </ng-template>
+</ng-container>
+
+
+
+<nz-modal
+    [nzWidth]="230"
+    [(nzVisible)]="uploadService.uploadModal.isShow"
+    [nzContent]="uploadModalContent"
+    nzClosable="false"
+    nzMaskClosable="false"
+    [nzOkText]="null"
+    [nzCancelText]="null"
+    [nzFooter]="null"
+    [nzZIndex]="1000"
+    uploadModal
+    >
+    <ng-template #uploadModalContent>
+        <nz-progress [nzPercent]="uploadService.uploadModal.percent" nzType="circle" [nzWidth]="50"></nz-progress>
+        <span style="margin-left: 16px">{{uploadService.uploadModal.msg}}</span>
+    </ng-template>
+</nz-modal>
+

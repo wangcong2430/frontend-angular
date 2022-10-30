@@ -1,0 +1,49 @@
+.example {
+  text-align: center;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  padding: 30px 50px;
+  margin: 20px 0;
+}
+
+.close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 55px;
+  height: 55px;
+  line-height: 55px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.content {
+  min-height: 200px;
+  max-height: 80vh;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.percent-box {
+  display: flex;
+  width: 100%;
+  padding: 10px 0;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.35);
+}
+
+.percent-box .index {
+  width: 30px;
+}
+.percent-progress {
+  position: relative;
+  flex: 1;
+  padding-right: 10px;
+}
+
+.percent-num {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+}

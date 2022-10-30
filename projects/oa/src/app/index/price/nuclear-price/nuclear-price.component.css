@@ -1,0 +1,89 @@
+.parent-th > th{
+  background: #E8EFFB !important;
+  color: rgba(0,0,0,0.90)!important;
+  border: none !important;
+}
+.thing-th > th {
+  background: #FFFFFF !important;
+}
+
+:host ::ng-deep .ant-table-thead > tr > th,.ant-table-tbody > tr > td {
+  padding: 10px;
+}
+
+:host ::ng-deep tbody > tr :hover > td {
+  background: none;
+}
+
+
+::ng-deep .ant-table-thead > tr.parent-th > th .ant-table-header-column {
+  display: block;
+}
+
+.line-height-2 {
+  line-height: 22px;
+  color: rgba(0,0,0,0.90);
+  font-family: PingFangSC-Regular;
+}
+
+:host ::ng-deep .parent-th > th{
+  background: #F5F8FF !important;
+  color: #000 !important;
+  border: none !important;
+}
+
+
+:host ::ng-deep .ant-table-thead > tr > th,.ant-table-tbody > tr > td {
+  padding: 10px;
+}
+
+
+:host ::ng-deep tbody > tr :hover > td {
+  background: none;
+}
+
+:host ::ng-deep .ant-card-body{
+  padding: 12px;
+}
+
+:host ::ng-deep input[type="radio"], input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+
+::ng-deep .ant-table-thead > tr.parent-th > th .ant-table-header-column {
+  display: block;
+}
+
+.hover:hover{
+  background: #F9FBFF;
+}
+
+::ng-deep .body-pagination {
+  position: relative;
+  z-index: 999;
+}
+:host ::ng-deep .body-pagination  .ant-btn-default {
+  background-color: #2575e6!important ;
+  color: #fff;
+}
+:host ::ng-deep .body-pagination  .ant-btn-default:hover {
+  background-color: #2575e6!important ;
+  color: #fff;
+}
+:host ::ng-deep .body-pagination .ant-btn-primary{
+  background-color: #2575e6!important ;
+  color: #fff;
+}
+:host ::ng-deep app-component-crumb  .sticky-top  .flex-wrap  .ant-btn-default{
+  background-color: #d3d3d3!important;
+  color: #000;
+}
+:host ::ng-deep .ant-table-thead > tr > th{
+  font-weight: 400;
+  font-family:  PingFangSC-Regular;
+  color:rgba(0,0,0,0.40);
+}

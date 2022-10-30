@@ -1,0 +1,628 @@
+<nz-modal
+  #ThingDetail
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  [nzFooter]="null"
+  [nzZIndex]="nzZIndex"  
+  [nzWidth]="1250"
+  (nzOnCancel)="modalCancel()"
+>
+  <ng-template #modalTitle>
+    {{'THING_DETAILS' | translate}}
+    <ng-container *ngIf="info && info['thing']">
+      -- {{ info['thing']['thing_code'] }} / {{ info['thing']['thing_name']}} 
+    </ng-container>
+  </ng-template>
+
+  <ng-template #modalContent>
+
+    <ng-container *ngIf="loading" >
+      <div class="example d-flex justify-content-center align-items-center" style="min-height: 200px; ">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading && info">
+
+      <div class="thing-modal" *ngIf="info['base']">
+        <div class="border mb-3 " >
+          <h6 class="mb-0" style="background-color: #fafafa;  padding: 12px;">
+            <span>{{'CURRENT_STATUS' | translate}}</span>：{{ info['base']['current_workflow_name'] }}
+          </h6>
+
+          <div class="px-3 py-2">
+            <div nz-row [nzGutter]="24" class="d-flex align-items-stretch flex-wrap">
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true">
+                  <nz-form-label [nzFor]="'field_index'">{{ 'PROJECT_NAME' | translate}} </nz-form-label>
+                  <nz-form-control>{{info['base']['project_name']}}</nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true">
+                  <nz-form-label >{{ 'REQUEST_NUMBER' | translate}} </nz-form-label>
+                  <nz-form-control>{{info['base']['story_code']}}</nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true">
+                  <nz-form-label >{{ 'REQUEST_NAME' | translate}} </nz-form-label>
+                  <nz-form-control>{{info['base']['story_name']}}</nz-form-control>
+                </nz-form-item>
+              </div>
+              <div nz-col [nzSpan]="8" *ngIf="info['thing'] && info['thing']['demand_type']">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label class="text-danger"><span class="label">需求种类</span> </nz-form-label>
+                  <nz-form-control >
+                    <span class="text-overflow-5 mt-2">{{info['thing']['demand_type']}}</span>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col [nzSpan]="8" *ngIf="info['base']['story_remark']">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label class="text-danger"><span class="label">需求说明</span> </nz-form-label>
+                  <nz-form-control >
+                    <span class="text-overflow-5 mt-2">{{info['base']['story_remark']}}</span>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+
+              <div nz-col [nzSpan]="8" *ngIf="info['base']['story_attachment_id']">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label   class="text-danger"><span class="label">需求附件</span> </nz-form-label>
+                  <nz-form-control >
+                    <span class="control" *ngIf="!isString(info['base']['story_attachment_id'])"><a style="padding: 0px 5px;overflow: hidden;float: left;height: 32px;" *ngFor="let val of info['base']['story_attachment_id'];index as i; trackBy: trackByFn" [href]="'/web/file/'+val['id']" target="_blank" [title]="val['file_name']">{{ val['file_name'] }}</a></span>
+                    <span class="control" *ngIf="isString(info['base']['story_attachment_id'])">{{info['base']['story_attachment_id']}}</span>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col [nzSpan]="8" *ngIf="info['base']['story_attachment_url']">
+                <nz-form-item [nzFlex]="true">
+                  <nz-form-label >{{ 'REQUEST_FILE' | translate}} </nz-form-label>
+                  <nz-form-control>
+                    <ng-container>
+                      <a [href]="info['base']['story_attachment_url']">{{'DOWNLOAD' | translate}}</a>
+                    </ng-container>
+                  </nz-form-control>
+                </nz-form-item>
+              </div>
+
+              <div nz-col [nzSpan]="8" *ngIf="info['base']['category_type'] == 2">
+                <nz-form-item [nzFlex]="true">
+                  <nz-form-label >{{'CREATOR' | translate}} </nz-form-label>
+                  <nz-form-control>{{info['base']['create_name']}}</nz-form-control>
+                </nz-form-item>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <nz-tabset [nzTabPosition]="'top'" [nzType]="'card'" [nzSelectedIndex]="tabsetIndex">
+          <nz-tab [nzTitle]="'THING_DETAILS' | translate" *ngIf="info['thing']">
+            <div class="border px-3 mb-3">
+              <div nz-row [nzGutter]="24" class="d-flex align-items-stretch flex-wrap">
+                <div nz-col [nzSpan]="8">
+                  <nz-form-item [nzFlex]="true">
+                    <nz-form-label [nzFor]="'field_index'">{{'ITEM_NUMBER' | translate}} </nz-form-label>
+                    <nz-form-control>{{ info['thing']['thing_code'] }}</nz-form-control>
+                  </nz-form-item>
+                </div>
+                <div nz-col [nzSpan]="8">
+                  <nz-form-item [nzFlex]="true">
+                    <nz-form-label >{{'ITME_NAME' | translate}} </nz-form-label>
+                    <nz-form-control>{{ info['thing']['thing_name'] }}</nz-form-control>
+                  </nz-form-item>
+                </div>
+                <div nz-col [nzSpan]="8">
+                  <nz-form-item >
+                    <nz-form-label  >{{'PROCUREMENT_MANAGER' | translate}} </nz-form-label>
+                    <nz-form-control>
+                      <span class="text-overflow-5 mt-2">{{ info['base']['last_pm_name'] ? info['base']['last_pm_name'] : 'NA' }}</span>
+                    </nz-form-control>
+                  </nz-form-item>
+                </div>
+              </div>
+              <div nz-row [nzGutter]="24">
+                <div nz-col [nzSpan]="16">
+                  <nz-form-item [nzFlex]="true">
+                    <nz-form-label >{{'CATEGORY' | translate}} </nz-form-label>
+                    <nz-form-control>{{ info['thing']['category'] }}</nz-form-control>
+                  </nz-form-item>
+                </div>
+                <div nz-col [nzSpan]="8">
+                  <nz-form-item [nzFlex]="true">
+                    <nz-form-label >{{'CONTRACT_NUMBER' | translate}} </nz-form-label>
+                    <nz-form-control>{{ info['thing']['contract_number'] ? info['thing']['contract_number'] : 'NA' }}</nz-form-control>
+                  </nz-form-item>
+                </div>
+              </div>
+              <div nz-row [nzGutter]="24">
+                <div nz-col [nzSpan]="8">
+                  <nz-form-item [nzFlex]="true">
+                    <nz-form-label >{{'DESIRED_DEADLINE' | translate}} </nz-form-label>
+                    <nz-form-control>{{ info['thing']['expected_complete_date'] }}</nz-form-control>
+                  </nz-form-item>
+                </div>
+                <div nz-col [nzSpan]="8">
+                  <nz-form-item [nzFlex]="true">
+                    <nz-form-label [nzFor]="'field_index'">{{'SUPPLIER_NAME' | translate}} </nz-form-label>
+                    <nz-form-control>{{ info['thing']['supplier_name'] ? info['thing']['supplier_name'] : 'NA' }}</nz-form-control>
+                  </nz-form-item>
+                </div>
+                <div nz-col [nzSpan]="8">
+                  <nz-form-item [nzFlex]="true">
+                    <nz-form-label >{{'COMFIRM_DATE' | translate}} </nz-form-label>
+                    <nz-form-control>{{ info['thing']['committed_delivery_date'] ? info['thing']['committed_delivery_date'] : 'NA' }}</nz-form-control>
+                  </nz-form-item>
+                </div>
+              </div>
+            </div>
+
+            <!--标签信息-->
+            <!-- <div class="mb-3 border" *ngIf="info['thing']['attribute']">
+              <h6 class="mb-0" style="background-color: #fafafa;  padding: 12px;">
+                {{'LABEL_INFO' | translate}}
+              </h6>
+              <div class="p-3">
+                <nz-table
+                  #smallTableChange1
+                  nzSize="small"
+                  [nzNoResult]="'NO_MORE' | translate"
+                  nzBordered="true"
+                  nzPageSize="10"
+                  [nzData]="info['thing']['attribute_check']">
+                  <thead>
+                  <tr>
+                    <th>{{'LABEL_INFO' | translate}}</th>
+                    <th>{{'LABEL_CLASSIFY'  | translate}}</th>
+                    <th>{{'LABEL_CONTENT' | translate}}</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of smallTableChange1.data;index as i;trackBy: trackByFn">
+                      <td>{{item.label_category_name}}</td>
+                      <td>{{item.title}}</td>
+                      <td>{{item.value}}</td>
+                    </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </div> -->
+
+            <!--标签信息-->
+            <div class="body-change border mb-3" *ngIf="info['thing']['attribute']">
+              <h6 class="px-3 py-2 mb-0" style="background-color: #fafafa;">
+                标签信息
+                <span>
+                  <a class="float-right mr-2 text-primary"  style="font-size: 12px; " (click)="openHistoryModal()">历史记录</a>
+                  <a class="float-right mr-2 text-primary"  style="font-size: 12px;" (click)="editThingLabel()">编辑</a>
+                </span>
+              </h6>
+              <nz-table
+                #smallTableChange1
+                nzSize="small"
+
+                nzNoResult="暂无数据"
+                nzPageSize="10"
+                nzHideOnSinglePage="true"
+                [nzData]="info['thing']['attribute']">
+                <thead>
+                <tr>
+                  <th>标签分类</th>
+                  <th>标签名称</th>
+                  <th>标签内容</th>
+                  <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of smallTableChange1.data;index as i;trackBy: trackByFn">
+                    <td>{{item.label_category_name}}</td>
+                    <td>{{item.title}}</td>
+                    <td><span [innerHtml]="item | label"></span></td>
+
+                    <td><a class="text-primary" (click)="openHistoryModal(item.type_id)">历史记录</a></td>
+                  </tr>
+                  <ng-container *ngIf="info['thing']['attribute_check']">
+                    <tr *ngFor="let item of info['thing']['attribute_check'];index as i;trackBy: trackByFn">
+                      <td>{{item.label_category_name}}</td>
+                      <td>{{item.title}}</td>
+                      <td><span [innerHtml]="item | label"></span></td>
+                      <td><a class="text-primary" (click)="openHistoryModal(item.type_id)">历史记录</a></td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </nz-table>
+            </div>
+
+            <!-- 供应商和价格 -->
+            <div class="border">
+              <h6 style="background-color: #fafafa;  padding: 12px;"> {{'SUPPLIER_AND_PRICE' | translate}} </h6>
+              <div class="px-3 py-2">
+                <span class="font-weight-bold mx-2">{{'CP_NAME' | translate}}:</span>{{info['thing']['supplier_name']}}
+                <span class="font-weight-bold mx-2">{{'CONTRACT_NUMBER' | translate}}</span>:{{info['thing']['contract_number']}}
+                <span class="font-weight-bold mx-2">{{'DESIGNER' | translate}}</span>:{{info['thing']['producer_user_id_str']}}
+                <span class="font-weight-bold mx-2">{{'PROCUREMENT_MANAGER' | translate}}</span>:{{info['thing']['last_pm_name']}}
+                <span class="font-weight-bold mx-2">{{'CONTACT_INFORMATION' | translate}}</span>:{{info['thing']['tel']}}
+              </div>
+
+              <nz-table
+                class="mx-3 mb-3"
+                #smallTable
+                nzSize="small"
+                *ngIf="info['isShowPrice']"
+                [nzFrontPagination]="false"
+                [nzNoResult]="'暂无数据'"
+                [nzBordered]="true"
+                [nzShowPagination]="false"
+                [nzData]="quoteList.list">
+                <thead>
+                <tr>
+                  <th *ngFor="let column of quoteList.columns; trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                    <ng-container [ngSwitch]="column.type">
+                      <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                    </ng-container>
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let item of smallTable.data;index as i;trackBy: trackByFn">
+                  <td *ngFor="let column of quoteList.columns;trackBy: trackByFn">
+                    <ng-container [ngSwitch]="column.type">
+                      <ng-container *ngSwitchDefault>
+                        {{item[column.key] ? item[column.key] : 'NA'}}
+                        <ng-container [ngSwitch]="column.key">
+                          <ng-container *ngSwitchCase="'total_price'">
+                            <ng-container *ngIf="item['breakdowns'] && item['breakdowns']!==''">
+                              <a *ngIf="isShowDetail(item, 'breakdowns')"  (click)="showPriceDetail(item, 'breakdowns', $event)">{{'DETAIL' | translate}}</a>
+                              <a *ngIf="item.price_type == 1"  (click)="showPriceDetail(item, 'breakdowns', $event)">{{'TEMPLATE' | translate}}</a>
+                            </ng-container>
+                          </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </ng-container>
+                  </td>
+                </tr>
+                </tbody>
+              </nz-table>
+            </div>
+          </nz-tab>
+
+          <!--附件及互动-->
+          <nz-tab [nzTitle]="'FILE_AND_ACTIVE' | translate" *ngIf="info['attachment']">
+            <!--上传作品展示-->
+            <div class="body-upload" *ngIf="info['isUpload'] === '1' && styleModal.list.length > 0">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label [ngStyle]="{width: '100px', height: '43px', overflow: 'hidden', marginRight: '5px'}">
+                  <nz-form-control>
+                    <a nz-popover [nzContent]="recommendContentHint" nzPlacement="topLeft" >
+                      <span [ngStyle]="{color: '#555'}">{{'RECOMMEND_WORK' | translate}}</span>
+                      <span><i nz-icon type="question-circle" theme="outline" [ngStyle]="{color: 'red'}"></i></span>
+                    </a>
+                  </nz-form-control>
+                  <ng-template #recommendContentHint>
+                    <div [ngStyle]="{color: 'red'}" style="max-width: 800px;">
+                      {{'RECOMMEND_HELP' | translate}}
+                    </div>
+                  </ng-template>
+                </nz-form-label>
+
+                <nz-form-control>
+                    <nz-switch [(ngModel)]="styleModal.isRecommend" (ngModelChange)="recommendChange($event)"></nz-switch>
+                </nz-form-control>
+
+                <ng-container *ngIf="styleModal.isRecommend">
+                  <nz-form-control>
+                    <a nz-popover [nzContent]="recommendContentTemplate">
+                      <i nz-icon type="exclamation-circle" theme="outline" [ngStyle]="{fontSize: '15px', marginLeft: '8px'}"></i>
+                      {{'TABS' | translate}}
+                    </a>
+                  </nz-form-control>
+
+                  <ng-template #recommendContentTemplate>
+                    <div [ngStyle]="{minWidth: '200px'}">
+                      <div *ngFor="let option of styleModal.list;trackBy: trackByFn">
+                        <ng-container *ngFor="let option2 of option.children; trackBy: trackByFn">
+                          <ng-container *ngIf="option2.checked">
+                            <a [ngStyle]="{float: 'left', marginRight: '6px'}">{{option.label}}-{{option2.label}}</a>
+                          </ng-container>
+                        </ng-container>
+
+                      </div>
+                      <div [ngStyle]="{clear: 'both'}"></div>
+                    </div>
+                  </ng-template>
+                </ng-container>
+              </nz-form-item>
+            </div>
+            <div>
+              <div>
+                <nz-upload
+                  *ngIf="info['isUpload'] == '1'"
+                  [nzAccept]="attachment.show_figure_uploadfile_exts|fileexts"
+                  [nzAction]="'/web/cos/upload?type=1000&id=' + info['base']['id']"
+                  [nzShowUploadList]="false"
+                  [nzCustomRequest]="cos.customReqs"
+                  [nzBeforeUpload]="beforeUploadShowFigure"
+                  (nzChange)="uploadChange($event, data)"
+                  (click)="$event.stopPropagation();"
+                >
+                  <button nz-button>
+                    <i nz-icon type="upload"></i><span>{{'UPLOAD_DEMO' | translate}}</span>
+                  </button>
+                </nz-upload>
+
+                <h6 *ngIf="info['isUpload'] !== '1'" class="mb-3">{{'UPLOAD_DEMO' | translate}}</h6>
+               
+                <span class="mx-2 mt-1 d-inline-block" *ngIf="info['isUpload'] === '1'">{{'FILE_TYPE' | translate}}: {{attachment.show_figure_uploadfile_exts|fileexts}}。{{'FILE_SIZE' | translate}}：{{'under_10G' | translate}}。</span>
+                
+                <nz-alert *ngIf="info['isUpload'] === '1'" nzType="warning" class="my-2" nzShowIcon nzMessage="上传展示图原图大小不应超过32MB、宽高不超过30000像素且总像素不超过2.5亿像素, 处理结果图宽高设置不超过9999像素; 针对动图, 原图宽 x 高 x 帧数不超过2.5亿像素。"></nz-alert>
+              </div>
+              <div class="upload-list">
+                <div nz-row [nzGutter]="24">
+                  <div nz-col [nzSpan]="24">
+                    <nz-table
+                      #smallTableUpload1
+                      nzSize="small"
+                      nzNoResult="{{imgnomore_tips}}"
+                      [nzBordered]="true"
+                      [nzPageSize]="5"
+                      [nzData]="attachment.list['1000']">
+                      <thead>
+                      <tr>
+                        <th *ngFor="let column of attachment.columns;trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                          <ng-container [ngSwitch]="column.type">
+                            <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                          </ng-container>
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let item of smallTableUpload1.data;index as i;trackBy: trackByFn">
+                        <td *ngFor="let column of attachment.columns;trackBy: trackByFn">
+                          <ng-container [ngSwitch]="column.key">
+                            <ng-container *ngSwitchCase="'operate'">
+                              <a style="margin-right: 9px" (click)="showImg(item.name, item['file_path'])">
+                                <i nz-icon type="search" theme="outline"></i>{{'PREVIEW' | translate}}
+                              </a>
+
+                              <a style="margin-right: 9px" (click)="download(item['file_path'], item['file_name'])" target="_blank">
+                                <i nz-icon type="cloud-download" theme="outline"></i>{{'DOWNLOAD' | translate}}
+                              </a>
+
+                              <a *ngIf="info['isUpload'] === '1'" nz-popconfirm [nzTitle]="'ARE_YOU_SURE_YOU_WANT_TO_DELETE' | translate" (nzOnConfirm)="delThingFile(item)">
+                                <i nz-icon type="delete" theme="outline"></i>{{'DELETE' | translate}}
+                              </a>
+
+                              <ng-container *ngIf="info['base'] && info['base']['show_figure_id'] != item.id && info['isUpload'] === '1'">
+                                <a style="margin-left: 9px" (click)="thingFigure(item)"><i nz-icon type="file-search" theme="outline"></i>{{'SET_COVER' | translate}}</a>
+                              </ng-container>
+
+                            </ng-container>
+                            <ng-container *ngSwitchDefault>
+                              <ng-container *ngIf="info['base'] && info['base']['show_figure_id'] == item.id && column.key == 'file_name'">
+                                <span [ngStyle]="{color: 'red'}">[{{'COVER' | translate}}]</span>
+                              </ng-container>
+                              {{item[column.key]}}
+                            </ng-container>
+                          </ng-container>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </nz-table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--上传最终作品-->
+            <div class="body-upload">
+              <div class="upload-btn">
+                <ng-container *ngIf="info['isUpload'] === '1'">
+                  <nz-upload
+                    *ngIf="info['isUpload'] == '1'"
+                    class="fl"
+                    [nzAccept]="attachment.final_work_uploadfile_exts|fileexts"
+                    [nzAction]="'/web/cos/upload?type=1005&id=' + info['base']['id']"
+                    [nzShowUploadList]="false"
+                    [nzCustomRequest]="cos.customReqs"
+                    [nzBeforeUpload]="beforeUploadFinalWork"
+                    (nzChange)="uploadChange($event, data)"
+                    (click)="$event.stopPropagation();"
+                  >
+                    <button nz-button>
+                      <i nz-icon type="upload"></i><span>{{'UPLOAD_FINAL_FILES' | translate}}</span>
+                    </button>
+                  </nz-upload>
+                </ng-container>
+                <h6 class="fl hint-title" *ngIf="info['isUpload'] !== '1'">{{'UPLOAD_FINAL_FILES' | translate}}</h6>
+                <span class="fl hint-title" *ngIf="info['isUpload'] == '1'">{{'FILE_TYPE' | translate}}：{{attachment.final_work_uploadfile_exts|fileexts}} {{'FILE_SIZE' | translate}}：{{'under_10G' | translate}}。</span>
+              </div>
+              <div class="upload-list">
+                <div nz-row [nzGutter]="24">
+                  <div nz-col [nzSpan]="24">
+                    <nz-table
+                      #smallTableUpload2
+                      nzSize="small"
+                      nzNoResult="{{imgnomore_tips}}"
+                      [nzBordered]="true"
+                      [nzPageSize]="5"
+                      [nzData]="attachment.list['1005']">
+                      <thead>
+                      <tr>
+                        <th *ngFor="let column of attachment.columns2;trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                          <ng-container [ngSwitch]="column.type">
+                            <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                          </ng-container>
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let item of smallTableUpload2.data;index as i;trackBy: trackByFn">
+                        <td *ngFor="let column of attachment.columns2;trackBy: trackByFn">
+                          <ng-container [ngSwitch]="column.key">
+                            <ng-container *ngSwitchCase="'operate'">
+
+                              <a style="margin-right: 9px" (click)="showImg(item.name, item['file_path'])">
+                                <i nz-icon type="search" theme="outline"></i>{{'PREVIEW' | translate}}
+                              </a>
+
+                              <a style="margin-right: 9px" (click)="download(item['file_path'], item['file_name'])" target="_blank">
+                                <i nz-icon type="cloud-download" theme="outline"></i>{{'DOWNLOAD' | translate}}
+                              </a>
+
+                              <a  nz-popconfirm [nzTitle]="'ARE_YOU_SURE_YOU_WANT_TO_DELETE' | translate" *ngIf="info['isUpload'] == '1'" (nzOnConfirm)="delThingFile(item)">
+                                <i nz-icon type="delete" theme="outline"></i>{{'DELETE' | translate}}
+                              </a>
+
+                            </ng-container>
+                            <ng-container *ngSwitchDefault>{{item[column.key]}}</ng-container>
+                          </ng-container>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </nz-table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--上传过程附件-->
+            <div class="body-upload">
+              <div class="upload-btn">
+                <nz-upload
+                  *ngIf="info['isUpload'] == '1'"
+                  [nzAction]="'/web/cos/upload?type=1010&id=' + info['base']['id']"
+                  [nzShowUploadList]="false"
+                  [nzCustomRequest]="cos.customReqs"
+                  [nzBeforeUpload]="cos.beforeUploadFile"
+                  (nzChange)="uploadChange($event, data)"
+                  (click)="$event.stopPropagation();"
+                >
+                  <button nz-button>
+                    <i nz-icon type="upload"></i><span>{{'UPLOAD_WORKING_FILES' | translate}}</span>
+                  </button>
+                </nz-upload>
+                <h6 class="fl hint-title" *ngIf="info['isUpload'] !== '1'">{{'UPLOAD_WORKING_FILES' | translate}}</h6>
+                <span class="fl hint-title" *ngIf="info['isUpload'] == '1'">{{'FILE_TYPE' | translate}}：jpg,gif,png,psd,ai,jpeg,bmp,doc,docx,xls,xlsx,ppt,pptx,pdf,zip,7z,tga,rar,mp3,mp4,mov,wmv,avi,swf,fla,wav,ogg,aif,aiff,flac,caf,mpg,mpeg,wma。{{'FILE_SIZE' | translate}}：{{'under_10G' | translate}}。</span>
+              </div>
+              <div class="upload-list">
+                <div nz-row [nzGutter]="24">
+                  <div nz-col [nzSpan]="24">
+                    <nz-table
+                      #smallTableUpload3
+                      nzSize="small"
+                      nzNoResult="{{imgnomore_tips}}"
+                      [nzBordered]="true"
+                      [nzPageSize]="5"
+                      [nzData]="attachment.list['1010']">
+                      <thead>
+                      <tr>
+                        <th *ngFor="let column of attachment.columns2" [ngStyle]="{'width':column.width ? column.width : '' }">
+                          <ng-container [ngSwitch]="column.type">
+                            <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                          </ng-container>
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let item of smallTableUpload3.data;index as i;trackBy: trackByFn">
+                        <td *ngFor="let column of attachment.columns2;trackBy: trackByFn">
+                          <ng-container [ngSwitch]="column.key">
+                            <ng-container *ngSwitchCase="'operate'">
+
+                              <a style="margin-right: 9px" (click)="showImg(item.name, item['file_path'])">
+                                <i nz-icon type="search" theme="outline"></i>{{'PREVIEW' | translate}}
+                              </a>
+
+                              <ng-container *ngIf="info['isPullSpider'] && info['isPullSpider'] == 1">
+                                <a style="margin-right: 9px" nz-popconfirm [nzTitle]="'确定要同步蜘蛛系统？'" (nzOnConfirm)="synchronou(item)">
+                                  <i nz-icon type="api" theme="outline" style="margin-right: 2px;"></i>{{'SYNC' | translate}}
+                                </a>
+                              </ng-container>
+
+                              <a style="margin-right: 9px" (click)="download(item['file_path'], item['file_name'])" target="_blank">
+                                <i nz-icon type="cloud-download" theme="outline"></i>{{'DOWNLOAD' | translate}}
+                              </a>
+
+                              <a  nz-popconfirm [nzTitle]="'ARE_YOU_SURE_YOU_WANT_TO_DELETE' | translate" *ngIf="info['isUpload'] === '1'" (nzOnConfirm)="delThingFile(item)">
+                                <i nz-icon type="delete" theme="outline"></i>{{'DELETE' | translate}}
+                              </a>
+
+                            </ng-container>
+                            <ng-container *ngSwitchDefault>{{item[column.key]}}</ng-container>
+                          </ng-container>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </nz-table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </nz-tab>
+        </nz-tabset>
+      </div>
+    </ng-container>
+
+  </ng-template>
+</nz-modal>
+
+<!--图片展示-->
+<app-modal-show-img></app-modal-show-img>
+
+<!--风格标签-->
+<nz-modal
+  [(nzVisible)]="styleModal.isShow"
+  [nzTitle]="styleModalTitle"
+  [nzContent]="styleModalContent"
+  (nzOnOk)="styleModalOk()"
+  (nzOnCancel)="styleModalCancel()">
+  <ng-template #styleModalTitle>
+    推荐标签
+  </ng-template>
+  <ng-template #styleModalContent>
+    <ng-container *ngIf="styleModal.list">
+      <ng-container *ngFor="let item of styleModal.list; trackBy: trackByFn">
+        <nz-form-label [ngStyle]="{height: '39px', marginTop: '10px'}">
+          {{item.label}}
+        </nz-form-label>
+        <nz-form-control>
+          <nz-checkbox-group [(ngModel)]="item.children"></nz-checkbox-group>
+        </nz-form-control>
+      </ng-container>
+    </ng-container>
+  </ng-template>
+</nz-modal>
+
+<!--同步蜘蛛系统错误提示-->
+<nz-modal
+  [(nzVisible)]="syncModal.isShow"
+  [nzTitle]="syncModalTitle"
+  [nzContent]="syncModalContent"
+  [nzOkText]="null"
+  (nzOnCancel)="syncModal.isShow = !syncModal.isShow">
+  <ng-template #syncModalTitle>
+    同步失败
+  </ng-template>
+  <ng-template #syncModalContent style="padding-bottom: 8px">
+    <ng-container *ngIf="syncModal.list">
+      <nz-form-item *ngFor="let item of syncModal.list;trackBy: trackByFn">
+        <nz-form-label style="height: 30px;">文件 {{item.filename}}</nz-form-label>
+        <nz-form-control>
+          <ul *ngFor="let item2 of item.errors;trackBy: trackByFn">
+            <li style="height: 30px;">-{{item2.error}}</li>
+          </ul>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-divider style="margin: 20px 0"></nz-divider>
+      <p style="margin-bottom: 0">想要<span style="color: red">避免错误</span>？请使用IEG官方团队开发的专题构建工具：<a href="https://github.com/allanguys/tg-cli" target="_blank">tg-cli</a></p>
+    </ng-container>
+  </ng-template>
+</nz-modal>
+
+<app-modal-price-detail></app-modal-price-detail>

@@ -1,0 +1,38 @@
+<app-component-crumb [(list)]="list" (changeDisabledButton)="changeDisabledButton($event)">
+  <button nzSize="small" nz-button [nzType]="'default'" (click)="draftDelete()" style="margin-right: 10px;" [disabled]="disabledButton">删除</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [(disabledButton)]="disabledButton"
+      [(queryFields)]="queryFields"
+    >
+    </app-container-table>
+  </div>
+</ng-container>

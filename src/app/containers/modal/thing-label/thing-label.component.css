@@ -1,0 +1,26 @@
+.thing-modal .modal-section-title {
+  background-color: #f9fafb;
+  border-bottom: #e8e8e8 solid 1px;
+  border-right-width: 0;
+  border-left-width: 0;
+  color: #5a6779;
+  padding: 0 20px;
+  height: 50px;
+  line-height: 50px;
+  margin: 0;
+}
+.thing-modal .modal-section-title .title-font {
+  font-weight: bold;
+}
+.thing-modal .modal-section {
+  padding: 12px;
+}
+.thing-modal .ant-form-item {
+  margin-bottom: 0 !important;
+}
+
+
+
+.ant-table-thead > tr > th, .ant-table-tbody > tr > td {
+  padding: 12px 12px;
+}

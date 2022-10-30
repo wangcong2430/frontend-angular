@@ -1,0 +1,42 @@
+<div class="fileupload-default">
+  <div class="fileupload-label">{{to.label}}<span *ngIf="to.required" class="text-danger"> *</span></div>
+  <div class="fileupload-btn btn btn-primary flat" [ngClass]="{'btn-danger': showError && to.required, 'disabled': to.data || (uploader.queue.length+oldValue.length) >= uploader.options.queueLimit}" (click)="fileInput.click()">
+    <i class="fa fa-cloud-upload"></i>
+    <span>{{(to.data && to.data.btnText) || '上传文档'}}</span>
+    <input type="file"
+           #fileInput
+           hidden
+           ng2FileSelect
+           multiple
+           [uploader]="uploader"
+           (response)="fileOverAnother($event)"
+           (change)="change()"
+           [disabled]="to.data || (uploader.queue.length+oldValue.length) >= uploader.options.queueLimit"
+           [formlyAttributes]="field">
+  </div>
+  <div class="fileupload-content" *ngIf="!to.disabled">
+    <ul class="fileupload-list">
+      <li class="fileupload-item" *ngFor="let item of oldValue;let i = index;trackBy: trackByFn">
+        <div class="file-detail">
+          <i class="fa fa-file-text"></i><a class="file-name">{{item.label}}</a>
+        </div>
+        <div class="file-delete" (click)="delOldValue(i, item)"><i class="fa fa-trash-o"></i></div>
+      </li>
+      <li class="fileupload-item" *ngFor="let item of uploader.queue;let i = index;trackBy: trackByFn">
+        <div class="file-detail">
+          <i class="fa fa-file-text"></i><a class="file-name">{{item?.file?.name}}</a>
+        </div>
+        <div class="upload-status" *ngIf="!item['isFinish'] && autoUpload">
+          <span *ngIf="item.progress<100">文档上传中({{item.progress}}%)<i class="fa fa-spinner fa-spin ml-2"></i></span>
+          <span *ngIf="item.progress===100 && item.isUploaded" class="text-danger">文件过大，上传失败</span>
+        </div>
+        <div class="file-delete" (click)="deleteFile(i, item)"><i class="fa fa-trash-o"></i></div>
+      </li>
+    </ul>
+    <!--<span class="text-muted bottom" *ngIf="to.desc" [innerHTML]="to.desc"></span>-->
+  </div>
+  <div class="fileupload-content" *ngIf="to.disabled">
+    <div class="formly-field-text" *ngFor="let item of oldValue;trackBy: trackByFn">{{item.label}}</div>
+  </div>
+</div>
+

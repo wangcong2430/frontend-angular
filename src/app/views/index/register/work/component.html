@@ -1,0 +1,9 @@
+<div class="container register-work-container">
+    <form [formGroup]="form" (ngSubmit)="submit()" autocomplete="off">
+        <formly-form [form]="form" [fields]="form_fields" [model]="form_data">
+            <div class="text-right">
+                <button type="submit" class="btn btn-primary" i18n>Submit</button>
+            </div>
+        </formly-form>
+    </form>
+</div>

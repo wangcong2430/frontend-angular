@@ -1,0 +1,83 @@
+.thing-modal .modal-section-title {
+  background-color: #f9fafb;
+  border-bottom: #e8e8e8 solid 1px;
+  border-right-width: 0;
+  border-left-width: 0;
+  color: #5a6779;
+  padding: 0 20px;
+  height: 50px;
+  line-height: 50px;
+  margin: 0;
+}
+
+:host ::ng-deep .ant-card-head  {
+  background-color: #f9fafb;
+}
+.thing-modal .modal-section-title .title-font {
+  font-weight: bold;
+}
+.thing-modal .modal-section {
+  padding: 12px;
+}
+.thing-modal .ant-form-item {
+  margin-bottom: 0 !important;
+}
+
+
+
+.modal-section .item-label {
+  width: 95px;
+  text-align: right;
+}
+.modal-section .item-control {
+  width: calc(100% - 95px);
+}
+
+::ng-deep .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+  margin-left: 0px;
+}
+.parent-th > ::ng-deep .ant-table-tbody > tr:hover:not(.ant-table-expanded-row) > td {
+  background: #0052D9;
+}
+.failure-bg {
+  background: #585864 !important;
+  color: white;
+}
+
+:host {
+  background-color: #f1f1f7;
+}
+
+:host ::ng-deep .card .ant-card-body {
+  padding: 0;
+}
+
+
+:host ::ng-deep .ant-table-tbody > tr > td {
+  padding: 16px 8px;
+}
+:host ::ng-deep.thing-modal .modal-section {
+  padding: 0
+}
+
+:host ::ng-deep tr.ant-table-expanded-row td > .ant-table-wrapper {
+  margin: -1px -48px -2px -9px;
+  z-index: 1;
+}
+
+:host ::ng-deep .ant-table-thead > tr.ant-table-row-hover:not(.ant-table-expanded-row) > td,
+:host ::ng-deep .ant-table-tbody > tr.ant-table-row-hover:not(.ant-table-expanded-row) > td,
+:host ::ng-deep .ant-table-thead > tr:hover:not(.ant-table-expanded-row) > td,
+:host ::ng-deep .ant-table-tbody > tr:hover:not(.ant-table-expanded-row) > td {
+  background: unset;
+}
+
+.failure-bg {
+  background: #585864 !important;
+}
+
+
+::ng-deep .ant-advanced-search-form .ant-form-item {
+  margin-bottom: 12px;
+}
+

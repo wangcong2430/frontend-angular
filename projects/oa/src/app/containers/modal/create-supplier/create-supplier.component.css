@@ -1,0 +1,38 @@
+.modal-section-title {
+  background-color: #f9fafb;
+  border-bottom: #e8e8e8 solid 1px;
+  border-right-width: 0;
+  border-left-width: 0;
+  color: #5a6779;
+  padding: 0 20px;
+  height: 50px;
+  line-height: 50px;
+  margin: 0;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+
+::ng-deep :host .item-label {
+  width: 95px;
+  text-align: right;
+}
+::ng-deep :host .item-control {
+  width: calc(100% - 95px);
+  flex: 1;
+}
+
+::ng-deep :host .title {
+  margin-top: 16px;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e8e8e8;
+  color: #5a6779;
+  padding: 0 20px;
+  height: 50px;
+  line-height: 50px;
+  margin: 0;
+}
+
+::ng-deep .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+  margin-left: 0px;
+}

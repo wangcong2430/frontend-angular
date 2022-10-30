@@ -1,0 +1,41 @@
+<app-component-crumb></app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example mt-4">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <!-- <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div> -->
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      [showCheckbox]="false"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+<!--编辑弹窗-->
+<!-- <app-modal-save
+  (submit)="submitSaveForm($event)">
+</app-modal-save> -->

@@ -1,0 +1,19 @@
+<ul class="insert-service-list">
+    <li *ngFor="let option of to.options; let i = index;">
+        <label class="d-checkbox">
+            <input type="checkbox"
+                   [checked]="model[key] && model[key].indexOf(option[to.valueProp || 'value'])>-1"
+                   [disabled]="option['ban']"
+                   value="{{option[to.valueProp||'value']}}"
+                   [id]="id + '_' + i"
+                   (click)="toggle(option)"
+                   [formlyAttributes]="field">
+            <i></i>
+            <span>{{option[to.labelProp||'label']}}</span>
+        </label>
+        <span class="service-disabled" *ngIf="to['data'] && to['data']['isBan']" [ngClass]="{'active': option['ban']}" (click)="ban($event, option)"><i class="fa fa-ban"></i></span>
+        <span class="service-tooltip" placement="right">
+            <i class="fa fa-info-circle"></i>
+        </span>
+    </li>
+</ul>

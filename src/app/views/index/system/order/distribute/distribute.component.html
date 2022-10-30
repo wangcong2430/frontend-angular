@@ -1,0 +1,61 @@
+<app-component-crumb title="({{'PLEASE_NOTE_PO_EXPIRY_DATE' | translate}})" [(list)]="list" [isChildren]="true" (changeDisabledButton)="changeDisabledButton($event)">
+  <button nz-button nzType="primary" nzSize="small" (click)="selectProducer()" [disabled]="disabledButton" [nzLoading]="submitLoading">{{'SELECT_PRODUCER' | translate}}</button>
+  <button nz-button nzType="primary" nzSize="small" (click)="receiveOrder()" [disabled]="disabledButton" [nzLoading]="submitLoading">{{'CONFIRM_RECEIPT' | translate}}</button>
+  <button nz-button nzSize="small" (click)="isVisible = true" [disabled]="disabledButton" [nzLoading]="submitLoading">{{ 'ABANDON_RECEIVING' | translate}}</button>
+</app-component-crumb>
+
+<!--驳回提示-->
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="'REASON_FOR_ABANDONING' | translate" (nzOnCancel)="isVisible = false" (nzOnOk)="giveUpReceiveOrder()">
+  <nz-form-item>
+    <nz-form-control>
+      <textarea nz-input placeholder="{{'ENTER_REASON_FOR_ABANDONING' | translate}}" [(ngModel)]="reason" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+<div class="main-body">
+  <ng-container *ngIf="loading">
+    <div class="example mt-4">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading">
+    <div class="search-results mx-3">
+      <app-container-table-group-new
+        [loading]="listLoading"
+        [isChildrenDisabled]="true"
+        (getList)="getList($event)"
+        [(list)]="list"
+        [(columns)]="columns"
+        [(childrenColumns)]="childrenColumns"
+        [(pagination)]="pagination"
+        (changeDisabledButton)="changeDisabledButton($event)"
+        (blurEvent)="blurEvent($event)"
+        (clickEvent)="clickEvent($event)"
+        [(disabledButton)]="disabledButton"
+      >
+      </app-container-table-group-new>
+    </div>
+  </ng-container>
+</div>
+
+<app-modal-thing-detail></app-modal-thing-detail>
+
+
+<nz-modal [nzWidth]="600" [(nzVisible)]="isSelectProducer" nzTitle="{{ 'SELECT_PRODUCER' | translate }}" (nzOnCancel)="selectProducerCancel()" (nzOnOk)="selectProducerOk()">
+  <div style="border-bottom: 1px solid rgb(233, 233, 233);" class="mb-3">
+    <ng-container *ngIf="!producerOptionsFlg">您好，根据腾讯集团供应商管理规范要求，腾讯供应商门户将作为腾讯集团面向供应商的唯一门户。贵公司有门户网站账号的制作人员如下：</ng-container>
+    <label
+      nz-checkbox
+      class="mb-2"
+      [(ngModel)]="allChecked"
+      (ngModelChange)="updateAllChecked()"
+      [nzIndeterminate]="indeterminate"
+    >{{'SELECT_ALL' | translate}}</label>
+  </div>
+  <nz-checkbox-group [(ngModel)]="producerOptions" (ngModelChange)="updateSingleChecked()"></nz-checkbox-group>
+</nz-modal>
+
+
+

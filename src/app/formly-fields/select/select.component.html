@@ -1,0 +1,5 @@
+<select *ngIf="!to.disabled" class="form-control" [formControl]="formControl" [ngClass]="{'is-invalid': showError}">
+    <option value="">请选择</option>
+    <option [value]="item[to['valueProp'] || 'value']" *ngFor="let item of to['options']">{{item[to['labelProp'] || 'label']}}</option>
+</select>
+<div class="formly-field-text" *ngIf="to.disabled">{{text}}</div>

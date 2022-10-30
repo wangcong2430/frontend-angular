@@ -1,0 +1,72 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-03-02 18:16:01
+ * @LastEditTime: 2022-03-02 18:16:01
+ * @LastEditors: your name
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: /lg/cpm/frontend/projects/oa/src/app/containers/modal/delay-remind/delay-remind.component.html
+-->
+<nz-modal [(nzVisible)]="isVisible" 
+  nzMaskClosable="false" 
+  nzWidth="600px" 
+  nzMaskClosable="false" 
+  [nzTitle]="modalTitle" 
+  [nzOkLoading]="okLoading" 
+  (nzOnCancel)="handleCancel()" 
+
+  (nzOnOk)="handleOk()">
+  <ng-container *ngIf="isVisible">
+    <form class="delay-remind">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="email">请设置提醒日期</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+            <nz-date-picker [nzDisabledDate]="disabledDate" nzPlaceHolder="请设置提醒日期" [(ngModel)]="model.delay_date" [ngModelOptions]="{standalone: true}"></nz-date-picker>
+          <nz-form-extra >系统将于此日期发送WBP助手提醒消息给您, 请知悉! </nz-form-extra>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="password" nzRequired>延时处理原因</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <textarea 
+            nz-input
+            type="password"
+            id="password"
+            maxlength="300"
+            placeholder="请输入原因"
+            [ngModelOptions]="{standalone: true}"
+            [(ngModel)]="model.remark"
+          ></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="checkPassword">上传附件</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-upload
+            nzSize="small"
+            [nzFileList]="fileList"
+            [nzAction]="'/web/cos/upload?type=1600'"
+            [nzCustomRequest]="cos.customReqs"
+            [nzBeforeUpload]="cos.beforeUploadFile"
+            nzShowUploadList="true"
+            [nzShowUploadList]="{showPreviewIcon: true, showRemoveIcon: true }"
+            (click)="$event.stopPropagation();"
+            (nzChange)="fileChange($event, model)">
+            <a nz-button nzType="link">
+              <span>上传</span>
+            </a>
+          </nz-upload>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+
+
+</nz-modal>
+
+<ng-template #modalTitle>
+  <div       
+    cdkDrag
+    cdkDragHandle
+    cdkDragRootElement=".ant-modal-content"> 延时提醒 <span class="red">(按当前日期最多只可延时十天)</span>
+  </div>
+</ng-template>

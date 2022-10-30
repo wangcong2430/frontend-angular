@@ -1,0 +1,10 @@
+<div class="formly-fields-group-input">
+<div class="group-input" *ngFor="let item of arrOptions;let i = index;">
+    <div class="group-input-item" *ngFor="let row of item;let j = index;">
+        <label>{{row.label}}</label>
+        <input type="text" [id]="'id'+i+j" [name]="'name'+i+j" [(ngModel)]="row.value" (input)="changeValue($event, i, j)" [ngClass]="{'is-invalid': showError && row.value==''}">
+    </div>
+    <i class="fa fa-close" (click)="removeItem(i)"></i>
+</div>
+<i class="fa fa-plus-circle" (click)="addItem()"></i>
+</div>

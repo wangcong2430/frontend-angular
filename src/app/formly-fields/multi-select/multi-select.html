@@ -1,0 +1,9 @@
+<ng-select [ngClass]="{'is-invalid': options.showError && showError}"
+           [items]="to.options"
+           [bindLabel]="labelProp"
+           [multiple]="to.multiple"
+           [addTag]="to.addTag"
+           [placeholder]="to.placeholder"
+           [(ngModel)]="data"
+           (change)="change()">
+</ng-select>

@@ -1,0 +1,22 @@
+:host ::ng-deep .table-content {
+  margin: 16px 0;
+}
+:host ::ng-deep .body-pagination {
+  height: 50px;
+}
+:host ::ng-deep .ant-table-expanded-row th{
+  background: none !important;
+}
+:host ::ng-deep .children-tr{
+  background: #F5F3EA;
+}
+:host ::ng-deep .body-border {
+  border: 1px solid #e7e7f0;
+  margin-left: -6px;
+  margin-right: -6px;
+}
+
+
+:host ::ng-deep .ant-card-body {
+  padding: 12px;
+}

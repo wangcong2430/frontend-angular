@@ -1,0 +1,9 @@
+<app-component-crumb>
+  <button nzSize="small" nz-button nzType="primary" (click)="sendEmail()">发送</button>
+</app-component-crumb>
+
+<nz-card class=" m-3">
+    <form [formGroup]="form">
+        <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
+    </form>
+</nz-card>

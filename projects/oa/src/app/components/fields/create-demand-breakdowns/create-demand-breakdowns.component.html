@@ -1,0 +1,248 @@
+<ng-container [ngSwitch]="model.price_type">
+    <form nz-form [nzLayout]="'inline'">
+        <ng-container *ngSwitchCase="'1'">
+            <div  [style.width]="to['width'] ? to['width'] : '200px'">
+                <nz-form-item  *ngFor="let item of model.produce_breakdowns; trackBy: trackByFn" class="mb-0 mr-1">
+                    <nz-form-label  nzFor="name" >{{item.label}}
+                        <ng-container *ngIf="item.description">
+                            <i class="mx-1 f12" style="vertical-align: text-top;" nz-icon nzType="question-circle" nz-tooltip [nzTitle]="item.description" nzTheme="outline"></i>
+                        </ng-container>
+                    </nz-form-label>
+                    <nz-form-control>
+                        <nz-input-number style="width: 50px;height: 25px;"
+                            [(ngModel)]="item.value" [nzMin]="0"
+                            (ngModelChange)="change()"
+                            nzSize="small"
+                            [nzStep]="0.1"
+                            [id]="item.id"
+                            [nzPrecision]="3"
+                            [ngModelOptions]="{standalone: true}">
+                        </nz-input-number>
+                    </nz-form-control>
+                </nz-form-item >
+                <!-- <div class="btn-group mt-1 text-right">
+                    <button class="mr-3 small-btn" nz-button nzType="primary" nzSize="small" (click)="useTemplate()">使用模板</button>
+                    <button class="mr-3 small-btn" nz-button nzSize="small" *ngIf="isUseTemplate" (click)="cancelTemplate()">取消模板</button>
+                </div> -->
+            </div>
+        </ng-container>
+        <ng-container *ngSwitchCase="'2'">
+                <div  [style.width]="to['width'] ? to['width'] : '200px'">
+            <nz-form-item *ngFor="let item of model.produce_breakdowns;trackBy: trackByFn" class="mb-0 mr-1">
+                <nz-form-label  [nzFor]="item.id">{{item.label}}
+                    <ng-container *ngIf="item.description">
+                        <i class="mx-1 f12" style="vertical-align: text-top;" nz-icon nzType="question-circle" nz-tooltip [nzTitle]="item.description" nzTheme="outline"></i>
+                    </ng-container>
+                </nz-form-label>
+                <nz-form-control>
+                    <nz-input-number style="width: 50px;height: 25px;"
+                        [(ngModel)]="item.value"
+                        nzSize="small"
+                        (ngModelChange)="change()"
+                        [id]="item.id" [nzMin]="0" [nzStep]="0.1" [nzPrecision]="3" [ngModelOptions]="{standalone: true}">
+                    </nz-input-number>
+
+                    <nz-select
+                        [(ngModel)]="item.workload_unit_id"
+                        nzSize="small"
+                        class="ml-2"
+                        style="width: 50px;height: 25px;"
+                        [ngModelOptions]="{standalone: true}"
+                        (ngModelChange)="workloadUnitChanges($event, item)"
+
+                    >
+                        <nz-option
+                            *ngFor="let option of to.workload_unit_list; trackBy: trackByFn"
+                            [nzDisabled]="option.nzDisabled"
+                            [nzLabel]="option.label"
+                            [nzValue]="option.value">
+                        </nz-option>
+                    </nz-select>
+                </nz-form-control>
+
+            </nz-form-item >
+            <div class="btn-group mt-1 text-right">
+                <a class="mr-3 small-btn primary" (click)="showDetail(model)">明细</a>
+            </div>
+            </div>
+        </ng-container>
+        <!-- 第三种情况 -->
+        <ng-container *ngSwitchCase="'3'">
+            <nz-input-number [(ngModel)]="model['pre_workload']" nzSize="small" (ngModelChange)="change()" style="width: calc(100% - 95px)"  [nzMin]="0" [nzStep]="0.1" [nzPrecision]="3" [ngModelOptions]="{standalone: true}"></nz-input-number>
+            <button class="mt-2 ml-1"  nz-button type="number" nzSize="small" nzType="primary" (click)="editTemplate()" style="width: 88px">编辑明细</button>
+        </ng-container>
+        <!-- 默认的情况 -->
+        <ng-container *ngSwitchDefault>
+            <nz-input-number [(ngModel)]="model['pre_workload']" (ngModelChange)="change()" nzSize="small" [nzMin]="0" [nzStep]="0.1" [nzPrecision]="3" [ngModelOptions]="{standalone: true}"></nz-input-number>
+        </ng-container>
+    </form>
+</ng-container>
+
+
+<!-- 弹窗 -->
+<ng-container>
+    <nz-modal [(nzVisible)]="isVisible"
+            [nzTitle]="title"
+            [nzFooter]="modalFooter"
+            nzMaskClosable="false"
+            [nzContent]="modalContent"
+            [nzWidth]="'640px'"
+            (nzOnCancel)="closeModel()"
+            >
+    </nz-modal>
+</ng-container>
+
+<ng-template #modalContent>
+    <!-- 选择模板 -->
+    <ng-container *ngIf="model.price_type === '1' || model.price_type === '2'">
+        <nz-form-item class="mb-0">
+            <nz-form-label [nzSpan]="4" nzFor="email" style="min-width: 80px">选择模板</nz-form-label>
+            <nz-form-control [nzSpan]="8">
+                <nz-select  nzMaxMultipleCount="5"
+                            [(ngModel)]="useTemplateModel.selectedValue"
+                            nzPlaceHolder = "请选择模板"
+                            style="min-width: 120px; width: 100%;"
+                            (ngModelChange)="OnChanges($event)"
+
+                            >
+                    <nz-option *ngFor="let option of templateOptions;trackBy: trackByFn"
+                                [nzDisabled]="option.nzDisabled"
+                                [nzLabel]="option.label"
+                                [nzValue]="option.value"></nz-option>
+                </nz-select>
+            </nz-form-control>
+            <nz-form-label *ngIf="useTemplateModel.selectedValue" [nzSpan]="4" nzFor="email" style="min-width: 80px">附件</nz-form-label>
+            <nz-form-control *ngIf="useTemplateModel.selectedValue" [nzSpan]="8">
+                <a class="mr-3" [href]="useTemplateModel['template_example']" download="模板图"><i nz-icon type="arrow-down" theme="outline"></i>模板图</a>
+                <a class="mr-3" [href]="useTemplateModel['render_pic']" download="效果示例"><i nz-icon type="arrow-down" theme="outline"></i>效果示例</a>
+            </nz-form-control>
+        </nz-form-item >
+        <ng-container *ngIf="useTemplateModel.selectedValue">
+            <nz-form-item *ngFor="let item of useTemplateModel.pre_produce_breakdown;trackBy: trackByFn" class="mb-0">
+                <nz-form-label [nzSpan]="4" nzFor="name">{{item.label}}
+                    <ng-container *ngIf="item.description">
+                        <i style="line-height: 39px;" nz-icon nzType="question-circle" nz-tooltip [nzTitle]="item.description" nzTheme="outline"></i>
+                    </ng-container>
+                </nz-form-label>
+                <nz-form-control [nzSpan]="20">
+                    <nz-input-number [(ngModel)]="item.value" nzSize="small" [nzMin]="0" [nzStep]="0.1" [nzPrecision]="3" [ngModelOptions]="{standalone: true}"></nz-input-number>
+                </nz-form-control>
+            </nz-form-item >
+        </ng-container>
+    </ng-container>
+
+    <!-- 编辑明细 -->
+    <ng-container *ngIf="model.price_type === '3'">
+        <div class="ant-row">
+            <nz-form-item *ngFor="let item of editeDtailsValue;trackBy: trackByFn" class="mb-0 ant-col-12 ">
+                <nz-form-label [nzSpan]="12" >{{item.label}}
+                    <ng-container *ngIf="item.description">
+                        <i style="line-height: 39px;" nz-icon nzType="question-circle" nz-tooltip [nzTitle]="item.description" nzTheme="outline"></i>
+                    </ng-container>
+                </nz-form-label>
+                <nz-form-control [nzSpan]="12">
+                    <nz-input-number [(ngModel)]="item.value" nzSize="small" [nzMin]="0" [nzStep]="0.1" [nzPrecision]="3" [ngModelOptions]="{standalone: true}"></nz-input-number>
+
+                    <nz-select
+                        [(ngModel)]="item.workload_unit_id"
+                        nzSize="small"
+                        class="ml-2"
+                        style="width: 48px;"
+                        [ngModelOptions]="{standalone: true}"
+                        (ngModelChange)="workloadUnitChanges($event, item)"
+
+                    >
+                        <nz-option
+                            *ngFor="let option of to.workload_unit_list; trackBy: trackByFn"
+                            [nzDisabled]="option.nzDisabled"
+                            [nzLabel]="option.label"
+                            [nzValue]="option.value">
+                        </nz-option>
+                    </nz-select>
+                </nz-form-control>
+            </nz-form-item >
+        </div>
+    </ng-container>
+</ng-template>
+<ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="closeModel()">取消</button>
+    <button nz-button nzType="primary" (click)="submit()" type="submit">确定</button>
+</ng-template>
+
+
+<!-- 显示编辑明细的弹窗 -->
+<ng-container>
+    <nz-modal [(nzVisible)]="isEditDetailVisible"
+            [nzTitle]="'物件明细'"
+            nzMaskClosable="false"
+            [nzFooter]="editDetailFooter"
+            [nzContent]="editDetailContent"
+            nzMaskClosable="false"
+            [nzWidth]="'640px'"
+            (nzOnCancel)="editDetailModel()"
+            class="thing-details"
+            >
+    </nz-modal>
+</ng-container>
+
+<ng-template #editDetailContent>
+    <nz-table #basicTable nzShowPagination="false" [nzData]="model.produce_breakdowns">
+        <thead>
+            <tr>
+            <th>明细名称</th>
+            <!-- <th>明细单价</th> -->
+            <th class="ant-form-item-required">明细数量</th>
+            <th class="ant-form-item-required">明细单位</th>
+
+            <!-- <th>明细总价</th> -->
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let data of basicTable.data">
+                <td>
+                    {{data.label}}
+                    <ng-container *ngIf="data.description">
+                        <i class="mx-1" nz-icon nzType="question-circle" nz-tooltip [nzTitle]="data.description" nzTheme="outline"></i>
+                    </ng-container>
+                </td>
+                <!-- <td>{{data.unit_price}}</td> -->
+                <td>
+                    <nz-input-number
+                        placeholder="请输入明细数量"
+                        [(ngModel)]="data.value"
+                        nzSize="small"
+                        [nzMin]="0"
+                        [nzStep]="0.1"
+                        [nzPrecision]="3"
+                        [ngModelOptions]="{standalone: true}"
+                        (ngModelChange)="editThingDetailValue(basicTable.data)">
+                    </nz-input-number>
+                </td>
+
+                <td>
+                    <nz-select
+                        [(ngModel)]="data.workload_unit_id"
+                        nzPlaceHolder="明细单位"
+                        nzSize="small"
+                        style="width: 120px;"
+                        (ngModelChange)="workloadUnitChanges($event, data)"
+
+                    >
+                        <nz-option
+                            *ngFor="let option of to.workload_unit_list; trackBy: trackByFn"
+                            [nzDisabled]="option.nzDisabled"
+                            [nzLabel]="option.label"
+                            [nzValue]="option.value">
+                        </nz-option>
+                    </nz-select>
+                </td>
+            <!-- <td>{{getAllPrcie(data.unit_price, data.value)}}</td> -->
+            </tr>
+        </tbody>
+        </nz-table>
+        <!-- <div class="my-2 ml-3 primary-text">物件总价: {{thingTotalprice}}</div> -->
+</ng-template>
+
+<ng-template #editDetailFooter>
+    <button nz-button nzType="primary" (click)="editDetailModel()" type="submit">确定</button>
+</ng-template>

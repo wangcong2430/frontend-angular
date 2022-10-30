@@ -1,0 +1,10 @@
+<div class="month-select">
+    <select class="form-control" [ngClass]="{'is-invalid': showError}" [(ngModel)]="query.year" (change)="valueChange()" [disabled]="to.disabled">
+        <option value="">年</option>
+        <option *ngFor="let item of yearList" [value]="item">{{item}}</option>
+    </select>
+    <select class="form-control" [ngClass]="{'is-invalid': showError}" [(ngModel)]="query.month" (change)="valueChange()" [disabled]="to.disabled">
+        <option value="">月</option>
+        <option *ngFor="let item of monthList" [value]="item">{{item}}</option>
+    </select>
+</div>

@@ -1,0 +1,40 @@
+.thing-modal .modal-section-title {
+  background-color: #f9fafb;
+  border-bottom: #e8e8e8 solid 1px;
+  border-right-width: 0;
+  border-left-width: 0;
+  color: #5a6779;
+  padding: 0 20px;
+  height: 50px;
+  line-height: 50px;
+  margin: 0;
+}
+
+.thing-modal .modal-section {
+  padding: 12px;
+}
+.thing-modal .ant-form-item {
+  margin-bottom: 0 !important;
+}
+.body-upload .upload-btn {
+  height: 35px;
+}
+.body-upload .upload-btn .hint-title {
+  height: 32px;
+  line-height: 32px;
+  margin-left: 8px;
+}
+.body-upload .upload-list {
+  min-height: 150px;
+  width: 100%;
+}
+
+::ng-deep .thing-modal .ant-form-item-label {
+  width: 100px;
+  min-width: 100px;
+  vertical-align: top;
+}
+
+::ng-deep .thing-modal .ant-row {
+  align-items: stretch;
+}

@@ -1,0 +1,31 @@
+<nz-modal 
+  #demandDetail
+  [(nzVisible)]="isVisible"
+  nzWidth="1200"
+  [nzTitle]="modalTitle" 
+  (nzOnCancel)="handleCancel()" 
+  [nzOkText]="null" 
+  (nzOnOk)="handleOk()">
+  <ng-template #modalTitle>
+    <div
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content"> {{popTitle}}
+    </div>
+  </ng-template>
+  
+  <ng-template #modalContent>11
+    <app-container-table-group-new
+      [loading]="popLoading"
+      (getList)="getPopConfig($event)"
+      [(list)]="popList"
+      [(columns)]="popColumns"
+      [(childrenColumns)]="popChildrenColumns"
+      [(pagination)]="popPagination"
+      [isChildrenDisabled]="false"
+    >
+    </app-container-table-group-new>
+  </ng-template>
+</nz-modal>
+
+

@@ -1,0 +1,38 @@
+::ng-deep .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+  margin: 0
+}
+
+::ng-deep .fields-title .ant-form-item-label label {
+  color: black;
+}
+
+::ng-deep .bg-light {
+  background-color: #f3f3f3 !important;
+}
+
+::ng-deep .select-contract-inquiry ul li {
+  overflow:hidden; 
+  text-overflow:ellipsis;
+  -webkit-box-orient:vertical;
+  box-orient: vertical;
+  max-width: 600px;
+  -webkit-line-clamp:2;
+  line-clamp: 2;
+}
+
+::ng-deep .supperlier-and-contract-cascader .ant-cascader-menu-item {
+  overflow:hidden; 
+  text-overflow:ellipsis;
+  -webkit-box-orient:vertical;
+  box-orient: vertical;
+  max-width: 600px;
+  -webkit-line-clamp:2;
+  line-clamp: 2;
+}
+
+::ng-deep .label-offset .ant-form-item-label{
+  width: 20%;
+}
+::ng-deep .label-offset .ant-form-item-control-wrapper {
+  width: 60%;
+}

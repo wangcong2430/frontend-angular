@@ -1,0 +1,62 @@
+<app-component-crumb [(list)]="list">
+  <button nzSize="small" nz-button nzType="primary" (click)="openModal({})">新建</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example  m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+
+</ng-container>
+
+<!--编辑弹窗-->
+<app-modal-save
+  (submit)="submitSaveForm($event)">
+</app-modal-save>
+
+<nz-modal
+  [(nzVisible)]="modalData.isShow"
+  nzTitle="调用"
+  [nzWidth]="860"
+  (nzOnCancel)="cancelModal()"
+  [nzOkText]="null">
+  <div nz-row [nzGutter]="24" [ngStyle]="{minHeight: '350px'}">
+    <ng-container *ngIf="modalData.loading">
+      <div class="example">
+        <nz-spin nzTip='请求中，请稍等...'></nz-spin>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!modalData.loading">
+      <div [innerHTML]="modalData.result"></div>
+    </ng-container>
+  </div>
+</nz-modal>

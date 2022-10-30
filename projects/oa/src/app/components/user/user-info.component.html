@@ -1,0 +1,13 @@
+
+<ng-container *ngFor="let item of userList; let i = index">
+  <ng-container *ngIf="!collapsed || (collapsed && i < 3)">
+    <ng-container *ngIf="isNaNFn(item.name) ">
+      <a target="_blank" class="mr-2 d-inline-block" [href]="'WXWork://message?username=' + item.name | url ">{{item.user}};</a>
+    </ng-container>
+    <ng-container *ngIf="!isNaNFn(item.name)">
+      <a target="_blank" class="mr-2 d-inline-block" [href]="'http://wpa.qq.com/msgrd?v=3&uin=' + item.name + '&site=qq&menu=yes' | url">{{ item.user }};</a>
+    </ng-container>
+  </ng-container>
+</ng-container>
+
+<a class="d-block" style="color: rgba(0, 0, 0, 0.65);" *ngIf="userList.length > 3" (click)="isCollapsed($event)">{{ collapsed ? '展开' : '收起' }}</a>

@@ -1,0 +1,206 @@
+<app-component-crumb
+  [(list)]="list"
+  [isDownloadCheckFile]="true"
+  [isDownloadCheckImage]="true"
+  [disabled]="disabledButton"
+  [isChildren]="true"
+  (changeDisabledButton)="changeDisabledButton($event)">
+  <button nzSize="small" nz-button nzType="primary" [disabled]="disabledButton" (click)="delayNotice()">延时提醒</button>
+
+ <button nz-button nzType="primary" nzSize="small" (click)="batchUpdataLabel()" [disabled]="disabledButton">批量修改标签</button>
+
+
+  <button nzSize="small" nz-button nzType="primary" [disabled]="disabledButton" (click)="degreePass()">通过程度</button>
+
+  <nz-upload
+    class="fl"
+    nzAction="/web/cos/upload?type=1000"
+    [nzCustomRequest]="cos.customReqsNoMsg"
+    [nzShowUploadList]="false"
+    [nzBeforeUpload]="cos.beforeUploadImgSize"
+    (nzChange)="uploadChange($event)"
+    [nzMultiple]="true">
+    <button nz-button nz-popover nzSize="small" [nzContent]="uploadTemplate" >
+      <span>展示文件</span>
+    </button>
+  </nz-upload>
+
+  <nz-upload
+    class="fl"
+    nzAction="/web/cos/upload?type=1005"
+    [nzCustomRequest]="cos.customReqsNoMsg"
+    [nzShowUploadList]="false"
+    (nzChange)="uploadChange($event)"
+    [nzBeforeUpload]="cos.beforeUploadFileSize"
+    [nzMultiple]="true"
+  >
+  <button nz-button nz-popover nzSize="small" [nzContent]="uploadTemplate" >
+    <span>上传最终作品</span>
+  </button>
+</nz-upload>
+
+  <nz-upload
+    class="fl"
+    nzAction="/web/cos/upload?type=1010"
+    [nzCustomRequest]="cos.customReqsNoMsg"
+    [nzShowUploadList]="false"
+    [nzBeforeUpload]="cos.beforeUploadFile"
+    (nzChange)="uploadChange($event)"
+    [nzMultiple]="true"
+    >
+    <button nz-button nz-popover nzSize="small" [nzContent]="uploadTemplate" >
+      <span>上传过程附件</span>
+    </button>
+  </nz-upload>
+
+  <button nzSize="small" nz-button nzType="primary" [disabled]="disabledButton" (click)="acceptanceSubmit('pass')">申请验收</button>
+  <button nzSize="small" nz-button nzType="primary" [disabled]="disabledButton" (click)="endMakeButton()">结束制作,不结算</button>
+
+  <ng-template #uploadTemplate><p>文件格式：物价单号+逗号+文件名，</p><p>例如：FPI201911120003,武器.jpg<p></ng-template>
+
+  <nz-badge [nzCount]="hubData.arthub.num">
+    <a nz-button [href]="hubData.arthub.jumpUrl"  nzSize="small"  nzType="primary"  *ngIf="!!hubData.arthub.jumpUrl" class="text-white" >arthub验收</a>
+  </nz-badge>
+
+  <nz-badge [nzCount]="hubData.ihub.num">
+    <a nz-button [href]="hubData.ihub.jumpUrl"  nzSize="small" nzType="primary" *ngIf="!!hubData.ihub.jumpUrl" class="text-white">ihub验收</a>
+  </nz-badge>
+
+</app-component-crumb>
+
+<!--驳回提示-->
+<nz-modal [(nzVisible)]="isVisible" nzTitle="放弃验收原因" (nzOnCancel)="isVisible = false" (nzOnOk)="acceptanceSubmit('reject')">
+  <nz-form-item>
+    <nz-form-control>
+      <textarea nz-input placeholder="填写放弃验收原因" [(ngModel)]="reason" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+<!--<div *ngIf="list && list.length" style="color: #f00; font-size: 16px; padding: 6px 0;">列表中未展示的物件，可点击右上角的按钮跳转到arthub或者ihub系统进行验收</div>-->
+    <app-container-table-group-new
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(childrenColumns)]="childrenColumns"
+      [(pagination)]="pagination"
+      [isChildrenDisabled]="false"
+      (clickEvent)="clickEvent($event)"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      [(disabledButton)]="disabledButton"
+      (selectPass)="selectPass($event)"
+      [(queryFields)]="queryFields"
+    >
+    </app-container-table-group-new>
+  </div>
+</ng-container>
+
+<!--物件详情-->
+<!-- <app-modal-thing-detail
+  (getList)="getList($event)">
+</app-modal-thing-detail> -->
+
+<app-order-modal-acceptance-rate (getList)="getList()" [score]="acceptanceScore" [version]="newVersion"></app-order-modal-acceptance-rate>
+
+
+
+
+<nz-modal [(nzVisible)]="endMakeVisible" [nzWidth]="'580px'" nzTitle="结束制作" (nzOnCancel)="endMakeVisible = false" (nzOnOk)="endMake()">
+  <nz-form-item>
+    <nz-alert class="mb-2" nzType="warning" nzMessage='"结束制作"则该物件单将关闭不再支付任何费用，请确认是否需要"结束制作"' nzShowIcon></nz-alert>
+    <nz-form-control>
+      <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>请选择结束制作的原因</nz-form-label>
+      <nz-select [(ngModel)]="reason"  style="width: 200px;">
+        <nz-option nzValue="需求取消" nzLabel="需求取消"></nz-option>
+        <nz-option nzValue="需求重复" nzLabel="需求重复"></nz-option>
+        <nz-option nzValue="供方原因" nzLabel="供方原因" ></nz-option>
+      </nz-select>
+    </nz-form-control>
+    <ng-container *ngIf="reason == '供方原因'">
+      <nz-form-control>
+        <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>请填写具体变更的原因</nz-form-label>
+        <textarea nz-input [(ngModel)]="endMakeReason" style="width: 200px;" [nzAutosize]="{ minRows: 3, maxRows: 6 }"></textarea>
+      </nz-form-control>
+    </ng-container>
+  </nz-form-item>
+</nz-modal>
+<app-modal-show-img></app-modal-show-img>
+
+<!--请选择通过程度-->
+<nz-modal [(nzVisible)]="isDegreeVisible" nzTitle="请选择通过程度" (nzOnCancel)="isDegreeVisible = false" (nzOnOk)="degreeSubmit()">
+  <nz-form-item class="mb-0">
+    <nz-form-label [nzSpan]="4">
+      <label nzSize="small" class="ant-form-item-required" nzRequired nzFor="reason" for="reason">通过程度</label>
+    </nz-form-label>
+    <nz-form-control [nzSpan]="16">
+      <nz-radio-group [(ngModel)]="pass_degree_radio"  [nzSize]="'small'" (click)="$event.stopPropagation();">
+        <label nz-radio nzValue="1">通过</label>
+        <label nz-radio nzValue="2">部分通过</label>
+        <label nz-radio nzValue="3">不通过</label>
+      </nz-radio-group>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item class="mb-0" *ngIf="pass_degree_radio == 2 || pass_degree_radio == 3">
+    <nz-form-label [nzSpan]="4">
+      <label nzSize="small" [class]="pass_degree_radio == 2 || pass_degree_radio == 3 ? 'ant-form-item-required' : ''"
+             nzFor="reason" for="reason">结算比例
+      </label>
+    </nz-form-label>
+
+    <nz-form-control [nzSpan]="16">
+      <nz-input-number
+        [(ngModel)]="settlement_ratio"
+        [nzMin]="0"
+        [nzMax]="100"
+        style="width: 300px"
+        nzPlaceHolder="请填写数字0-100，部分通过或者不通过时必填"
+        [nzStep]="0.01"
+        [nzPrecision]=2
+        class="mr-2"
+      ></nz-input-number>%
+      <!--<textarea nz-input rows="1" style="width: 100%;resize:none;overflow:hidden"
+                [(ngModel)]="settlement_ratio" id="ratio" placeholder="请填写数字0-100，部分通过或者不通过时必填"
+                (click)="$event.stopPropagation();"></textarea>-->
+
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label>
+      <label nzSize="small" [class]="pass_degree_radio == 2 || pass_degree_radio == 3 ? 'ant-form-item-required' : ''" nzFor="reason" for="reason">验收说明</label>
+    </nz-form-label>
+    <nz-form-control>
+      <textarea nz-input rows="4" style="width: 100%;resize:none;overflow:hidden"
+      [(ngModel)]="acceptance_reason" id="reason" placeholder="请输入通过程度的理由, 部分通过或者不通过时必填"
+      (click)="$event.stopPropagation();"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+
+
+<nz-modal [(nzVisible)]="isIhubTo" nzTitle="验收迁移提示" nzOkText="前往" (nzOnCancel)="isIhubTo = false" (nzOnOk)="isIhubToEvent()">
+  <p *ngIf="ihubCode !== null">物件单号：{{ihubCode}},请到ihub进行交付<a target='_blank' href='https://ihub.qq.com'>【前往：https://ihub.qq.com】</a></p>
+  <p *ngIf="ihubCode === null">请到ihub进行验收。<a target='_blank' href='https://ihub.qq.com'>【前往：https://ihub.qq.com】</a></p>
+</nz-modal>
+

@@ -1,0 +1,33 @@
+<div *ngIf="!isConfig" class="d-flex">
+    <app-select-oa-user-component style="flex: 1" [disabled]="to['disabled']" [(ngModel)]="model[key]['need_approver']" (onSelectChange)="onChange($event)" (ngModelChange)="change($event)"></app-select-oa-user-component>
+    <span class="text-primary cursor-pointer text-right" style="width: 48px;line-height: 32px;display: inline-block;" (click)="openConfigModal()">配置</span>
+</div>
+<ng-container *ngIf="isConfig">
+    <span class="text-primary cursor-pointer text-right" style="width: 32px;" (click)="openConfigModal()">已配置</span>
+</ng-container>
+
+<nz-modal [(nzVisible)]="isVisible"
+    nzTitle="配置核心人员"
+    nzClassName="need-approver-modal"
+    nzMaskClosable="false"
+    (nzOnCancel)="handleCancel()" 
+    (nzOnOk)="handleOk()">
+    <ng-container *ngIf="isVisible">
+        <nz-table #tableData [nzData]="listOfData" [nzHideOnSinglePage]="true" nzFrontPagination="false" nzShowPagination="false">
+            <thead>
+                <tr>
+                    <th>服务品类</th>
+                    <th>需求审核人</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let data of tableData.data;trackBy: trackByFn">
+                    <td>{{ data.label }}</td>
+                    <td><app-select-oa-user-component [(ngModel)]="data.need_approver" [disabled]="to['disabled']" (ngModelChange)="change()"></app-select-oa-user-component></td>
+                </tr>
+            </tbody>
+        </nz-table>
+        <a><p *ngIf="to['disabled']" class="px-3 py-2 mb-0 text-primary cursor-pointer" (click)="clear()">清空配置</p></a>
+    </ng-container>
+</nz-modal>
+

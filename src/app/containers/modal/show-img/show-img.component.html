@@ -1,0 +1,17 @@
+<nz-modal
+  [(nzVisible)]="showImg.isVisible"
+  [nzTitle]="null"
+  [nzContent]="modalImgContent"
+  [nzOkText]="null"
+  [nzCancelText]="null"
+  [nzFooter]="null"
+  [nzWidth]="800"
+  (nzOnCancel)="onCancel()">
+  <ng-template #modalImgContent>
+    <div [ngStyle]="{width: '100%', minHeight: '200px'}">
+      <nz-spin [nzSpinning]="showImg.loading">
+        <img [src]="showImg.url" [ngStyle]="{width: '100%'}" (load)="changeLoad()">
+      </nz-spin>
+    </div>
+  </ng-template>
+</nz-modal>

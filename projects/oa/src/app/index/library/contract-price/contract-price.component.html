@@ -1,0 +1,106 @@
+<!--
+ * @Author: v_swwu v_swwu@tencent.com
+ * @Date: 2022-07-01 14:45:22
+ * @LastEditors: v_swwu v_swwu@tencent.com
+ * @LastEditTime: 2022-07-18 18:28:09
+ * @FilePath: \cpm\frontend\projects\oa\src\app\index\library\contract-price\contract-price.component.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<app-component-crumb (changeDisabledButton)="changeDisabledButton($event)">
+  <button nzSize="small" nz-button nzType="primary" (click)="openModal({})" *ngIf="isCpm">新建</button>
+  <nz-dropdown *ngIf="isCpm">
+    <button nzSize="small" nz-button nzType="primary" nz-dropdown><span>导入</span> <i nz-icon type="down"></i></button>
+    <ul nz-menu>
+      <li nz-menu-item>
+<!--        <a href="https://wbp-1258344700.cos.ap-guangzhou.myqcloud.com/public/static/contract_template-201909.xlsx" target="_blank">下载导入模板</a>-->
+<a href="/web/test-api/download-excel" target="_blank">下载导入模板</a>
+      </li>
+      <li nz-menu-item style="overflow: hidden;">
+        <nz-upload
+          class="fl"
+          nzAction="/web/cos/upload?type=1600"
+          [nzCustomRequest]="cos.customReqs"
+          [nzBeforeUpload]="cos.beforeUploadExcel"
+          [nzShowUploadList]="false"
+          (click)="$event.stopPropagation();"
+          (nzChange)="uploadChange($event, data)">
+          导入数据
+        </nz-upload>
+      </li>
+    </ul>
+  </nz-dropdown>
+  <button nzSize="small" nz-button (click)="exportContract()" *ngIf="isAdmin" >导出</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example  m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters  m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white  m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      [showCheckbox]="false"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+<!--编辑弹窗-->
+<app-modal-save
+  (submit)="submitSaveForm($event)">
+</app-modal-save>
+
+
+<nz-modal
+  [nzVisible]="uploadModal.isShow"
+  nzMaskClosable="false"
+  [nzTitle]="null"
+  [nzContent]="uploadLoading"
+  [nzOkText]="null"
+  [nzCancelText]="null"
+  [nzFooter]="null"
+  [nzClosable]="false"
+  [nzWidth]="400">
+  <ng-template #uploadLoading>
+    <div class="d-flex justify-content-center align-items-center px-3 pt-3 flex-column" style="min-height: 220px;">
+      <nz-progress *ngIf="!uploadModal.loading" [nzPercent]="uploadModal['percent']" nzType="circle" [nzStatus]='uploadModal.status'></nz-progress>
+      <nz-spin nzSimple [nzSize]="'large'" *ngIf="uploadModal.loading" class="mb-3"></nz-spin>
+      <p class="mt-2">{{uploadModal.msg}}</p>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="showModal.isOpen"
+    [nzTitle]="'操作确认'"
+    nzMaskClosable="false"
+    (nzOnCancel)="showModal.isOpen = false"
+    [nzOkLoading]="showModal.loading"
+    (nzOnOk)="openWithdrawModal()">
+  <div nz-row [nzGutter]="24">
+    <div nz-col [nzSpan]="24">
+      {{showModal.title}}
+    </div>
+  </div>
+</nz-modal>

@@ -1,0 +1,107 @@
+:host nz-form-item {
+  display: flex;
+  align-items: stretch;
+  display: flex;
+}
+
+.inline {
+  display: inline-block;
+  margin-right: 16px;
+  margin-bottom: 0;
+  min-width: 217px;
+}
+:host::ng-deep nz-form-item.inline .ant-form-item-label {
+  display: inline-block;
+  vertical-align: top;
+}
+
+:host::ng-deep .ant-form-item-label label {
+  margin-bottom: 0;
+  line-height: 56px;
+}
+
+:host::ng-deep nz-form-item.inline .ant-form-item-control-wrapper {
+  /* display: inline-block; */
+  vertical-align: top;
+}
+:host::ng-deep
+  nz-form-item.inline
+  .ant-form-item-control-wrapper
+  .ant-form-item-children {
+  /* display: inline-block; */
+  vertical-align: top;
+  line-height: 56px;
+}
+
+:host nz-form-item.vertical {
+  padding-bottom: 8px;
+  flex-flow: wrap;
+}
+:host::ng-deep nz-form-item.vertical .ant-form-item-label {
+  padding: 0 0 8px;
+  margin: 0;
+  display: block;
+  text-align: left;
+  line-height: 1.5;
+}
+:host::ng-deep nz-form-item.vertical .ant-form-item-control-wrapper {
+  display: flex;
+  padding-left: 30px;
+}
+
+:host nz-form-item.fixedwidth {
+  /* padding-bottom: 8px; */
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
+  margin-right: 32px;
+}
+:host::ng-deep nz-form-item.fixedwidth .ant-form-item-label {
+  width: 416px;
+  padding-bottom: 0;
+  text-align: start;
+}
+
+:host::ng-deep nz-form-item .ant-form-item-control-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+:host::ng-deep nz-form-item .ant-form-item-control {
+  flex: 1;
+}
+
+:host::ng-deep nz-form-item.fixedwidth .ant-form-item-control {
+  flex: 1;
+}
+
+:host ::ng-deep .text-danger.invalid-feedback {
+  display: none !important;
+}
+
+:host ::ng-deep .text-muted {
+  color: red !important;
+}
+
+:host ::ng-deep .ant-tooltip-inner {
+  background-color: #ffffff;
+  color: black;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+:host ::ng-deep .ant-tooltip-placement-top .ant-tooltip-arrow,
+:host ::ng-deep .ant-tooltip-placement-topLeft .ant-tooltip-arrow,
+:host ::ng-deep .ant-tooltip-placement-topRight .ant-tooltip-arrow {
+  bottom: 3px;
+  border-width: 5px 5px 0;
+  border-top-color: rgba(0, 0, 0, 0.15);
+}
+
+:host ::ng-deep .ant-form-item-children {
+  display: block;
+}
+:host ::ng-deep .ant-form-item-label > label::after {
+  content: "";
+}

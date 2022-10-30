@@ -1,0 +1,294 @@
+<nz-modal
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  nzWidth="1360"
+  [nzOkLoading]="isSubmitLoading"
+  [nzCancelLoading]="isSubmitLoading"
+  nzClassName="create-order-modal"
+  nzClosable="false"
+  nzMaskClosable="false"
+  class="create-order"
+  [nzOkDisabled]="okDisabled"
+  (nzOnCancel)="modalCancel()"
+  (nzOnOk)="checkSubmit()"
+>
+
+<ng-template #modalTitle>
+  <div
+    cdkDrag
+    cdkDragHandle
+    cdkDragRootElement=".ant-modal-content">  生成订单
+  </div>
+</ng-template>
+
+  <ng-template #modalContent>
+    <ng-container *ngIf="loading">
+      <div class="example">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && columns">
+      <p class="text-danger">接收订单天数：如3月1号拟制订单，并且订单接收天数设定为3天，3月3号订单最终审批通过，供应商需要在3月6号24点前登录系统操作接收订单，否则订单将由系统回收，状态回到待拟制订单。</p>
+
+      <div>
+        <nz-table
+          #table
+          [nzData]="list"
+          nzSize="middle"
+          [nzFrontPagination]="false"
+          [nzShowPagination]="false"
+        >
+          <tbody>
+            <ng-template ngFor let-data [ngForOf]="table.data" let-i="index" [ngForTrackBy]="trackByFn">
+              <!--父表格内容-->
+              <ng-container *ngIf="!data.hide">
+                <p class="text-red mb-0">{{data.msg}}</p>
+                <tr class="parent-th">
+                  <td class="p-0">
+                    <div class="d-flex">
+                      <div class="left flex-fill  p-2">
+                        <span class="mr-2">No: {{i+1}}</span>
+                        <ng-container *ngFor="let column of columns; trackBy: trackByFn">
+                          <span class="mr-2" *ngIf="data[column.key]">{{column.label}}: {{data[column.key] ? data[column.key] : 'NA'}}</span>
+                        </ng-container>
+                        <div class="parent-title mt-1 mr-2 text-red" *ngIf="data['errMsg']">错误提示: {{ data['errMsg'] }}</div>
+                        <div class="parent-title mt-1 mr-2 text-red" *ngIf="data['orgIdMsg']">{{ data['orgIdMsg'] }}</div>
+                      </div>
+                      <div class="right bg-danger text-white p-2" style="width: 240px; text-align: right">
+                        <div>订单金额: {{data.order_tax_amount|mycurrency}} {{data.contract_symbol}}</div>
+                        <div *ngIf="data.contract_tax_type == 2">订单含税金额: {{data.order_tax_amount_contain_tax|mycurrency}} {{data.contract_symbol}}</div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 子表格-->
+                <tr [nzExpand]="true">
+                  <td colspan="6" style="padding: 0;">
+                    <nz-descriptions nzBordered nzSize="small" [nzColumn]="nzColumn">
+                      <ng-template ngFor let-field [ngForOf]="fromFields" let-i="index">
+                        <!-- 订单名称 -->
+                        <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'order_name'" >
+                          <input nz-input  class="w-100" [(ngModel)]="data[field.key]" [placeholder]="field?.templateOptions?.placeholder">
+                        </nz-descriptions-item>
+
+                        <!-- 经办人 -->
+                        <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'agent'" >
+                          <nz-select  class="w-100 " [(ngModel)]="data[field.key]" [nzShowSearch]="true"  (ngModelChange)="getUserDept($event, data, i)">
+                            <nz-option *ngFor="let item of  data['pm_list']; trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                          </nz-select>
+                        </nz-descriptions-item>
+
+                        <!-- 经办部门 -->
+                        <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'handling_department'" >
+                          <nz-select class="w-100 " [(ngModel)]="data[field.key]" (ngModelChange)="changeDepartment(data)" [nzShowSearch]="true">
+                            <nz-option *ngFor="let item of deptOptions; trackBy: trackByFn" [nzValue]="item.id" [nzLabel]="item.name"></nz-option>
+                          </nz-select>
+                        </nz-descriptions-item>
+
+                        <!-- 经办中心 -->
+                        <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'handling_center'" >
+                          <nz-select  class="w-100 "[(ngModel)]="data[field.key]" [nzShowSearch]="true">
+                            <nz-option *ngFor="let item of deptData[data['handling_department']];trackBy: trackByFn" nzValue="{{item.id}}" nzLabel="{{item.name}}"></nz-option>
+                          </nz-select>
+                        </nz-descriptions-item>
+
+                        <!-- 税率 -->
+                        <nz-descriptions-item  [nzTitle]="nzTitle"  *ngIf="field.key == 'tax_value_type' && data['contract_tax_type'] && data['contract_tax_type'] == 2"
+                            [nzTitle]="field.templateOptions.label">
+                          <nz-select  class="w-100 " [(ngModel)]="data[field.key]" (ngModelChange)="changeTax(data, 1)">
+                            <nz-option *ngFor="let item of field['templateOptions']['options']; trackBy: trackByFn" [nzValue]="item.value" [nzLabel]="item.label"></nz-option>
+                          </nz-select>
+                        </nz-descriptions-item>
+
+                        <nz-descriptions-item  [nzTitle]="nzTitle" *ngIf="field.key == 'tax_value' && data['contract_tax_type'] == 2 && data['tax_value_type'] == 1 ">
+                          <nz-select  class="w-100 " [(ngModel)]="data[field.key]" nzShowSearch="true" (nzOnSearch)="addTaxValue($event, field, data)" (ngModelChange)="changeTax(data, 2)">
+                            <nz-option *ngFor="let item of data['tax_rate_value_option']; trackBy: trackByFn" [nzValue]="item.value" [nzLabel]="item.label"></nz-option>
+                          </nz-select>
+                        </nz-descriptions-item>
+
+                        <nz-descriptions-item  [nzTitle]="nzTitle" *ngIf="field.key == 'tax_value' && data['contract_tax_type'] == 2 && (!data['tax_value_type'] || data['tax_value_type'] != 1)" >
+                          <input nz-input  class="w-100" [(ngModel)]="data[field.key]" (blur)="changeTax(data, 2)" [placeholder]="field?.templateOptions?.placeholder">
+                        </nz-descriptions-item>
+
+                        <!-- 资源 -->
+                        <nz-descriptions-item  [nzTitle]="nzTitle" *ngIf="field.key == 'mba_item_id' && data['mba_has_resources'] == 1" >
+                          <nz-select  class="w-100 " [(ngModel)]="data[field.key]">
+                            <nz-option *ngFor="let item of data.mba_resources; trackBy: trackByFn" [nzValue]="item.itemId" [nzLabel]="item.itemName"></nz-option>
+                          </nz-select>
+                        </nz-descriptions-item>
+
+
+                        <!-- 供应商选择方法 -->
+                        <nz-descriptions-item  [nzTitle]="nzTitle" *ngIf="field.key == 'select_supplier_reason' " >
+                          <nz-select  class="w-100" [nzMode]="field['templateOptions']['mode'] || ''" [(ngModel)]="data[field.key]">
+                            <nz-option *ngFor="let item of field['templateOptions']['options']; trackBy: trackByFn" [nzValue]="item.value" [nzLabel]="item.label"></nz-option>
+                          </nz-select>
+                        </nz-descriptions-item>
+
+                        <!-- 接收订单天数 -->
+                        <nz-descriptions-item  [nzTitle]="nzTitle" *ngIf="field.key == 'deadline_day'" >
+                          <nz-input-number class="w-100" [nzMin]="1" [nzStep]="1" [(ngModel)]="data[field.key]"></nz-input-number>
+                        </nz-descriptions-item>
+
+                        <!-- 订单说明 -->
+                        <nz-descriptions-item [nzSpan]="4"  [nzTitle]="nzTitle" *ngIf="field.key == 'order_note'" >
+                          <input nz-input  class="w-100" maxlength="200" [(ngModel)]="data[field.key]" [placeholder]="field?.templateOptions?.placeholder">
+                        </nz-descriptions-item>
+                        <!-- 合同/订单说明 -->
+                        <nz-descriptions-item [nzSpan]="4" [nzTitle]="nzTitle" *ngIf="field.key == 'memo'" >
+                          <input nz-input   class="w-100" [(ngModel)]="data[field.key]" [placeholder]="field?.templateOptions?.placeholder">
+                        </nz-descriptions-item>
+
+                        <!-- 是否保密 -->
+                        <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'is_set_secrecy'"  >
+                          <nz-radio-group [(ngModel)]="data[field.key]">
+                            <label nz-radio [nzValue]=true [nzDisabled]="field.disabled">是</label>
+                            <label nz-radio [nzValue]=false [nzDisabled]="field.disabled">否</label>
+                          </nz-radio-group>
+                        </nz-descriptions-item>
+
+                        <ng-container *ngIf="data.is_set_secrecy == true ">
+                          <nz-descriptions-item [nzSpan]="24" [nzTitle]="nzTitle" *ngIf="field.key == 'secrecy_codes'">  
+                            <nz-select style="width: 480px;" nzMode="multiple" [(ngModel)]="data[field.key]" nzValue="value" nzShowSearch=true nzAllowClear=true nzPlaceHolder='请选择保密范围，选择的内容供应商CP商务、供应商管理员将不可见'>
+                              <nz-option nzValue="upload_attach" nzLabel="附件及互动（含制作人上传的展示文件、最终作品和过程附件）"></nz-option>
+                              <nz-option nzValue="story_attach" nzLabel="需求附件（勾选后所属需求所有物件均对需求附件保密）"></nz-option>
+                              <nz-option nzValue="story_name" nzLabel="需求名称（勾选后所属需求所有物件均对需求名称保密）"></nz-option>
+                              <nz-option nzValue="project_name" nzLabel="项目名称（勾选后所属需求所有物件均对项目名称保密）"></nz-option>
+                              <nz-option nzValue="thing_name" nzLabel="物件名称"></nz-option>
+                            </nz-select>
+                          </nz-descriptions-item>
+                        </ng-container>
+                        
+                        <!-- 是否同步推送EPO订单 -->
+                        <nz-descriptions-item  [nzTitle]="nzTitle" *ngIf="field.key == 'sync_gen_epo_order'"  >
+                          <nz-radio-group [(ngModel)]="data[field.key]" [nzDisabled]="data.is_show_sync_gen_epo_order == 0">
+                            <label nz-radio [nzValue]="1">是</label>
+                            <label nz-radio [nzValue]="0">否</label>
+                          </nz-radio-group>
+                        </nz-descriptions-item>
+
+                        <!-- 是否推送epo -->
+                        <ng-container *ngIf="data.sync_gen_epo_order == 1 ">
+                          <!-- 我方主体 -->
+                          <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'org_id'" >
+                            <nz-select  class="w-100 "[(ngModel)]="data[field.key]" (ngModelChange)="orgIdChange($event, data)"  [nzShowSearch]="true">
+                              <nz-option *ngFor="let item of data['product_orgList']; trackBy: trackByFn" nzCustomContent [nzValue]="item.value" [nzLabel]="item.label">
+                                <span [title]="item.label"><span *ngIf="item.status_tag" class="red">【{{item.status_tag}}】</span>{{item.label}}</span>
+                              </nz-option>
+                            </nz-select>
+                          </nz-descriptions-item>
+
+                          <!-- 供应商服务品类 -->
+                          <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'vendor_category_id'" >
+                            <nz-select  class="w-100"[(ngModel)]="data[field.key]" (ngModelChange)="categoryChange($event, data)" [nzShowSearch]="true">
+                              <nz-option *ngFor="let item of data['category_list']; trackBy: trackByFn" [nzValue]="item.category_id" [nzLabel]="item.category_name"></nz-option>
+                            </nz-select>
+                            <div *ngIf="isCategoryEmpty" style="color:red">
+                              未准入该主体或供应商品类被冻结，请到供应商管理系统核实。
+                            </div>
+                          </nz-descriptions-item>
+
+                          <!-- 供应商银行账号 -->
+                          <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'vendor_site_id'" >
+                            <nz-select  class="w-100" [(ngModel)]="data[field.key]" (ngModelChange)="changeAccountBank($event, data)">
+                              <nz-option *ngFor="let item of data['account_list']; trackBy: trackByFn" [nzValue]="item.value" [nzLabel]="item.label"></nz-option>
+                            </nz-select>
+                          </nz-descriptions-item>
+
+                          <!-- 成本中心 -->
+                          <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'cost_center_code'" >
+                            <nz-select  class="w-100" [(ngModel)]="data[field.key]" [nzDisabled]="data['cost_center_disabled']">
+                              <nz-option *ngFor="let item of data['cost_center_options']; trackBy: trackByFn" [nzValue]="item.value" [nzLabel]="item.label"></nz-option>
+                            </nz-select>
+                          </nz-descriptions-item>
+
+                          <!-- 是否支付 -->
+                          <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'is_auto_payment' || field.key == 'is_finish_check' "  >
+                            <nz-radio-group [(ngModel)]="data[field.key]">
+                              <label nz-radio [nzValue]="1" [nzDisabled]="field.disabled">是</label>
+                              <label nz-radio [nzValue]="0" [nzDisabled]="field.disabled">否</label>
+                            </nz-radio-group>
+                          </nz-descriptions-item>
+
+                          <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key === 'prepayments_status'"  >
+                            <nz-radio-group [(ngModel)]="data[field.key]">
+                              <label nz-radio nzValue="1">是</label>
+                              <label nz-radio nzValue="0">否</label>
+                            </nz-radio-group>
+                          </nz-descriptions-item>
+
+                          <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'prepayments_amount' && data['prepayments_status'] == '1' "  >
+                            <nz-input-group [nzSuffix]="suffixTemplate">
+                              <input
+                               nz-input
+                               [(ngModel)]="data[field.key]"
+                               (ngModelChange)="prepaymentsChange($event, data)"
+                            />
+                            </nz-input-group>
+                            <ng-template #suffixTemplate>
+                              <span *ngIf="field.templateOptions['suffixTemplate']" >{{ data['contract_symbol'] || field.templateOptions['suffixTemplate'] }}</span>
+                            </ng-template>
+                          </nz-descriptions-item>
+
+                          <!-- 验收人 -->
+                          <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'receiver'" >
+                            <nz-select
+                              class="w-100 "
+                              nzShowSearch
+                              nzAllowClear
+                              [nzMode]="'multiple'"
+                              [nzPlaceHolder]="'...输入关键字搜索'"
+                              [(ngModel)]="data[field.key]"
+                              [nzServerSearch]="true"
+                              (nzOnSearch)="onOaSearch($event)">
+                              <nz-option *ngIf="isSearchSelect" nzDisabled nzCustomContent>
+                                <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                              </nz-option>
+                              <ng-container *ngFor="let option of data['receiver_options']; trackBy: trackByFn">
+                                <nz-option *ngIf="!isSearchSelect" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+                              </ng-container>
+                            </nz-select>
+                          </nz-descriptions-item>
+
+                          <!-- 其他知会人 -->
+                          <nz-descriptions-item [nzTitle]="nzTitle" [nzSpan]="2" *ngIf="field.key == 'notice_crowd_ids'" >
+                            <nz-select
+                              class="w-100 "
+                              nzShowSearch
+                              nzAllowClear
+                              [nzMode]="'multiple'"
+                              [nzPlaceHolder]="'...输入关键字搜索'"
+                              [(ngModel)]="data[field.key]"
+                              [nzServerSearch]="true"
+                              (nzOnSearch)="onOaSearch($event)">
+                              <nz-option *ngIf="isSearchSelect" nzDisabled nzCustomContent>
+                                <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                              </nz-option>
+                              <ng-container *ngFor="let option of optionSearchs; trackBy: trackByFn">
+                                <nz-option *ngIf="!isSearchSelect" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+                              </ng-container>
+                            </nz-select>
+                          </nz-descriptions-item>
+
+                          <!-- 知会人 -->
+                          <nz-descriptions-item [nzTitle]="nzTitle" *ngIf="field.key == 'notice_crowd_id'" >
+                            <nz-checkbox-group [(ngModel)]="data.receiverOptions" (ngModelChange)="noticeChange($event, data)"></nz-checkbox-group>
+                          </nz-descriptions-item>
+                        </ng-container>
+                        <ng-template #nzTitle>
+                          <td class="ant-descriptions-item-label" [class.required]="field.templateOptions.required">{{ field.templateOptions.label }}</td>
+                        </ng-template>
+                      </ng-template>
+                    </nz-descriptions>
+                  </td>
+                </tr>
+              </ng-container>
+            </ng-template>
+          </tbody>
+        </nz-table>
+      </div>
+    </ng-container>
+  </ng-template>
+</nz-modal>

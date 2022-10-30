@@ -1,0 +1,11 @@
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<div id="iframe" 
+  [class.d-none]="loading"
+  class="w-100 h-100 position-absolute top-0 start-0 bottom-0 end-0">
+</div>
+

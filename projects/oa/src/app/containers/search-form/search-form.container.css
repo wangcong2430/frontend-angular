@@ -1,0 +1,60 @@
+:host ::ng-deep .ant-form {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+:host ::ng-deep .ant-form-item {
+  min-width: 280px;
+  width: 20%;
+  margin-bottom: 12px;
+  justify-content: start;
+  align-items: center;
+}
+
+:host ::ng-deep .ant-form-item-control-wrapper {
+  flex: 1;
+  margin-right: 20px;
+  overflow: hidden;
+}
+
+:host ::ng-deep .ant-form label{
+  font-size: 14px;
+  margin-bottom: 0;
+}
+:host ::ng-deep .ant-form .ant-form-item-label {
+  position: relative;
+  max-width: 128px;
+  min-width: 80px;
+  text-align: left;
+  white-space: break-spaces;
+  line-height: 18px;
+  position: relative;
+  font-size: 13px;
+}
+
+:host ::ng-deep .ant-form .ant-form-item-label label {
+  position: inherit;
+  margin-right: 14px;
+}
+
+:host ::ng-deep .ant-form-item-label > label::after {
+  content: ':';
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  position: absolute;
+  top: 0;
+  right: -10px;
+  bottom: 0;
+  margin: 0;
+  width: 10px;
+}
+
+:host ::ng-deep .ant-calendar-picker {
+  width: 100% !important;
+}
+:host ::ng-deep .ant-row .ant-btn:hover{
+  color: #fff !important;
+  background-color: #2575e6 !important;
+}

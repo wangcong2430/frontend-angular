@@ -1,0 +1,83 @@
+<!--报价详情-->
+<nz-modal
+  [(nzVisible)]="selectPriceModalData.isShow"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  [nzFooter]="null"
+  [nzBodyStyle]="{padding: 0}"
+  [nzWidth]="960"
+  (nzOnCancel)="selectPriceModalCancel()"
+>
+  <ng-template #modalTitle>
+    {{ 'PRICE_DETAILS' | translate }}
+  </ng-template>
+
+  <ng-template #modalContent>
+    <ng-container *ngIf=" !selectPriceModalData.data || !workloadUnitList">
+      <div class="example">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="selectPriceModalData.data && workloadUnitList">
+      <div nz-row [nzGutter]="24">
+
+        <div nz-col [nzSpan]="24">
+          <nz-table #selctPriceTable [nzFrontPagination]="false" [nzShowPagination]="false" [nzSize]="'middle'" [nzData]="selectPriceModalData.data">
+            <thead>
+              <tr>
+                <th style="width: 120px;">{{"DETAILED_NAME" | translate}}</th>
+                <th style="width: 120px;">{{"DETAILED_QUANTITY_UNIT" | translate}}</th>
+                <th style="width: 120px;">报价明细数量及单位 </th>
+                <th style="width: 120px;" *ngIf="this.selectPriceModalData.price_type !== '1' && selectPriceModalData.showCountPrice && selectPriceModalData.isShowPriceColumn">{{"DETAILED_UNIT_PRICE" | translate}}</th>
+                <th style="width: 120px;" *ngIf="this.selectPriceModalData.price_type !== '1' && selectPriceModalData.showCountPrice && selectPriceModalData.isShowPriceColumn">{{"DETAILED_PRICE" | translate}}</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let item of selctPriceTable.data;trackBy: trackByFn">
+                <!-- 明细名称  -->
+                <td style="width: 120px;">{{item?.label ? item?.label : item?.pre_label}}</td>
+
+                <!-- 需求数量及单位 -->
+                <td style="width: 120px;">
+                  {{item.qq_pre_workload_unit_label ? item.qq_pre_workload_unit_label : 'NA'}}
+                </td>
+
+                <!-- 报价数量及单位 -->
+                <td style="width: 120px;"  [class.red]="(item.pre_value != item.value) || (item.workload_unit_id != item.pre_workload_unit_id) ">
+                  {{item.value ? item.value : 'NA'}} {{ item.workload_unit_name || '' }}
+                </td>
+
+                <!-- 明细单价 -->
+                <td style="width: 120px;" *ngIf="this.selectPriceModalData.price_type !== '1' && selectPriceModalData.showCountPrice && selectPriceModalData.isShowPriceColumn">
+                  {{item.price|mycurrency}} {{selectPriceModalData.currency_symbol ? selectPriceModalData.currency_symbol : 'CNY'}}<span *ngIf="item.fixed_price_status">固定价</span>
+                </td>
+
+                <!-- 明细价格 -->
+                <td style="width: 120px;" *ngIf="this.selectPriceModalData.price_type !== '1' && selectPriceModalData.showCountPrice && selectPriceModalData.isShowPriceColumn">
+                  {{item.count_price|mycurrency}} {{selectPriceModalData.currency_symbol ? selectPriceModalData.currency_symbol : 'CNY'}}
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+        <ng-container *ngIf="this.selectPriceModalData.price_type !== '1' && selectPriceModalData.showCountPrice && selectPriceModalData.isShowPriceColumn">
+          <div nz-col [nzSpan]="24" class="mt-2">
+            <nz-form-item [nzFlex]="true"  style="margin-bottom: 0px">
+              <nz-form-label class="mx-2">{{"DETAILED_TOTAL" | translate}}</nz-form-label>
+              <nz-form-control class="control-padding">{{selectPriceModalData.countPrice|mycurrency}} {{selectPriceModalData.currency_symbol ? selectPriceModalData.currency_symbol : 'CNY'}} </nz-form-control>
+            </nz-form-item>
+          </div>
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <div nz-row [nzGutter]="24" style="margin-top: 36px;">
+      <div nz-col [nzSpan]="24">
+        <nz-form-item style="text-align: center">
+          <button nz-button nzType="default" (click)="selectPriceModalCancel()">{{'CLOSE' | translate}}</button>
+        </nz-form-item>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>

@@ -1,0 +1,11 @@
+export * from './category.service';
+import { CategoryService } from './category.service';
+export * from './permission.service';
+import { PermissionService } from './permission.service';
+export * from './queue.service';
+import { QueueService } from './queue.service';
+export * from './user.service';
+import { UserService } from './user.service';
+export * from './workflowInstance.service';
+import { WorkflowInstanceService } from './workflowInstance.service';
+export const APIS = [CategoryService, PermissionService, QueueService, UserService, WorkflowInstanceService];

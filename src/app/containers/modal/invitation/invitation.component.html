@@ -1,0 +1,222 @@
+<!-- 发送邀请码 -->
+<nz-modal nzClassName="" [(nzVisible)]="invitationModal.isVisible" nzTitle="获取邀请码" nzWidth="1080px"
+  (nzOnCancel)="closeInvitationModal()" [nzOkLoading]="invitationModal.okLoading" (nzOnOk)="invitationModalOk(tplContent)">
+
+  <ng-container *ngIf="invitationModal.isVisible">
+    <form nz-form class="invitation-info-modal" [formGroup]="validateForm">
+      <nz-card class="w-100 mb-3" style="width:300px;" nzTitle="邀请经办人信息">
+    
+          <div nz-row [nzGutter]="24">
+            <div nz-col [nzSpan]="12">
+              <nz-form-item nzFlex>
+                <nz-form-label  [nzSpan]="8">受邀经办人</nz-form-label>
+                 <nz-form-control [nzSpan]="12" >
+                  <input
+                    nz-input
+                    formControlName="handler_user_name" id="handler_user_name"
+                    disabled="true"
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="12">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="8" >邀请BG</nz-form-label>
+                 <nz-form-control [nzSpan]="12">
+                  <input
+                    nz-input
+                    disabled="true"
+                    formControlName="invite_bg_name" id="invite_bg"
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="12">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="8" >邀请部门</nz-form-label>
+                 <nz-form-control [nzSpan]="12">
+                  <input
+                    nz-input
+                    disabled="true"
+                    formControlName="invite_department_name" id="invite_department"
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="12">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="8" nzRequired >腾讯联系人</nz-form-label>
+                 <nz-form-control [nzSpan]="12">
+                  <input
+                    nz-input
+                    disabled="true"
+                    formControlName="contact_person" id="contact_person"
+    
+                    placeholder="请输入腾讯的联系人..."
+    
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="12">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="8" nzRequired >联系人邮箱</nz-form-label>
+                 <nz-form-control [nzSpan]="12">
+                  <input
+                    nz-input
+                    disabled="true"
+                    formControlName="contact_email" id="contact_email"
+    
+                    placeholder="请输入联系人的邮箱地址"
+    
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="12">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="8" nzRequired >联系人电话</nz-form-label>
+                 <nz-form-control [nzSpan]="12">
+                  <input
+                    nz-input
+                    disabled="true"
+                    formControlName="contact_tel" id="contact_tel"
+    
+                    placeholder="请输入联系人电话"
+    
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="12">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="8" nzRequired >联系人地址</nz-form-label>
+                 <nz-form-control [nzSpan]="12">
+                  <input
+                    nz-input
+                    disabled="true"
+                    placeholder="请输入联系人地址"
+                    formControlName="contract_address" id="contract_address"
+    
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+      </nz-card>
+    
+      <nz-card class="w-100" style="width:300px;"  nzTitle="受邀供应商基本信息">
+    
+          <div nz-row [nzGutter]="24">
+            <div nz-col [nzSpan]="24">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="4" nzRequired >供应商性质</nz-form-label>
+                 <nz-form-control [nzSpan]="6" >
+                  <nz-radio-group
+                  formControlName="supplier_type" id="supplier_type"
+                [nzButtonStyle]="'solid'" >
+                    <label nz-radio-button [nzValue]="1">企业</label>
+                    <label nz-radio-button [nzValue]="2">个人</label>
+                  </nz-radio-group>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="24">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="4" nzRequired >供应商名称</nz-form-label>
+                 <nz-form-control [nzSpan]="8">
+                  <input
+                    nz-input
+                    formControlName="supplier_name" id="supplier_name"
+                    placeholder="请填写供应商名称"
+                    disabled="true"
+                  />
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="24">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="4" nzRequired >供应商类别</nz-form-label>
+                 <nz-form-control [nzSpan]="16" [nzValidateStatus]="validateForm.controls['supplier_category']">
+                  <nz-select
+                    placeholder="请选择供应商类别"
+                    formControlName="supplier_category"
+                    nzMode="multiple"
+                    id="supplier_category">
+                    <nz-option *ngFor="let option of supplier_category_list" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+                  </nz-select>
+                  <nz-form-explain *ngIf="validateForm.get('supplier_category')?.dirty && validateForm.get('supplier_category')?.errors"
+                  >请选择供应商类别!</nz-form-explain>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="12" *ngIf="validateForm.get('supplier_type').value === 2">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="8" nzRequired >证件类型</nz-form-label>
+                 <nz-form-control [nzSpan]="16" [nzValidateStatus]="validateForm.controls['certificate_type']">
+                  <nz-select
+                  formControlName="certificate_type" id="certificate_type"
+                 >
+                    <nz-option [nzValue]="10" nzLabel="身份证"></nz-option>
+                    <nz-option [nzValue]="20" nzLabel="军官证"></nz-option>
+                    <nz-option [nzValue]="30" nzLabel="护照"></nz-option>
+                    <nz-option [nzValue]="40" nzLabel="其他证件"></nz-option>
+                  </nz-select>
+                  <nz-form-explain *ngIf="validateForm.get('certificate_type')?.dirty && validateForm.get('certificate_type')?.errors"
+                  >请选择证件类型!</nz-form-explain>
+    
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="12" *ngIf="validateForm.get('supplier_type').value === 2">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="8"nzRequired>证件号码</nz-form-label>
+                 <nz-form-control [nzSpan]="16" [nzValidateStatus]="validateForm.controls['certificate_no']">
+                  <input
+                    nz-input
+                    formControlName="certificate_no" id="certificate_no"
+    
+                    placeholder="请填写证件号码"
+    
+                  />
+                  <nz-form-explain *ngIf="validateForm.get('certificate_no')?.dirty && validateForm.get('certificate_no')?.errors"
+                  >请填写证件号码!</nz-form-explain>
+    
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="24">
+              <nz-form-item nzFlex>
+                <nz-form-label [nzSpan]="4" nzRequired >供应商电子邮箱</nz-form-label>
+                <nz-form-control [nzSpan]="8" [nzValidateStatus]="validateForm.controls['supplier_email']">
+                  <input
+                    nz-input
+                    formControlName="supplier_email" id="supplier_email"
+    
+                    placeholder="请输入供应商电子邮箱"
+    
+                  />
+                  <nz-form-explain *ngIf="validateForm.get('supplier_email')?.dirty && validateForm.get('supplier_email')?.errors">
+                    请输入供应商电子邮箱!
+                  </nz-form-explain>
+                  <nz-form-extra>
+                    该邮箱将接收邀请码, 收到邮件的人可以用邀请码绑定注册成为该供应商下的用户
+                  </nz-form-extra>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+    
+      </nz-card>
+    </form>
+  </ng-container>
+
+</nz-modal>
+
+<ng-template #tplContent>
+  <p>供应商性质: {{validateForm.get('supplier_type').value  == 1 ? '企业' : '个人'}}</p>
+  <p>供应商名称: {{validateForm.get('supplier_name').value  }} </p>
+  <p>供应商电子邮箱: {{validateForm.get('supplier_email').value }}</p>
+  <p>邀请BG: {{validateForm.get('invite_bg_name').value }}</p>
+  <p>供应商类别: {{validateForm.get('supplier_category').value }}</p>
+</ng-template>

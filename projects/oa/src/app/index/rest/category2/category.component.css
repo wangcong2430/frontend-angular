@@ -1,0 +1,9 @@
+
+:host ::ng-deep .ant-table-thead > tr > th {
+  background-color: #F5F8FF !important;
+  color: #000000 !important;
+}
+
+:host ::ng-deep .ant-card-body{
+  padding: 16px;
+}

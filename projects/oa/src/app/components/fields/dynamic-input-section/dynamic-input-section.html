@@ -1,0 +1,13 @@
+<ng-container *ngFor="let item of model.produce_breakdowns;trackBy: trackByFn; let i = index;">
+    <nz-form-item style="padding-bottom: 0;">
+        <nz-form-label nzSpan="7"  *ngIf="item.label" nzRequired nzFor="email">{{item.label}}</nz-form-label>
+        <nz-form-control nzSpan="14" nzOffset="1">
+            <input nz-input
+                [id]="id"
+                [(ngModel)]="item.value"
+                [formlyAttributes]="field"
+                [nzSize]="to['nzSize']"/>
+        </nz-form-control>
+    </nz-form-item>
+ </ng-container>
+

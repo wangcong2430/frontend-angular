@@ -1,0 +1,25 @@
+<nz-modal [nzWidth]="1500"
+          [(nzVisible)]="isVisible"
+          [nzTitle]="modalTitle"
+          [nzContent]="modalContent"
+          nzClosable="false"
+          nzMaskClosable="false"
+          (nzOnCancel)="close()"
+          [nzOkLoading]="isOkLoading"
+          (nzOnOk)="submit()">
+
+  <ng-template #modalTitle>
+    <div
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content">请确认验收对账单信息
+    </div>
+  </ng-template>
+
+  <ng-template #modalContent>
+    <ng-container *ngIf="isVisible">
+      <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
+    </ng-container>
+  </ng-template>
+</nz-modal>
+

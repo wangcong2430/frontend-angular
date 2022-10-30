@@ -1,0 +1,135 @@
+<app-component-crumb [(list)]="list" [isChildren]="true" (changeDisabledButton)="changeDisabledButton($event)">
+  <nz-upload
+    class="fl"
+    nzAction="/web/cos/upload?type=1000"
+    [nzShowUploadList]="false"
+    [nzMultiple]="true"
+    [nzCustomRequest]="cos.customReqs"
+    [nzBeforeUpload]="cos.beforeUploadImgSize"
+    (nzChange)="uploadChange($event)">
+    <button nz-button nz-popover nzSize="small" [nzContent]="uploadTemplate">
+      <span>{{'UPLOAD_DEMO' | translate}}</span>
+    </button>
+  </nz-upload>
+
+  <nz-upload
+    class="fl"
+    nzAction="/web/cos/upload?type=1005"
+    [nzShowUploadList]="false"
+    [nzMultiple]="true"
+    [nzCustomRequest]="cos.customReqs"
+    [nzBeforeUpload]="cos.beforeUploadFileSize"
+    (nzChange)="uploadChange($event)">
+  <button nz-button nz-popover nzSize="small" [nzContent]="uploadTemplate">
+    <span>{{'UPLOAD_FINAL_FILES' | translate}}</span>
+  </button>
+</nz-upload>
+
+  <nz-upload
+    class="fl"
+    nzAction="/web/cos/upload?type=1010"
+    [nzShowUploadList]="false"
+    [nzMultiple]="true"
+    [nzCustomRequest]="cos.customReqs"
+    [nzBeforeUpload]="cos.beforeUploadFile"
+    (nzChange)="uploadChange($event)">
+    <button nz-button nz-popover nzSize="small" [nzContent]="uploadTemplate">
+      <span>{{'UPLOAD_WORKING_FILES' | translate}}</span>
+    </button>
+  </nz-upload>
+
+  <ng-template #uploadTemplate><p>{{'FILE_TYPE' | translate}}：{{'FILE_TYPE_EXAMPLE' | translate}}<p></ng-template>
+  <button nz-button nzType="primary" nzSize="small" (click)="batchUpdataLabel()" [disabled]="disabledButton">{{"LABEL_BATCH_MODIFY" | translate}}</button>
+  <button nz-button nzType="primary" nzSize="small" (click)="batchUpdataTime()"  [disabled]="disabledButton">{{"ACTUAL_TIME" | translate}}</button>
+  <button nz-button nzType="primary" nzSize="small" (click)="completed()"        [disabled]="disabledButton">{{"PRODUCTION COMPLETE" | translate}}</button>
+
+
+  <nz-badge [nzCount]="hubData.arthub.num">
+    <a *ngIf="!!hubData.arthub.jumpUrl" nz-button  nzSize="small" nzType="primary"  [href]="hubData.arthub.jumpUrl" class="text-white">arthub交付</a>
+  </nz-badge>
+
+  <nz-badge [nzCount]="hubData.ihub.num">
+    <a *ngIf="!!hubData.ihub.jumpUrl" nz-button  nzSize="small" nzType="primary" [href]="hubData.ihub.jumpUrl" class="text-white">ihub交付</a>
+  </nz-badge>
+
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <div class="main-body">
+    <ng-container *ngIf="loading">
+      <div class="example mt-4">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!loading">
+      <!--列表-->
+      <div class="search-results px-3">
+<!--<div *ngIf="list && list.length" style="color: #f00; font-size: 16px; padding: 6px 0;">列表中未展示的物件，请到arthub或者ihub交付</div>-->
+        <app-container-table-group-new
+          [loading]="listLoading"
+          (getList)="getList($event)"
+          [(list)]="list"
+          [(columns)]="columns"
+          [(childrenColumns)]="childrenColumns"
+          [(pagination)]="pagination"
+          (changeDisabledButton)="changeDisabledButton($event)"
+          (clickEvent)="clickEvent($event)"
+          (blurEvent)="blurEvent($event)"
+          [(disabledButton)]="disabledButton"
+          [isChildrenDisabled]="false"
+          [nzNoResult]="(list.length == 0 && hubData.arthub.num > 0 || hubData.ihub.num > 0) ? nzNoResult : ''"
+        >
+        </app-container-table-group-new>
+      </div>
+      <p style="clear: both"></p>
+    </ng-container>
+  </div>
+  <ng-template #nzNoResult>
+    <nz-empty [nzNotFoundContent]="contentTpl">
+      <ng-template #contentTpl>
+        <div style="color: #000000; font-size: 18px; margin-bottom: 16px;" *ngIf="hubData.arthub.num > 0">arthub系统待办数据有{{hubData.arthub.num}}条
+          <a  *ngIf="!!hubData.arthub.jumpUrl"  nz-button  nzSize="small" nzType="primary"[href]="hubData.arthub.jumpUrl"  style="color: #FFFFFF !important;">前往arthub</a>
+        </div>
+        <div style="color: #000000; font-size: 18px; margin-bottom: 16px;" *ngIf="hubData.ihub.num > 0">ihub系统待办数据有{{hubData.ihub.num}}条
+          <a  *ngIf="!!hubData.ihub.jumpUrl" nz-button  nzSize="small" nzType="primary"  [href]="hubData.ihub.jumpUrl"  style="color: #FFFFFF !important;">前往ihub</a>
+        </div>
+      </ng-template>
+    </nz-empty>
+  </ng-template>
+</ng-container>
+
+<app-modal-thing-detail
+  (getList)="getList($event)">
+</app-modal-thing-detail>
+
+<app-modal-thing-price-change
+  (getList)="getList($event)">
+
+</app-modal-thing-price-change>
+
+<!--上传进度-->
+<app-modal-uploads-plan></app-modal-uploads-plan>
+
+<nz-modal [(nzVisible)]="isBatchTimeVisible" nzTitle="批量填写实际开工日期" (nzOnCancel)="isBatchTimeVisible = false" (nzOnOk)="batchTimeOk()">
+  <nz-date-picker [ngModel]="actualStartTime" (ngModelChange)="onDatePickerChange($event)"></nz-date-picker>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isIhubTo" nzTitle="交付迁移提示" nzOkText="前往" (nzOnCancel)="isIhubTo = false" (nzOnOk)="isIhubToEvent()">
+  <p>请到ihub进行交付。<a target='_blank' href='https://ihub.qq.com'>【前往：https://ihub.qq.com】</a></p>
+</nz-modal>

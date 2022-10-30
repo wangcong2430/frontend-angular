@@ -1,0 +1,38 @@
+<div class="w-100 d-flex">
+<nz-select
+  class="flex-fill mr-2"
+  nzShowSearch
+  nzAllowClear
+  nzPlaceHolder="选择类型"
+  [(ngModel)]="tax_type"
+  (ngModelChange)="modelChange()"
+  name="tax_type">
+  <ng-container *ngFor="let item of to['tax_type_options']; trackBy: trackByFn" >
+    <nz-option [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+  </ng-container>
+</nz-select>
+
+<ng-container  *ngIf="tax_type == '1'">
+  <nz-select
+    class="flex-fill"
+    nzShowSearch
+    nzAllowClear
+    nzPlaceHolder="固定税率"
+    [(ngModel)]="tax_value"
+    name="tax_value"
+    (nzOnSearch)="search($event)"
+    (ngModelChange)="taxValueChange()"
+    >
+    <ng-container *ngFor="let item of tax_list_options ; trackBy: trackByFn">
+      <nz-option [nzLabel]="item.label" [nzValue]="item.value" ></nz-option>
+    </ng-container>
+  </nz-select>
+</ng-container>
+<ng-container  *ngIf="tax_type == '2'" >
+  <input class="flex-fill" nz-input placeholder="自定义税率" [(ngModel)]="tax_value" (ngModelChange)="taxValueChange()" name="tax_value"/>
+</ng-container>
+<ng-container  *ngIf="tax_type == '3'" >
+  <input class="flex-fill" nz-input placeholder="自定义税金" [(ngModel)]="tax_value" (ngModelChange)="taxValueChange()" name="tax_value"/>
+</ng-container>
+
+

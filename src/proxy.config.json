@@ -1,0 +1,10 @@
+{
+  "/web": {
+    "target": "http://qq.cpm.cm.com:8210",
+    "secure": true
+  },
+  "/api": {
+    "target": "http://qq.cpm.cm.com:8210",
+    "secure": true
+  }
+}

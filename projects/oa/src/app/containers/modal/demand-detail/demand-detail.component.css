@@ -1,0 +1,40 @@
+
+::ng-deep .ant-form-item-label label {
+  margin-bottom: 0;
+}
+
+::ng-deep .text-danger.ant-form-item-label label {
+  color: red;
+}
+
+
+ ::ng-deep .control-padding .control {
+  display: inline-block;
+  line-height: 24px;
+}
+
+
+::ng-deep  .ant-upload-list-item-name{
+  padding-right: 5px;
+  display: inline-block;
+}
+
+::ng-deep .ant-modal-body {
+  padding: 16px;
+}
+
+
+::ng-deep .green {
+  color: green
+}
+
+::ng-deep .modal-section .ant-form-item-label {
+  width: 135px;
+  min-width: 110px;
+}
+
+
+nz-form-control {
+  display: flex;
+  align-items: center;
+}

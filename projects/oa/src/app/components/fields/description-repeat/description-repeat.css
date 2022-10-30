@@ -1,0 +1,65 @@
+:host ::ng-deep .ant-descriptions-title  {
+  margin-bottom: 0;
+}
+
+:host ::ng-deep .ant-descriptions-item-content {
+  max-width: 220px;
+  width: 220px;
+  min-width: 220px;
+}
+
+:host ::ng-deep .ant-descriptions-item-label {
+  max-width: 120px;
+}
+
+:host ::ng-deep .ant-select-disabled {
+  color: unset;
+}
+
+:host ::ng-deep .ant-select-disabled .ant-select-selection {
+  background: white;
+  border: unset;
+  opacity: 1;
+  cursor: auto;
+}
+
+:host ::ng-deep .ant-select-disabled .ant-select-arrow {
+  display: none;
+}
+
+:host ::ng-deep .ant-select-selection-selected-value {
+  padding-right: 0;
+}
+
+:host ::ng-deep .ant-select-disabled .ant-select-selection {
+  color: #222;
+}
+
+:host ::ng-deep  .ant-radio-disabled + span {
+  color: #222;
+}
+:host ::ng-deep .ant-checkbox-disabled + span {
+  color: #222 ;
+}
+
+:host ::ng-deep .ant-select-disabled .ant-select-selection--multiple .ant-select-selection__choice {
+  color: #222 ;
+}
+
+:host ::ng-deep .ant-select-disabled .ant-select-selection-selected-value {
+  white-space: unset;
+  line-height: 1.2;
+}
+
+:host ::ng-deep .ant-input[disabled] ,
+:host ::ng-deep .ant-input-disabled {
+  color: #222;
+  background-color: unset;
+  border: unset;
+  cursor: auto;
+  opacity: 1;
+}
+
+:host ::ng-deep .ant-select-disabled .ant-select-selection__placeholder, .ant-select-search__field__placeholder {
+  color: #222;
+}

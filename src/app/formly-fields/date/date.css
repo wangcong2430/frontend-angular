@@ -1,0 +1,22 @@
+.form-field-date {
+    position: relative;
+}
+.form-field-date .data-clear {
+    position: absolute;
+    right: 10px;
+    top: .375rem;
+    font-size: 16px;
+    cursor: pointer;
+}
+.form-field-date .form-control {
+    padding-right: 20px;
+}
+.input-group-prepend {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+
+/*.form-field-date .form-control {*/
+    /*padding-left: 45px;*/
+/*}*/

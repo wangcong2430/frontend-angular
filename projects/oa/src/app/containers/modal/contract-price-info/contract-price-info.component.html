@@ -1,0 +1,360 @@
+<nz-modal
+  #contractDetail
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  nzMaskClosable="false"
+  [nzContent]="modalContent"
+  [nzFooter]="modalFooter"
+  [nzFooter]="null"
+  [nzWidth]="1350"
+  [nzZIndex]="nzZIndex"
+  (nzOnCancel)="modalCancel()"
+>
+  <ng-template #modalTitle>
+    <div
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content"> 合同详情
+    </div>
+  </ng-template>
+
+  <ng-template #modalContent>
+    <ng-container *ngIf="loading">
+      <div class="example">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading && contractInfo">
+
+      <div class="thing-modal">
+        <!-- 合同信息 -->
+        <div class="modal-section-title">
+          <span class="title-font">合同信息</span>
+        </div>
+        <div class="modal-section">
+          <div nz-row [nzGutter]="24">
+            <div nz-col [nzSpan]="6">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">EPO单号</nz-form-label>
+                <nz-form-control class="item-control">
+                 {{ contractInfo['epo_code'] ? contractInfo['epo_code'] : 'NA' }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">合同号</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['contract_number'] ? contractInfo['contract_number'] : 'NA' }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">合同有效期</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['valid_time'] }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">合同我方主体</nz-form-label>
+                <nz-form-control class="item-control">
+                   <span class="d-inline-block" style="line-height: 1.5;" [title]="contractInfo['org_name']">{{ contractInfo['org_name'] }}</span>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">供应商名称</nz-form-label>
+                <nz-form-control class="item-control" [title]="contractInfo['supplier_name']">
+                  <span [class.link]="contractInfo['supplier_id']" (click)="openSupplierInfo(contractInfo['supplier_id'])">{{contractInfo['supplier_text'] ? contractInfo['supplier_text'] : 'NA' }}</span>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">合作模式</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['contract_tag_text'] ? contractInfo['contract_tag_text'] : 'NA' }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">合同类型</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['contract_type_text'] ? contractInfo['contract_type_text'] : 'NA' }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6" *ngIf="contractInfo['contract_type'] == 2" >
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">合同来源</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['contract_source_str'] ? contractInfo['contract_source_str'] : 'NA' }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6" *ngIf="contractInfo['contract_type'] && contractInfo['contract_type'] == 2">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">合同金额/已用</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['contract_price'] }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">含税/不含税</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['tax_type_text'] }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6" *ngIf="contractInfo['tax_type'] == 2">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label">税率</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['tax_rate_value'] ? contractInfo['tax_rate_value'] : 'NA'}}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">合同币种</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['currency_name'] }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6" *ngIf="contractInfo['creator_name']">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">申请人</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['creator_name'] }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6" *ngIf="contractInfo['upload_file_name'] && contractInfo['upload_file_name'] != ''">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label">合同附件</nz-form-label>
+                <nz-form-control class="item-control">
+                  <ng-container *ngIf="contractInfo['upload_file_name'] && contractInfo['upload_file_name'] != ''">
+                    <a [href]="contractInfo['upload_file_url']" target="_blank">
+                      <span nz-popover [nzContent]="contentTemplate2">
+                        {{contractInfo['upload_file_name'].substring(0, 15) }}
+                        <span *ngIf="contractInfo['upload_file_name'].length >= 15">...</span>
+                      </span>
+                      <!-- 引用模板，可输出html -->
+                      <ng-template #contentTemplate2><a [innerHTML]="contractInfo['upload_file_name']"></a></ng-template>
+                    </a>
+                  </ng-container>
+                  <ng-container *ngIf="!contractInfo['upload_file_name'] || contractInfo['upload_file_name'] == ''">
+                    NA
+                  </ng-container>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="6">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label">合同状态</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['status_text'] }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="12" *ngIf="contractInfo['contract_type'] != 2">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">付款类型</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['epo_term_name']  | format }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="12">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">供应商选择方法</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['select_reason']  | format }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="24">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label" [nzRequired]="true">合同限制范围</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['limit_text'] || 'NA' }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="24">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label">签约品类</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['sign_category_names'] }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="24">
+              <nz-form-item [nzFlex]="true">
+                <nz-form-label class="item-label">合同说明</nz-form-label>
+                <nz-form-control class="item-control">
+                  {{ contractInfo['remark'] }}
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </div>
+        </div>
+
+        <!-- 决策相关信息 -->
+        <div class="modal-section" *ngIf="contractInfo.dec_order_data">
+          <div class="modal-section-title mb-2 mx-n2">
+            <span class="font-weight-bold">决策相关信息</span>
+          </div>
+          <nz-table
+            #DecInfoTable
+            [nzBordered]="true"
+            [nzData]="contractInfo.dec_order_data"
+            [nzPageSize]="6"
+            [nzShowPagination]="true"
+            [nzFrontPagination]="true"
+          >
+            <thead>
+              <tr>
+                <th style="width: 200px;">决策单号</th>
+                <th>决策类型</th>
+                <th>项目名称</th>
+                <th>决策说明</th>
+                <th style="width: 300px;">附件</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let item of DecInfoTable.data; let i= index; trackBy: trackByFn">
+                <tr>
+                  <td>
+                    <!-- 决策单号 -->
+                    <a href="{{iomc_url+item['dec_id']}}}" target="_blank" [innerHTML]="item['dec_order_code'] || 'NA' ">
+                    </a>
+
+                  </td>
+                  <td>
+                    {{ item['dec_type_name'] || "NA" }}
+                  </td>
+                  <td>
+                    {{ item['dec_project_name'] || "NA" }}
+                  </td>
+                  <td>
+                    {{ item['remark'] || "NA" }}
+                  </td>
+                  <td>
+                    <ng-container *ngIf="item.dec_file_id > 0 ">
+                      {{item.dec_file_name || ''}}
+                      <a style="margin-right: 9px" [href]="'web/file/' + item['dec_file_id']" target="_blank">
+                        <i nz-icon type="cloud-download" theme="outline"></i>下载
+                      </a>
+                    </ng-container>
+
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </nz-table>
+        </div>
+
+        <!-- 我方主体明细 -->
+        <div class="modal-section-title">
+          <span class="title-font">我方主体明细<b class="red">(银行账号应与合同系统录入的合同保持一致)</b></span>
+        </div>
+        <div class="modal-section">
+          <nz-table
+            #qqUserTable
+            [nzSize]="'small'"
+            [nzShowPagination]="false"
+            [nzBordered]="true"
+            [nzData]="contractInfo['orgList'] || []"
+          >
+            <thead>
+            <tr>
+              <th>我方主体</th>
+              <th>供应商服务品类</th>
+              <th>供应商银行账号</th>
+            </tr>
+            </thead>
+            <tbody *ngIf="contractInfo['orgList']">
+              <tr *ngFor="let v of contractInfo['orgList'];trackBy: trackByFn">
+                <td [innerHTML]="v.company_name"></td>
+                <td [innerHTML]="v.category_name"></td>
+                <td [innerHTML]="v.account_supplier_bank"></td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+
+        <!-- 合同品类明细 -->
+        <div class="modal-section-title">
+          <span class="title-font">合同品类明细</span>
+        </div>
+        <div class="modal-section">
+          <nz-table
+            #qqUserTable
+            [nzSize]="'small'"
+            [nzShowPagination]="false"
+            [nzBordered]="true"
+            [nzData]="contractInfo['price_librarys'] || []"
+          >
+            <thead>
+            <tr>
+              <th><span class="ant-form-item-required">品类</span></th>
+              <th><span class="ant-form-item-required">制作明细</span></th>
+              <th><span class="ant-form-item-required">制作等级</span></th>
+              <th><span class="ant-form-item-required">下限</span></th>
+              <th><span class="ant-form-item-required">上限</span></th>
+              <th><span class="ant-form-item-required">单位</span></th>
+              <th [ngStyle]="{maxWidth: '300px'}">类别限制范围</th>
+              <th>备注</th>
+              <th>产品名称</th>
+              <th>状态</th>
+            </tr>
+            </thead>
+            <tbody *ngIf="contractInfo['price_librarys']">
+              <tr *ngFor="let v of contractInfo['price_librarys'];trackBy: trackByFn">
+                <td [innerHTML]="v.category_names"></td>
+                <td [innerHTML]="v.produce_breakdown_text"></td>
+                <td [innerHTML]="v.produce_grade_text"></td>
+                <td>
+                  {{v.price_lower|mycurrency}}
+                </td>
+                <td>
+                  {{v.price_upper|mycurrency}}
+                </td>
+                <td>
+                  {{v.workload_unit_text}}
+                </td>
+                <td [ngStyle]="{maxWidth: '300px'}">
+                  {{v.limit_text ? v.limit_text : 'NA'}}
+                </td>
+                <td>
+                  {{v.remark ? v.remark : 'NA'}}
+                </td>
+                <td>
+                  {{v.coa_name ? v.coa_name : 'NA'}}
+                </td>
+                <td>
+                  {{v.cooperation_status_text ? v.cooperation_status_text : 'NA'}}
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+
+      </div>
+    </ng-container>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="modalCancel()">关闭</button>
+  </ng-template>
+</nz-modal>

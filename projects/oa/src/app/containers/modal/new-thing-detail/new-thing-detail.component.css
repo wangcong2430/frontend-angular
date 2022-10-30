@@ -1,0 +1,38 @@
+nz-form-control {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+
+.modal-section  label{
+    min-width: 120px;
+    width: 120px;
+    text-align: right;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+
+.modal-section  label::after{
+  content: ': ';
+  display: inline-block;
+  margin-left: 2px;
+}
+
+::ng-deep .ant-table-small {
+  border-radius: 0;
+}
+
+::ng-deep .line-error::after {
+  content: '';
+  position: absolute;
+  border-bottom: 1px solid #ccc;
+  left: 0;
+  right: 0;
+  bottom: 48%;
+}
+
+::ng-deep .ant-table-thead > tr, .ant-table-tbody > tr {
+  position: relative;
+}

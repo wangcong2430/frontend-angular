@@ -1,0 +1,27 @@
+
+<div style="width: 100%; height: auto; overflow: auto;" [style.height]="to.height ? to.height : 'auto'" *ngIf="lists && lists.length > 0">
+	<ng-container *ngFor="let item of lists; trackBy: trackByFn">
+		<div>
+			<label
+				nz-checkbox
+				[(ngModel)]="item.checked"
+				(ngModelChange)="updateAllChecked(item)"
+				[nzIndeterminate]="item.indeterminate"
+			>
+				<span class="text-danger">{{item.label}}</span>
+			</label>
+		</div>
+		<!-- <nz-checkbox-group class="mb-3" [(ngModel)]="item.children" (ngModelChange)="updateSingleChecked($event, item)"></nz-checkbox-group> -->
+
+		<nz-checkbox-wrapper >
+      <div nz-row class="ant-row d-flex flex-wrap">
+        <div nz-col class="mb-3" [nzSpan]="to.nzSpan || 6" *ngFor="let children of item.children">
+					<label nz-checkbox [nzValue]="children.value" [(ngModel)]="children.checked" (ngModelChange)="updateSingleChecked($event, item)">{{children.label}}</label>
+					<p class="mb-0 red" *ngIf="children.explain">({{children.explain}})</p>
+				</div>
+      </div>
+    </nz-checkbox-wrapper>
+	</ng-container>
+</div>
+
+

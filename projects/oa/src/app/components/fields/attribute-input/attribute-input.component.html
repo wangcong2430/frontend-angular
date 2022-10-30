@@ -1,0 +1,20 @@
+
+<input  nz-input
+        [(ngModel)]="value1"
+        [nzSize]="to['nzSize']"
+        [placeholder]="to['nzPlaceHolder'] || '请输入'"
+        [type]="to['nzType'] || 'text' "
+        [autocomplete]="to['autocomplete']"
+        [disabled]="to['disabled']"
+        (ngModelChange)="change()"
+        />
+<span> * </span>
+<input  nz-input 
+        [(ngModel)]="value2"
+        [nzSize]="to['nzSize']"
+        [placeholder]="to['nzPlaceHolder'] || '请输入'"
+        [type]="to['nzType'] || 'text' "
+        [autocomplete]="to['autocomplete']"
+        [disabled]="to['disabled']"
+        (ngModelChange)="change()"
+        />

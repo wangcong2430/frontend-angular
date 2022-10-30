@@ -1,0 +1,102 @@
+<nz-modal
+  #budgetThing
+  [(nzVisible)]="isVisible"
+  [nzTitle]="modalTitle"
+  [nzContent]="bulletlinContent"
+  nzMaskClosable="false"
+  [nzOkText]="null"
+  nzMaskClosable="false"
+  [nzCancelText]="null"
+  [nzFooter]="null"
+  [nzWidth]="1300"
+  [nzZIndex]="nzZIndex"
+  (nzOnCancel)="onCancel()">
+</nz-modal>
+
+<ng-template #modalTitle>
+  <div       
+    cdkDrag
+    cdkDragHandle
+    cdkDragRootElement=".ant-modal-content"> {{ prname + ' 费用使用情况' }}
+  </div>
+</ng-template>
+
+<ng-template #bulletlinContent>
+  <div class="budget-list-body">
+    <div *ngIf="isVisible">
+        <div class="fr">
+            <button nz-button nzType="primary" (click)="openOrCloseAll(false)" style="margin-right: 10px;" *ngIf="(list2 && list2.length > 0) || list && list.length > 0">全部展开</button>
+            <button nz-button nzType="primary" (click)="openOrCloseAll(true)"  *ngIf="(list2 && list2.length > 0) || list && list.length > 0">全部收起</button>
+          </div>
+      <div class="search-filters" [ngStyle]="{marginBottom: '16px'}">
+        <nz-radio-group [(ngModel)]="select_type" [nzButtonStyle]="'solid'" [ngStyle]="{marginBottom: '16px'}" (ngModelChange)="getList()">
+          <label nz-radio-button nzValue="1">已用</label>
+          <label nz-radio-button nzValue="4">未下单</label>
+          <label nz-radio-button nzValue="2">未验收</label>
+          <label nz-radio-button nzValue="3">已验收</label>
+        </nz-radio-group>
+      </div>
+
+      <div>
+        <nz-form-item [nzFlex]="true">
+          <nz-form-label class="px-0">需求制单人</nz-form-label>
+          <nz-form-control class="px-0" [ngStyle]="{marginRight: '30px', width: '138px'}">
+            <nz-select  [(ngModel)]="story_creator" [nzShowSearch]="true" [ngStyle]="{width: '100%'}" [nzAllowClear]="true">
+              <nz-option *ngFor="let option of storyCreatorOptions;trackBy: trackByFn" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+            </nz-select>
+          </nz-form-control>
+
+          <nz-form-label class="px-0">需求提交时间</nz-form-label>
+          <nz-form-control class="px-0" [ngStyle]="{marginRight: '30px'}">
+            <nz-range-picker
+              [(ngModel)]="dateRange"
+              nzFormat="yyyy-MM-dd"
+              (ngModelChange)="onChange($event)" nzShowTime>
+            </nz-range-picker>
+          </nz-form-control>
+
+          <nz-form-control class="px-0" [ngStyle]="{marginRight: '30px'}">
+            <button nz-button nzType="primary" (click)="search()"><i nz-icon type="search"></i>查询</button>
+          </nz-form-control>
+
+          <nz-form-label class="px-0">合计金额</nz-form-label>
+          <nz-form-control class="px-0">{{ totalPrice|mycurrency }}</nz-form-control>
+        </nz-form-item>
+      </div>
+      <!--列表-->
+
+      <ng-container *ngIf="list2 && list2.length > 0">
+        <nz-divider nzText="未下单" nzOrientation="left"></nz-divider>
+        <app-container-table-group-new
+          [loading]="listLoading"
+          (getList)="getList($event)"
+          [(list)]="list2"
+          [(columns)]="columns2"
+          [(childrenColumns)]="childrenColumns2"
+          [(pagination)]="pagination2"
+          (changeDisabledButton)="changeDisabledButton($event)"
+          (clickEvent)="clickEvent($event)"
+          [isChildrenDisabled]="false"
+          [(disabledButton)]="disabledButton"
+        >
+        </app-container-table-group-new>
+        <nz-divider nzText="已下单" nzOrientation="left"></nz-divider>
+      </ng-container>
+      <ng-container *ngIf="list && list.length > 0">
+      <app-container-table-group-new
+        [loading]="listLoading"
+        (getList)="getList($event)"
+        [(list)]="list"
+        [(columns)]="columns"
+        [(childrenColumns)]="childrenColumns"
+        [(pagination)]="pagination"
+        (changeDisabledButton)="changeDisabledButton($event)"
+        (clickEvent)="clickEvent($event)"
+        [isChildrenDisabled]="false"
+        [(disabledButton)]="disabledButton"
+      >
+      </app-container-table-group-new>
+      </ng-container>
+    </div>
+  </div>
+</ng-template>

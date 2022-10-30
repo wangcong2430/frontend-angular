@@ -1,0 +1,9 @@
+<div [ngClass]="{'is-invalid': showError}">
+  <nz-input-group nzCompact>
+    <nz-select [(ngModel)]="model[keys[0]]" style="width:30%;">
+      <nz-option [nzLabel]="option[labelProp]" [nzValue]="option[valueProp]"
+                 *ngFor="let option of to.options;trackBy: trackByFn"></nz-option>
+    </nz-select>
+    <nz-input-number [(ngModel)]="model[keys[1]]" [nzMin]="1" [nzMax]="9999999999" [nzStep]="1" style="width:70%;"></nz-input-number>
+  </nz-input-group>
+</div>

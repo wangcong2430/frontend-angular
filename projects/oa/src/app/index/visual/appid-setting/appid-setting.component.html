@@ -1,0 +1,159 @@
+<app-component-crumb>
+  <button nz-button nzType="primary" (click)="openModal('add')">新增</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      [showCheckbox]="false"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+<!--新增 | 编辑 | 详情-->
+<nz-modal [nzWidth]="550" [(nzVisible)]="formDataShow" [nzTitle]="formDataTitle" [nzFooter]="formDataFoot" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()" [nzOkLoading]="formDataLoading">
+
+  <ng-container *ngIf="formDataLoading">
+    <div class="example">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!formDataLoading && formDataType !== 'detail'">
+    <form>
+      <formly-form [model]="formDataModel" [fields]="formDataFields" [options]="formDataOptions" [form]="formDataForm"></formly-form>
+    </form>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5" style="width: 120px;">附件</nz-form-label>
+      <nz-form-control [nzSpan]="18">
+        <nz-upload
+          class="fl"
+          nzAction="/web/visual/upload"
+          [(nzFileList)]="fileList">
+          <button nz-button nz-popover [nzContent]="uploadTemplate">
+            <span>上传</span>
+          </button>
+        </nz-upload>
+      </nz-form-control>
+    </nz-form-item>
+  </ng-container>
+  <ng-container *ngIf="!formDataLoading && formDataType === 'detail'">
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">名称</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <span>{{formDataModel.name || 'NA'}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">产品名称</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <span>{{formDataModel.project_power || 'NA'}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">部门</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <span>{{formDataModel.auth_item_name || 'NA'}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">接口人</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <span>{{formDataModel.user_name || 'NA'}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">创建人</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <span>{{formDataModel.creator || 'NA'}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">创建时间</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <span>{{formDataModel.create_time || 'NA'}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">说明</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <span>{{formDataModel.remark || 'NA'}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">ip</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <span>{{formDataModel.ip || 'NA'}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">交付来源</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <span>{{formDataModel.delivery_sources || 'NA'}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">所属品类</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <span>{{formDataModel.category_power || 'NA'}}</span>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSpan]="5">附件</nz-form-label>
+      <nz-form-control [nzSpan]="19" *ngIf="fileList.length > 0">
+        <div *ngFor="let item of fileList">
+          <a class="file-download" [href]="getUrl(item.url)" download>{{item.name}}</a>
+        </div>
+      </nz-form-control>
+      <nz-form-control [nzSpan]="19" *ngIf="fileList.length == 0">
+        <span>NA</span>
+      </nz-form-control>
+    </nz-form-item>
+  </ng-container>
+</nz-modal>
+
+<!-- 订单金额配置 | 接口配置 -->
+<nz-modal [(nzVisible)]="configModalShow" [nzTitle]="configModalTitle" (nzOnCancel)="configModalCancel()" (nzOnOk)="configModalSubmit()" [nzOkLoading]="configModalLoading">
+  <ng-container *ngIf="configModalLoading">
+    <div class="example m-3">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="!configModalLoading">
+    <ng-container *ngFor="let item of configModal.data; let index = index;">
+      <label class="block" nz-checkbox [(ngModel)]="item.checked" (ngModelChange)="apiCheckboxChange('apiSetting', item)">{{item.label}}</label>
+      <ng-container *ngIf="index === 0">
+        <label class="block child" nz-checkbox [(ngModel)]="configOrderModal.is_base" (ngModelChange)="apiCheckboxChange('orderSetting', configOrderModal)">基本信息</label>
+        <label class="block child" nz-checkbox [(ngModel)]="configOrderModal.is_amount" (ngModelChange)="apiCheckboxChange('orderSetting', configOrderModal)">价格信息</label>
+      </ng-container>
+    </ng-container>
+  </ng-container>
+</nz-modal>

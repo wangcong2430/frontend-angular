@@ -1,0 +1,24 @@
+<nz-tabset [nzSelectedIndex]="tab_active_index">
+  <nz-tab i18n-nzTitle
+          nzTitle="company"
+          (nzSelect)="type='company'">
+    <form [formGroup]="company_form" (ngSubmit)="submit(company_form_data)" autocomplete="off">
+      <formly-form [form]="company_form" [fields]="company_form_fields" [model]="company_form_data">
+        <div class="text-right">
+          <button type="submit" class="btn btn-success" i18n>Next</button>
+        </div>
+      </formly-form>
+    </form>
+  </nz-tab>
+  <nz-tab i18n-nzTitle
+        nzTitle="person"
+        (nzSelect)="type='person'">
+    <form [formGroup]="person_form" (ngSubmit)="submit(person_form_data)" autocomplete="off">
+      <formly-form [form]="person_form" [fields]="person_form_fields" [model]="person_form_data">
+        <div class="text-right">
+          <button type="submit" class="btn btn-success" i18n>Next</button>
+        </div>
+      </formly-form>
+    </form>
+  </nz-tab>
+</nz-tabset>

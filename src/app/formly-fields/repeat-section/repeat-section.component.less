@@ -1,0 +1,60 @@
+.repeat-section {
+    .title {
+        color: #57626c;
+        font-size: .875rem;
+        font-weight: bold;
+        margin-bottom: .5rem;
+        padding-left: 1rem;
+    }
+    .repeat-section-item {
+        .form-group {
+            display: inline-block;
+            margin-left: 0;
+            margin-right: 0;
+            margin-bottom: .5rem;
+        }
+        .repeat-section-operate {
+            vertical-align: bottom;
+            .operate-btn {
+                display: inline-block;
+                width: 1.875rem;
+                height: 1.875rem;
+                border-radius: .125rem;
+                float: left;
+                position: relative;
+                margin: .15rem .2rem .15rem 0;
+                cursor: pointer;
+                &:before {
+                    color: #fff;
+                    font-size: 2rem;
+                    position: absolute;
+                    top: -.2rem;
+                    width: 100%;
+                    line-height: 100%;
+                    text-align: center;
+                }
+            }
+            &:before {
+                color: #fff;
+                font-size: 2rem;
+                position: absolute;
+                top: -.2rem;
+                width: 100%;
+                line-height: 100%;
+                text-align: center;
+            }
+            .input-add {
+                background-color: #0094f7;
+                &:before {
+                    content: '+';
+                }
+            }
+            .input-del {
+                background-color: #ff6c6c;
+                &:before {
+                    content: '-';
+                }
+            }
+        }
+    }
+}

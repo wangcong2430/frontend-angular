@@ -1,0 +1,26 @@
+<nz-table
+#rowSelectionTable
+nzShowSizeChanger
+[nzFrontPagination]="false"
+[nzShowPagination]="false"
+[nzData]="listOfAllData"
+(nzCurrentPageDataChange)="currentPageDataChange($event)"
+>
+<thead>
+  <tr>
+    <th
+      nzShowCheckbox
+      [(nzChecked)]="isAllDisplayDataChecked"
+      [nzIndeterminate]="isIndeterminate"
+      (nzCheckedChange)="checkAll($event)"
+    ></th>
+    <th>供应商</th>
+  </tr>
+</thead>
+<tbody>
+  <tr *ngFor="let data of rowSelectionTable.data;trackBy: trackByFn">
+    <td nzShowCheckbox [(nzChecked)]="mapOfCheckedId[data.value]" (nzCheckedChange)="refreshStatus()"></td>
+    <td>{{ data.label }}</td>
+  </tr>
+</tbody>
+</nz-table>

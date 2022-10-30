@@ -1,0 +1,55 @@
+<!--
+ * @Author: v_swwu v_swwu@tencent.com
+ * @Date: 2022-07-01 14:45:22
+ * @LastEditors: v_swwu v_swwu@tencent.com
+ * @LastEditTime: 2022-07-22 16:43:27
+ * @FilePath: \cpm\frontend\projects\oa\src\app\index\query\label\label.component.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<app-component-crumb [(list)]="list">
+   <button nzSize="small" nz-button (click)="exportOrder()" >导出</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      (submit)="submitSearchForm($event)"
+      [loading]="searchLoading"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+    <div class="search-results m-3">
+      <app-container-table
+        [loading]="listLoading"
+        (getList)="getList($event)"
+        [(list)]="list"
+        [(columns)]="columns"
+        [(pagination)]="pagination"
+        (changeDisabledButton)="changeDisabledButton($event)"
+        (clickEvent)="clickEvent($event)"
+        [(disabledButton)]="disabledButton"
+        [(queryFields)]="queryFields"
+      >
+      </app-container-table>
+    </div>
+
+</ng-container>
+
+<!--物件详情-->
+
+<nz-modal [(nzVisible)]="isVisible" nzWidth="800px" nzTitle="订单导出" (nzOnCancel)="handleCancel()" nzMaskClosable="false" (nzOnOk)="handleOk()">
+  <ng-container *ngIf="isVisible">
+    <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
+  </ng-container>
+</nz-modal>

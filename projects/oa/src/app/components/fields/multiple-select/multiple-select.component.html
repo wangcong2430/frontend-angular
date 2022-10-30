@@ -1,0 +1,54 @@
+<ng-container *ngIf="true">
+
+<ng-container *ngFor="let item of this.formControl.value; trackByFn" >
+	<div  [class]="'ant-form-horizontal px-3 d-flex ' + item.class">
+		<nz-form-label  [class.ant-form-item-required]="required && item.is_required == 1">{{item.title}}</nz-form-label>
+		<nz-form-control style="flex: 1;">
+			<ng-container *ngIf="item.attr_type == '1' && item.form_num == 1">
+				<input  [class.has-warning]="item.check_status === '1'"
+					class="attribute-control mx-1 d-flex justify-content-between w-100 has-warning"
+					style="width: 100%;"
+					nz-input
+					nzSize="small"
+					autocomplete="off"
+					placeholder="请输入"
+					[(ngModel)]="item.value"
+					[ngModelOptions]="{standalone: true}"
+					(ngModelChange)="modelChange($event)">
+				<div class="attribute-unit" *ngIf="item.form_unit">{{item.form_unit}}</div>
+			</ng-container>
+
+			<ng-container *ngIf="item.attr_type == '1' && item.form_num > 1">
+				<ng-container *ngFor="let o of item.options; trackBy: trackByFn; let index = index " >
+					<input nz-input
+								 [(ngModel)]="o.value"
+								 [ngModelOptions]="{standalone: true}"
+								 autocomplete="off"
+								 type="number"
+								 class="mx-1"
+								 placeholder="请输入"
+								 [class.has-warning]="item.check_status == '1'"
+								 nzSize="small"
+								 (ngModelChange)="modelChange()">
+					{{(index + 1) >= item.options.length ? '' : item.form_separator }}
+				</ng-container>
+			</ng-container>
+
+			<ng-container *ngIf="item.attr_type == '2'">
+				<nz-select style="width: 100%;"
+					[class.has-warning]="item.check_status == '1'"
+					class="mx-1"
+					[nzMode]="item.multiple == '1' ? 'multiple' : 'default'"
+					[(ngModel)]="item.value"
+					nzAllowClear
+					[nzPlaceHolder]="'请选择'"
+					(ngModelChange)="modelChange()">
+					<ng-container *ngFor="let o of item.options; trackBy: trackByFn; let index = index">
+						<nz-option [nzValue]="o" [nzLabel]="o"></nz-option>
+					</ng-container>
+				</nz-select>
+			</ng-container>
+		</nz-form-control>
+	</div>
+</ng-container>
+</ng-container>

@@ -1,0 +1,186 @@
+<app-component-crumb>
+  <button nzSize="small" nz-button nzType="default" (click)="saveStory()">保存</button>
+  <button nzSize="small" nz-button nzType="primary" (click)="submitStory()" style="margin-left: 8px;">提交</button>
+</app-component-crumb>
+
+  <div nz-row class=" m-3">
+    <div nz-col [nzSpan]="6">
+        <nz-form-label [nzSpan]="8" [nzFor]="'project'">项目名称</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select [(ngModel)]="formData['project']" (ngModelChange)="onProjectSelectChange($event)" style="width: 100%">
+            <nz-option *ngFor="let option of project_select;trackBy: trackByFn" [nzLabel]="option.name" [nzValue]="option.id"></nz-option>
+          </nz-select>
+        </nz-form-control>
+    </div>
+    <div nz-col [nzSpan]="6">
+      <nz-form-label [nzSpan]="8" [nzFor]="'project'">产品名称</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <input nz-input [(ngModel)]="formData['product_name']" [readonly]="true"/>
+      </nz-form-control>
+
+    </div>
+    <div nz-col [nzSpan]="6">
+      <nz-form-label [nzSpan]="8" [nzFor]="'project_group_name'">母项目</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <input nz-input [(ngModel)]="formData['project_group_name']" [readonly]="true"/>
+      </nz-form-control>
+
+    </div>
+    <div nz-col [nzSpan]="6">
+      <nz-form-label [nzSpan]="8" [nzFor]="'brand_principal'">品牌经理负责人</nz-form-label>
+      <nz-form-control [nzSpan]="16">
+        <nz-select [(ngModel)]="formData['brand_principal']" style="width: 100%">
+          <nz-option *ngFor="let option of brand_principal_select;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </div>
+  </div>
+
+  <div nz-row class=" m-3">
+    <div nz-col [nzSpan]="24">
+      <nz-form-label [nzSpan]="2" [nzFor]="'story_code'">需求编号</nz-form-label>
+      <nz-form-control [nzSpan]="22">
+        <input nz-input [(ngModel)]="formData['story_code']" [readonly]="true"/>
+      </nz-form-control>
+    </div>
+  </div>
+
+  <div nz-row class=" m-3">
+    <div nz-col [nzSpan]="24">
+      <nz-form-label [nzSpan]="2" [nzFor]="'story_name'">需求名称</nz-form-label>
+      <nz-form-control [nzSpan]="22">
+        <input nz-input [(ngModel)]="formData['story_name']" />
+      </nz-form-control>
+    </div>
+  </div>
+
+  <div nz-row class=" m-3">
+    <div nz-col [nzSpan]="12">
+      <nz-form-label [nzSpan]="4" [nzFor]="'creator'">录入人</nz-form-label>
+      <nz-form-control [nzSpan]="20">
+        <nz-select [(ngModel)]="formData['creator']" style="width: 100%">
+          <nz-option *ngFor="let option of creator;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-label [nzSpan]="4" [nzFor]="'brand_product_manager'">经办人</nz-form-label>
+      <nz-form-control [nzSpan]="20">
+        <nz-select [(ngModel)]="formData['brand_product_manager']" style="width: 100%">
+          <nz-option *ngFor="let option of brand_product_manager;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </div>
+  </div>
+
+  <div nz-row class=" m-3">
+    <div nz-col [nzSpan]="24">
+      <nz-form-label [nzSpan]="2" [nzFor]="'budget_type'">使用预算</nz-form-label>
+      <nz-form-control [nzSpan]="22">
+        <nz-select [(ngModel)]="formData['budget_type']" style="width: 100%">
+          <nz-option *ngFor="let option of budget_type;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </div>
+  </div>
+
+  <div nz-row class=" m-3">
+    <div nz-col [nzSpan]="24">
+      <nz-form-label [nzSpan]="2" [nzFor]="'story_remark'">需求说明</nz-form-label>
+      <nz-form-control [nzSpan]="22">
+        <input nz-input [(ngModel)]="formData['story_remark']" />
+      </nz-form-control>
+    </div>
+  </div>
+
+  <div nz-row class=" m-3">
+    <div nz-col [nzSpan]="24">
+      <nz-form-label [nzSpan]="2" [nzFor]="'category_select'">一级类别</nz-form-label>
+      <nz-form-control [nzSpan]="22">
+        <nz-select nzMode="multiple" [(ngModel)]="formData['category_select']"
+                   (ngModelChange)="onFirstCategorySelectChange($event)" style="width: 100%">
+          <nz-option *ngFor="let option of category_select;trackBy: trackByFn" [nzLabel]="option.title" [nzValue]="option.id"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </div>
+  </div>
+  <div nz-row class=" m-3">
+    <div nz-col [nzSpan]="24">
+      <ng-container *ngFor="let first_category of thing_config_group; trackBy: trackByFn">
+        <nz-form-label [nzFor]="'category_select'">{{first_category.title}} -> {{first_category.category_price}}</nz-form-label>
+      </ng-container>
+    </div>
+  </div>
+
+  <div nz-row class=" m-3">
+    <div nz-col *ngFor="let thing_config of thing_config_group; index as thing_config_group_index;trackBy: trackByFn">
+        <nz-form-label>{{thing_config['title']}}</nz-form-label>
+        <button nz-button nzType="primary" (click)="addThing(thing_config['id'])">添加</button>
+        <nz-table [nzData]="thing_config" [nzFrontPagination]="false">
+          <thead>
+          <tr>
+            <th>物件名称</th>
+            <th nzWidth="15%">类别</th>
+            <th nzWidth="15%">数量</th>
+            <th>工作量单位</th>
+            <th>制作等级</th>
+            <th>期望完成日期</th>
+            <th>备注</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody *ngFor="let thing of thing_config['list']; index as thing_config_index;trackBy: trackByFn">
+          <tr>
+            <td><input nz-input [(ngModel)]="thing_config_group[thing_config_group_index]['list'][thing_config_index]['thing_name']" /></td>
+            <td>
+              <div *ngFor="let cate of category_select;trackBy: trackByFn">
+                <div *ngIf="thing_config['id'] == cate['id']">
+                  <nz-select [(ngModel)]="thing_config_group[thing_config_group_index]['list'][thing_config_index]['category_id']"
+                             (ngModelChange)="onSecondCategoryChange($event, thing_config_group_index,thing_config_index)" style="width: 100%">
+                    <nz-option *ngFor="let categoryList of cate['child_category'];trackBy: trackByFn" [nzLabel]="categoryList.title" [nzValue]="categoryList.id"></nz-option>
+                  </nz-select>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div *ngIf="thing_config_group[thing_config_group_index]['list'][thing_config_index]['is_workload'] = 1; else elseBlock">
+                <nz-form-control [nzSpan]="12">
+                  <input nz-input [(ngModel)]="thing_config_group[thing_config_group_index]['list'][thing_config_index]['pre_workload']" />
+                </nz-form-control>
+              </div>
+              <ng-template #elseBlock>
+                <div nz-row *ngFor="let produce_breakdown of thing['produce_breakdown_list']; index as produce_breakdown_index;trackBy: trackByFn">
+                  <nz-form-label [nzSpan]="12">{{produce_breakdown.title}}</nz-form-label>
+                  <nz-form-control [nzSpan]="4">
+                    <input nz-input (change)="predictionPriceChange('produce_breakdown', $event, thing_config_group_index, thing_config_index)" [(ngModel)]="thing_config_group[thing_config_group_index]['list'][thing_config_index]['produce_breakdown_list'][produce_breakdown_index]['value']" />
+                  </nz-form-control>
+                </div>
+              </ng-template>
+
+            </td>
+            <td>
+              <nz-select (ngModelChange)="predictionPriceChange('work_unit', $event,thing_config_group_index, thing_config_index)" [(ngModel)]="thing_config_group[thing_config_group_index]['list'][thing_config_index]['pre_workload_unit_id']" style="width: 100%">
+                <nz-option *ngFor="let workload_unit of workload_unit_list;trackBy: trackByFn" [nzLabel]="workload_unit['label']" [nzValue]="workload_unit['value']"></nz-option>
+              </nz-select>
+            </td>
+            <td>
+              <nz-select (ngModelChange)="predictionPriceChange('produce_grade', $event, thing_config_group_index, thing_config_index)" [(ngModel)]="thing_config_group[thing_config_group_index]['list'][thing_config_index]['pre_produce_grade_id']" style="width: 100%">
+                <nz-option *ngFor="let grade of thing['produce_grade_list'];trackBy: trackByFn" [nzLabel]="grade['title']" [nzValue]="grade['id']"></nz-option>
+              </nz-select>
+            </td>
+            <td>
+              <nz-date-picker [(ngModel)] = "thing_config_group[thing_config_group_index]['list'][thing_config_index]['expected_complete_date']" nzFormat="yyyy-MM-dd"></nz-date-picker>
+            </td>
+            <td>
+              <input nz-input [(ngModel)]="thing_config_group[thing_config_group_index]['list'][thing_config_index]['remark']" />
+            </td>
+            <td>
+              <a (click)="copyThing(thing_config_group_index,thing_config_index)">复制</a>
+              <nz-divider nzType="vertical"></nz-divider>
+              <a (click)="deleteThing(thing_config_group_index,thing_config_index)">删除</a>
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </div>
+  </div>

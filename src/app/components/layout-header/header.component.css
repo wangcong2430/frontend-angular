@@ -1,0 +1,39 @@
+.header{
+  background-color: #fff;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color:#000;
+  position:fixed;
+  width: 100%;
+  z-index: 2;
+}
+.header-notice{
+  margin:0 20px;
+}
+.header-notice>img{
+  margin-right: 10px;
+  position: relative;
+  top:-1px;
+}
+.header>.language{
+  float: right;
+  margin:0 40px;
+  cursor: pointer;
+}
+.header-ul{
+  position: absolute;
+  right:0px;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.header-ul li{
+  padding: 0 3px;
+}
+
+.separator{
+  font-size: 18px;
+  color: #8cd59d;
+}

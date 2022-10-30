@@ -1,0 +1,29 @@
+
+<nz-input-group nzCompact>
+  <input
+    placeholder="选择供应商"
+    nz-input
+    [(ngModel)]="model[key]"
+    (input)="onInput($event.target?.value)"
+    [nzAutocomplete]="auto"
+    (ngModelChange)="onModelChange($event)"
+    (blur)="blur()"
+    (focus)="focus()"
+    style="width: 90%;"
+  />
+  <nz-autocomplete nzBackfill #auto>
+    <nz-auto-option *ngFor="let option of optionList" [nzValue]="option.value">
+      {{ option.label }}
+    </nz-auto-option>
+  </nz-autocomplete>
+  <button style="width: 10%" nz-button nzType="primary" nzSearch (click)="selectSupplier()">筛选</button>
+</nz-input-group>
+<span class="f12 red">{{errStr}}</span>
+
+<nz-modal [(nzVisible)]="isVisible" nzMaskClosable="false"   [nzCancelText]="null" [nzWidth]="800" [nzMaskClosable]="false" nzTitle="选择供应商" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+  <ng-container *ngIf="true">
+    <form [formGroup]="tableForm">
+      <formly-form [model]="tableModel" [fields]="tableFields" [options]="tableOptions" [form]="tableForm" (modelChange)="modelChange($event)"></formly-form>
+    </form>
+  </ng-container>
+</nz-modal>

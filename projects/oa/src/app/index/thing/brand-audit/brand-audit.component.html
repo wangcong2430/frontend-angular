@@ -1,0 +1,58 @@
+<!--
+ * @Author: v_swwu v_swwu@tencent.com
+ * @Date: 2022-07-01 14:45:22
+ * @LastEditors: v_swwu v_swwu@tencent.com
+ * @LastEditTime: 2022-07-19 12:43:38
+ * @FilePath: \cpm\frontend\projects\oa\src\app\index\thing\brand-audit\brand-audit.component.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<app-component-crumb  [(list)]="list" [isChildren]="true">
+  <button nzSize="small" nz-button nzType="primary" [disabled]="disabledButton" (click)="delayNotice()">延时提醒</button>
+  <button nzSize="small" nz-button nzType="primary" (click)="auditSubmit('accept')" [disabled]="false">通过</button>
+  <button nzSize="small" nz-button nzType="primary" (click)="isVisible = true" [disabled]="disabledButton">驳回</button>
+</app-component-crumb>
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="驳回原因" (nzOnCancel)="isVisible = false" (nzOnOk)="auditSubmit('reject')">
+
+  <nz-form-item>
+    <nz-form-control>
+      <textarea nz-input placeholder="填写驳回原因" [(ngModel)]="reason" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table-group-new
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(childrenColumns)]="childrenColumns"
+      [(pagination)]="pagination"
+      (clickEvent)="clickEvent($event)"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      [(disabledButton)]="disabledButton"
+      [isChildrenDisabled] = "true"
+      [(queryFields)]="queryFields"
+    >
+    </app-container-table-group-new>
+  </div>
+</ng-container>
+

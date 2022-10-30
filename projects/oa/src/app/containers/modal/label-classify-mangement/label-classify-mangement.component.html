@@ -1,0 +1,61 @@
+<nz-modal
+  #orderDetail
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  nzMaskClosable="false"
+  
+  [nzFooter]="null"
+  [nzWidth]="640"
+  [nzZIndex]="nzZIndex"
+  (nzOnCancel)="modalCancel()"
+>
+
+  <ng-template #modalTitle>
+    <div       
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content">  标签分类管理
+    </div>
+  </ng-template>
+
+
+  <ng-template #modalContent>
+    <ng-container *ngIf="isOpen">
+      <ng-container *ngIf="loading">
+        <div class="example">
+          <nz-spin></nz-spin>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!loading && list">
+        <button nz-button nzSize="small" nzType="primary" (click)="editLabelModel({})" class="mb-2">添加标签分类</button>
+        <nz-table #listTable [nzData]="list">
+          <thead>
+            <tr>
+              <th>标签分类名称</th>
+              <th>标签分类英文名称</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let data of listTable.data">
+              <td>{{data.label_category_name}}</td>
+              <td>{{data.label_category_name_en}}</td>
+              <td>{{data.status === 1 ? '开启' : '禁用' }}</td>
+              <td>
+                <a class="edit mr-2" (click)="editLabelModel(data)">编辑</a>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </ng-container>
+    </ng-container>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isEdit" nzMaskClosable="false" nzTitle="编辑标签分类" (nzOnCancel)="closeLabelModel()" (nzOnOk)="submitLabel()">
+  <formly-form [(model)]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
+</nz-modal>
+

@@ -1,0 +1,19 @@
+<div class="selector">
+    <div class="selector-wrapper" [ngClass]="{active: open}" (click)="openFn()">
+        <input class="select-input" type="text" readonly="readonly" placeholder="{{ placeholder}}" value="{{val}}">
+        <span class="select-close" *ngIf="isCur === false && val" (click)="clear($event)">×</span>
+        <span class="selector-arrow rotate">
+            <span class="arrow"></span>
+        </span>
+        <div class="selector-bg"></div>
+    </div>
+    <div class="select-list">
+        <div class="selector-search" (click)="$event.stopPropagation()">
+            <input [(ngModel)]="searchValue" #search>
+        </div>
+        <ul class="select-list-item">
+            <li *ngFor="let item of list | filterArr: filter | search: searchKey:searchValue;" (click)="change(item)" [ngClass]="{active: value===item[bindValue]}">{{item[bindLabel]}}</li>
+            <li class="not-found">No items found</li>
+        </ul>
+    </div>
+</div>

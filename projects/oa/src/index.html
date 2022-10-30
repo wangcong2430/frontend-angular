@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" style="min-width: 1360px" data-theme="">
+  <head>
+    <meta charset="utf-8">
+    <title>腾讯互娱服务外包管理平台</title>
+    <base href="/">
+    <html translate="no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+  </head>
+
+  <body ondragstart="return false">
+    <app-root></app-root>
+  </body>
+  <script src="https://cdn-go.cn/aegis/aegis-sdk/latest/aegis.min.js"></script>
+  <script>
+
+    const aegis = new Aegis({
+      id: 'gntyRKWzraZMHfPlqT', // 项目ID，即上报key
+      reportApiSpeed: true, // 接口测速
+      reportAssetSpeed: true, // 静态资源测速
+      beforeReportSpeed(msg) { 
+        if (msg.type === 'fetch') {
+          msg.status = 200;
+        }
+        return msg
+      }
+    })
+  
+  </script> 
+</html>
+

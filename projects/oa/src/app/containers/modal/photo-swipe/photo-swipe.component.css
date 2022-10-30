@@ -1,0 +1,10 @@
+
+::ng-deep .photo-swipe {
+  width: 100vw !important;
+}
+
+::ng-deep .photo-swipe .ant-modal-content {
+  background-color: unset;
+  box-shadow: unset
+}
+

@@ -1,0 +1,54 @@
+<!--
+ * @Author: v_swwu v_swwu@tencent.com
+ * @Date: 2022-07-01 14:45:22
+ * @LastEditors: v_swwu v_swwu@tencent.com
+ * @LastEditTime: 2022-07-19 16:59:45
+ * @FilePath: \cpm\frontend\projects\oa\src\app\modules\formly-ngx-zorro\wrappers\formly-field-wrapper\formly-field-wrapper.component.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!--
+    nz-form-item: 表单项
+        [nzFlex]="true"： 是否是Flex布局
+
+    nz-form-label: 表单标签
+        nzRequired： 当前项是否为必填, 仅影响样式
+        nzFor 表单标签的 for 属性
+        ngLableClass: 表单标签的 class 属性
+        ngLabelStyle: 表单标签的 style 属性
+
+    nz-form-control: 表单域
+        ngControlClass: 表单域 标签的 class 属性
+        ngControlStyle: 表单域 标签的 style 属性
+ -->
+<ng-container >
+  <nz-form-item [class]="to['nzLayout'] || 'ant-form-horizontal'" style="display: inline;">
+    <nz-form-label
+      *ngIf="to.label"
+      [nzSpan]="labelSpan ? labelSpan : null"
+      [nzRequired]="to['nzRequired']"
+      [style.width]="to['labelWidth'] ? to['labelWidth'] : null">
+
+      {{to['labelEdit'] ? model.label : to.label}}
+
+      <ng-container *ngIf="to['nzLabelTip']">
+        <span nz-tooltip [nzTitle]="to['nzLabelTip']"><i nz-icon nzType="info-circle" nzTheme="outline"></i></span>
+      </ng-container>
+
+    </nz-form-label>
+
+    <nz-form-control [nzSpan]="labelSpan ? (24 - labelSpan) : null" [nzValidateStatus]="to['nzValidateStatus']">
+      <ng-template #fieldComponent></ng-template>
+      <nz-form-explain *ngIf="to['nzValidateStatus'] && to['nzErrorTip']">{{to['nzErrorTip']}}</nz-form-explain>
+      <nz-form-extra *ngIf="to['extra']" [ngClass]="to['extraClassName']">{{ to['extra'] }}</nz-form-extra>
+      <ng-container *ngIf="to['nzTooltip']">
+        <div nz-tooltip
+          style="position: absolute; top: 0px; left: 22px; width: 100px; height: 40px; color: rgba(255,255,255,0); display: block;"
+          [nzTitle]="to['nzTooltip']"
+          [nzPlacement]="to['nzPlacement'] || 'bottom'"
+          [nzTrigger]="to['nzTrigger']">
+        </div>
+      </ng-container>
+      <button *ngIf="to['buttonLabel']" nz-button nzSize="small" class="d-inline-block mt-2" nzType="primary" (click)="onBtnClick()">{{to['buttonLabel']}}</button>
+    </nz-form-control>
+  </nz-form-item>
+</ng-container>

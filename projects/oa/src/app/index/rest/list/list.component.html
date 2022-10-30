@@ -1,0 +1,123 @@
+<!-- 页头 -->
+<app-component-crumb [isCheckAll]="isCheckAll" [isCheckReverse]="isCheckReverse">
+    <button nzSize="small" *ngIf="isAdd" nz-button nzType="primary" (click)="openModal({})">新建</button>
+</app-component-crumb>
+
+<!-- 搜索栏 -->
+<nz-card class="search-bar" *ngIf="needSearch">
+    <form  [formGroup]="form" (ngSubmit)="search()" autocomplete="off">
+        <formly-form [model]="query" [fields]="queryFields" [options]="options" [form]="form" class="search-bar d-flex row" [class.iscollapse]="isCollapse">
+            <div [ngClass]="isCollapse ? 'ant-col-6 text-right ml-auto' : 'ant-col-24 mb-2 text-center'" class="button-group" style="margin-top: 3px;">
+                <button nzType="primary" class="mr-1" nz-button nzType="primary" i18n>搜索</button>
+                <ng-container *ngIf="isCollapse && queryFields && queryFields.length > 3">
+                    <a style="margin-left:8px;font-size:12px;" (click)="toggleCollapse()">展开<i nz-icon type="down"></i></a>
+                </ng-container>
+                <ng-container *ngIf="!isCollapse">
+                    <a style="margin-left:8px;font-size:12px;" (click)="toggleCollapse()">关闭<i nz-icon type="up"></i></a>
+                </ng-container>
+            </div>
+        </formly-form>
+    </form>
+</nz-card>
+
+<nz-card class="search-results bg-white m-3 ">
+    <ng-container *ngIf="loading">
+        <div class="example">
+            <nz-spin></nz-spin>
+        </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading">
+
+        <div class="result-body ">
+            <div class="body-pagination d-flex justify-content-end" *ngIf="pagination.total_count">
+                <nz-pagination
+                    style="margin-bottom: 8px;"
+                    [nzTotal]="pagination.total_count"
+                    nzShowSizeChanger
+                    [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+                    [(nzPageIndex)]="query.page"
+                    [(nzPageSize)]="query['per-page']"
+                    [nzShowTotal]="totalTemplate"
+                    (nzPageIndexChange)="pageIndexChange($event)"
+                    (nzPageSizeChange)="pageSizeChange($event)"
+                    [nzHideOnSinglePage]="false"
+                >
+                </nz-pagination>
+            </div>
+            <nz-table  [nzData]="data" [nzFrontPagination]="false" [nzShowPagination]="false">
+                <thead (nzSortChange)="sort($event)">
+                    <tr>
+                        <th [nzShowSort]="(column.key != 'operate' && column.type != 'index' && column.type != 'operate' && column.type != 'click') ? true : false" [nzSortKey]="column.key" *ngFor="let column of columns" [ngStyle]="{'width':column.width ? column.width : '', maxWidth: '350px'}" style="background-color: #E8EFFB !important; color: rgba(0,0,0,0.90);">
+                            <ng-container [ngSwitch]="column.type">
+                                <ng-container *ngSwitchCase="'index'">{{column.label || "#"}}</ng-container>
+                                <ng-container *ngSwitchCase="'operate'">操作</ng-container>
+                                <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                            </ng-container>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let item of data; index as i;trackBy: trackByFn">
+                        <td *ngFor="let column of columns;trackBy: trackByFn" style="min-width: 100px;">
+                            <ng-container [ngSwitch]="column.type">
+                                <ng-container *ngSwitchCase="'index'">{{i+1}}</ng-container>
+                                <ng-container *ngSwitchCase="'operate'">
+                                    <a class="text-primary" (click)="openModal(item)" *ngIf="btns['update']">{{btns['update']['label']}}</a>
+                                    <ng-template [ngIf]="btns['update_btn2']">
+                                        <nz-divider nzType="vertical"></nz-divider>
+                                        <a (click)="openModal(item)">{{btns['update_btn2']['label']}}</a>
+                                    </ng-template>
+                                </ng-container>
+                                <ng-container *ngSwitchDefault>{{item[column.key]}}</ng-container>
+                            </ng-container>
+                        </td>
+                    </tr>
+                </tbody>
+            </nz-table>
+
+            <div class="body-pagination" *ngIf="pagination.total_count">
+                <nz-pagination
+                    style="margin-top: 8px; float: right;"
+                    [nzTotal]="pagination.total_count"
+                    nzShowSizeChanger
+                    [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+                    [(nzPageIndex)]="query.page"
+                    [(nzPageSize)]="query['per-page']"
+                    [nzShowTotal]="totalTemplate"
+                    (nzPageIndexChange)="pageIndexChange($event)"
+                    (nzPageSizeChange)="pageSizeChange($event)"
+                    [nzHideOnSinglePage]="false"
+                >
+                </nz-pagination>
+            </div>
+
+            <ng-template #totalTemplate let-total>
+            Total {{pagination.total_count}} items
+            </ng-template>
+        </div>
+    </ng-container>
+</nz-card>
+
+
+
+<nz-modal [(nzVisible)]="isVisible"
+          [nzTitle]="openModalTitle"
+          [nzWidth]="640"
+          (nzOnCancel)="closeModel()"
+          (nzOnOk)="save(formData)"
+          [nzOkLoading]="isOkLoading">
+
+    <form [formGroup]="update_form"
+          *ngIf="isVisible">
+
+        <formly-form
+            [model]="formData"
+            [fields]="formFields"
+            [options]="options"
+            [form]="update_form">
+        </formly-form>
+    </form>
+</nz-modal>
+

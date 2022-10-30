@@ -1,0 +1,72 @@
+:host ::ng-deep .timeline-time{
+  position: absolute;
+  left: -110px;
+  width: 80px;
+  text-align: right;
+}
+
+:host ::ng-deep .timeline-year{
+  font-size: 36px;
+  color: #000000 ;
+  margin-left: 10px;
+  position: relative;
+  top: -19px;
+  margin-bottom: -24px;
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+:host ::ng-deep .timeline-top{
+  font-size: 24px;
+  color: #000000!important ;
+  margin-left: 10px;
+  position: relative;
+  top: -9px;
+  margin-bottom: -10px;
+  margin-top: 48px;
+  font-weight: bold;
+}
+
+
+:host ::ng-deep .content-body {
+  border: 1px dashed #ccc;
+  padding: 12px;
+  margin-top: 16px;
+}
+
+::ng-deep .ql-toolbar.ql-snow {
+  line-height: 15px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-color: #d9d9d9;
+}
+::ng-deep  .ql-toolbar.ql-snow + .ql-container.ql-snow {
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-color: #d9d9d9;
+}
+
+:host  ::ng-deep .ant-card-body {
+  padding-top: 0;
+}
+
+:host ::ng-deep .ant-spin-nested-loading{
+  margin: 40px 0 20px
+}
+
+:host ::ng-deep iframe {
+  width: 670px;
+  height: 337px;
+}
+
+:host ::ng-deep .bulletin-badge {
+  padding: 2px 8px;
+  font-size: 12px;
+  color: white;
+  background-color: #dc3545;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-left: 8px;
+  scale: 0.8;
+  transform: scale(0.8);
+}

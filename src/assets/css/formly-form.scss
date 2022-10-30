@@ -1,0 +1,335 @@
+formly-form {
+  //common
+  .formly-label {
+    font-size: 0.875rem;
+  }
+  .text-muted {
+    font-size: 12px;
+    &:before {
+      content: "\f05a";
+      font: normal normal normal 14px/1 FontAwesome;
+      margin-right: 3px;
+      color: #007bff;
+    }
+  }
+  formly-field {
+    //上传
+    .fileupload-default {
+      position: relative;
+      > .fileupload-btn {
+        display: none;
+      }
+      .fileupload-content > .fileupload-btn {
+        display: inline-block;
+      }
+    }
+    //上传一行展示
+    &.file-default {
+      .text-muted {
+        position: absolute;
+        top: 0;
+        left: 260px;
+        padding: .475rem 0;
+      }
+      .fileupload-default{
+        > .fileupload-btn {
+          display: inline-block;
+        }
+        .fileupload-content > .fileupload-btn {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+//form-full-line
+@mixin form-full-line-left {
+  text-align: right;
+  font-weight: 700;
+  padding: calc(0.375rem + 1px) 15px;
+  margin-bottom: 0;
+  line-height: 1.5;
+  -webkit-box-flex: 0;
+  max-width: 16.7%;
+  position: relative;
+  width: 100%;
+  min-height: 1px;
+  flex: 0 0 16.7%;
+}
+@mixin form-full-line-right {
+  text-align: left;
+  -webkit-box-flex: 0;
+  max-width: 66.7%;
+  width: 100%;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+  flex: 0 0 66.7%;
+}
+.form-full-line {
+  formly-field {
+    formly-wrapper-label {
+      display: flex;
+      .formly-label {
+        @include form-full-line-left;
+      }
+      > formly-wrapper-description, > formly-wrapper-validation-messages {
+        @include form-full-line-right;
+      }
+    }
+    &.right-full formly-wrapper-label{
+      >formly-wrapper-description, >formly-wrapper-validation-messages {
+        @include form-full-line-right;
+        max-width: 83.3%;
+        flex: 0 0 83.3%;
+      }
+    }
+  }
+  //文件
+  .formly-field-file {
+    .text-muted {
+      position: absolute;
+      top: 0;
+      left: calc(16.7% + 10rem);
+      padding: .475rem 0;
+    }
+  }
+  formly-field-file {
+    .fileupload-default {
+      display: flex;
+    }
+    .fileupload-label {
+      @include form-full-line-left;
+    }
+    .fileupload-content {
+      @include form-full-line-right;
+    }
+  }
+  .m-lr-15 {
+    margin-left: -15px;
+    margin-right: -15px;
+    width: calc(100% + 30px);
+    max-width: unset;
+    flex: none;
+    margin-bottom: 1rem;
+  }
+  .custom-control-group {
+    padding: .35rem 0;
+    font-size: .875rem;
+  }
+  .formly-field-file formly-validation-message {
+    margin-left: calc(16.7% + 15px);
+  }
+}
+
+//form-inline-center
+@mixin form-inline-center-left {
+  text-align: right;
+  font-weight: 400;
+  color: #57626c;
+  padding: calc(0.375rem + 1px) 15px;
+  margin-bottom: 0;
+  line-height: 1.5;
+  -webkit-box-flex: 0;
+  position: relative;
+  width: 100%;
+  min-height: 1px;
+  flex: 4;
+}
+@mixin form-inline-center-right {
+  text-align: left;
+  -webkit-box-flex: 0;
+  width: 100%;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 0;
+  flex: 9;
+}
+.form-inline-center {
+  formly-wrapper-label {
+    display: flex;
+    .formly-label {
+      @include form-inline-center-left;
+    }
+    > formly-wrapper-description, > formly-wrapper-validation-messages {
+      @include form-inline-center-right;
+    }
+  }
+  .formly-field-file {
+    .text-muted {
+      position: absolute;
+      top: 0;
+      left: calc(16.7% + 10rem);
+      padding: .475rem 0;
+    }
+    formly-validation-message {
+      margin-left: calc(16.7% + 15px);
+    }
+  }
+  formly-field-file {
+    .fileupload-default {
+      display: flex;
+      width: calc(100% + 30px) !important;
+      margin-left: -15px;
+      margin-right: -15px;
+    }
+    .fileupload-label {
+      @include form-inline-center-left;
+    }
+    .fileupload-content {
+      @include form-inline-center-right;
+    }
+  }
+  .insert-panel-content {
+    padding-left: 0;
+    padding-right: 0;
+    .form-group {
+      margin-left: -1rem;
+      margin-right: -1rem;
+    }
+  }
+  .form-row>[class*=col-] {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .custom-control-group {
+    display: flex;
+    padding: .28rem 0;
+    .custom-checkbox {
+      display: inline-block;
+      margin-right: .875rem;
+    }
+  }
+  formly-field-input>input,
+  formly-field-select>select,
+  formly-field-date .form-field-date,
+  formly-field-search-select>app-selector,
+  formly-member-picker .oaui_memberinput_wrapper,
+  app-member-picker>.form-control{
+    width: 50%;
+    max-width: 250px;
+  }
+  .w-32 {
+    formly-member-picker .oaui_memberinput_wrapper {
+      max-width: 32rem;
+      width: auto;
+    }
+  }
+  .w-100 {
+    formly-field-input>input,
+    formly-member-picker .oaui_memberinput_wrapper {
+      width: 100%;
+      max-width: none;
+    }
+  }
+
+  formly-field-textarea {
+    >textarea {
+      width: 100%;
+      max-width: 32rem;
+    }
+  }
+  .formly-repeat-section {
+    margin-bottom: 1rem;
+    small.text-danger {
+      padding-left: 15px;
+    }
+  }
+}
+
+.formly-text-line {
+  .form-group {
+    margin-bottom: 0;
+    padding: .5rem 1rem;
+  }
+  formly-wrapper-label {
+    display: flex;
+    .formly-label {
+      flex: 1;
+      text-align: right;
+      margin: 0;
+      font-weight: 700;
+      word-break: break-all;
+      word-wrap: break-word;
+      padding-right: 10px;
+    }
+    formly-wrapper-description {
+      flex: 1;
+    }
+    .formly-field-text {
+      text-align: left;
+      word-break: break-all;
+      word-wrap: break-word;
+      color: #57626c;
+      padding: 0;
+    }
+  }
+}
+.middle-line .formly-text-line:nth-of-type(2n-1) {
+  border-right: 1px dashed #d5dee7;
+}
+.formly-info-title {
+  font-size: 14px;
+  color: #2d3845;
+  cursor: pointer;
+  background-color: #e9ecef;
+  padding: 5px 10px;
+  .fa-angle-double-right {
+    transition: .3s all;
+    &.active {
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.form-inline-center .form-label-80 .formly-label {
+  flex: 0 0 5.5rem;
+}
+
+app-repeat-section {
+  app-date.is-invalid {
+    .input-group-text {
+      border: 1px solid #dc3545;
+      border-right: 0;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    [app-date-range].form-control {
+      border-color: #dc3545;
+    }
+  }
+}
+
+.formly-options {
+  .tab-content {
+    margin-top: 0;
+    pre {
+      padding: 20px;
+      background: #f5f6f7;
+      .string { color: #647f11; }
+      .number { color: darkorange; }
+      .boolean { color: #007BFF; }
+      .null { color: magenta; }
+      .key { color: #d43669; }
+    }
+  }
+}
+
+.info-primary-list {
+  .field-single {
+    flex: 0 0 33.33%;
+    max-width: 33.33%;
+    flex-wrap: nowrap;
+    formly-wrapper-single {
+      height: 100%;
+      display: flex;
+    }
+  }
+}
+
+.field-single {
+  .fileupload-label {
+    display: none;
+  }
+}

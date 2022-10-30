@@ -1,0 +1,849 @@
+
+<nz-card class="bg-white" >
+  <div class="table-content " [class.preview]="isPreview" >
+    <div class="body-pagination d-flex justify-content-between " style="height: 32px; margin-bottom: 12px;">
+      <div>
+        <nz-dropdown  *ngIf="queryFields && queryFields.length > 0 && list && list.length > 0" [nzPlacement]="'bottomCenter'" [nzTrigger]="'click'" [nzClickHide]="false" [(nzVisible)]="isSearchDropdown"  (nzVisibleChange)="dropdownChange($event, 'search')">
+          <button   nz-button nz-dropdown nzType="primary" >
+            <i nz-icon nzType="menu" nzTheme="outline" ></i>
+            显示查询选择
+            <i nz-icon nzType="caret-down" nzTheme="outline"></i>
+          </button>
+          <ul nz-menu style="max-height:220px; overflow-y: auto;">
+            <li class="text-right pr-3">
+              <i nz-icon nzType="close" nzTheme="outline" (click)="closeDropdown('search')" style="cursor: pointer;"></i>
+            </li>
+            <li nz-menu-item *ngFor="let filed of queryFields;trackBy: trackByFn">
+              <label nz-checkbox [(ngModel)]="filed.show" (ngModelChange)="checkModelChange()">{{filed.templateOptions.label}}</label>
+            </li>
+          </ul>
+        </nz-dropdown>
+        <nz-dropdown  *ngIf="hasDropdownChange && list && list.length > 0" style="margin: 0 10px;" [nzPlacement]="'bottomCenter'" [nzTrigger]="'click'" [nzClickHide]="false" [(nzVisible)]="isColumnDropdown" (nzVisibleChange)="dropdownChange($event, 'column')">
+          <button   nz-button nz-dropdown>
+            <i nz-icon nzType="menu" nzTheme="outline"></i>
+            显示列选择
+            <i nz-icon nzType="caret-down" nzTheme="outline"></i>
+          </button>
+          <ul nz-menu style="max-height:220px; overflow-y: auto;">
+            <li class="text-right pr-3">
+              <i nz-icon nzType="close" nzTheme="outline" (click)="closeDropdown('column')" style="cursor: pointer;"></i>
+            </li>
+            <li nz-menu-item *ngFor="let column2 of childrenColumns;trackBy: trackByFn">
+              <label nz-checkbox [(ngModel)]="column2.show">{{column2.label}}</label>
+            </li>
+          </ul>
+        </nz-dropdown>
+        <ng-container *ngFor="let selectItem of selectArr">
+          <nz-select [(ngModel)]="option" (ngModelChange)="selectList(selectItem.key,$event)" [nzPlaceHolder]="selectItem.templateOptions.label" style="display: inline-block; width: 200px;margin-right: 15px;">
+            <nz-option
+              *ngFor="let option of selectItem.templateOptions.options"
+              [nzLabel]="option.label"
+              [nzValue]="option.value"
+            ></nz-option>
+          </nz-select>
+        </ng-container>
+        <ng-container *ngIf="hasSearch && list && list.length > 0">
+          <span>在页面中过滤：</span>
+          <input  nz-input [(ngModel)]="filterValue" style="display: inline-block; width: 200px;margin-right: 15px;"/>
+          <button nz-button nzType="primary" style="vertical-align: top;background-color: #2575e6!important;" (click)="searchData()">查询</button>
+        </ng-container>
+      </div>
+      <div class="d-flex mx-2">
+        <nz-pagination
+          *ngIf="list && list.length && pagination.total_count"
+          nzShowSizeChanger
+          class="mx-2"
+          [nzShowTotal]="totalTemplate"
+          [nzTotal]="pagination.total_count"
+          [(nzPageIndex)]="pagination.page_index"
+          [(nzPageSize)]="pagination.page_size"
+          [nzPageSizeOptions]="[10, 20, 50, 100, 500, 1000]"
+          (nzPageIndexChange)="pageIndexChange($event)"
+          (nzPageSizeChange)="pageSizeChange($event)"
+          [nzHideOnSinglePage]="false">
+        </nz-pagination>
+      </div>
+    </div>
+
+    <span cdkDrag (cdkDragMoved)="dragmove($event)" (cdkDragStarted)="dragstart($event)" >
+
+    <nz-table
+      #nestedTable
+      [nzData]="list"
+      nzSize="default"
+      [nzFrontPagination]="frontPagination || false"
+      [nzShowPagination]="list && list.length && pagination.total_count"
+      [nzShowTotal]="totalTemplate"
+      [nzTotal]="pagination.total_count"
+      [nzPageIndex]="pagination.page_index"
+      [nzPageSize]="pagination.page_size"
+      nzShowSizeChanger
+      [nzPageSizeOptions]="[10, 20, 50, 100, 500, 1000]"
+      (nzPageIndexChange)="pageIndexChange($event)"
+      (nzPageSizeChange)="pageSizeChange($event)"
+      [nzHideOnSinglePage]="false"
+      [nzLoading]="loading"
+      [nzLoadingDelay]="100"
+      [nzScroll]="{ x: '1100px', y: isPreview ? '90vh' : null }"
+      [nzNoResult]="nzNoResult"
+
+    >
+      <tbody>
+        <ng-template ngFor let-data let-i="index" [ngForOf]="nestedTable.data" [ngForTrackBy]="trackByFn">
+          <tr class="parent-th" draggable="false" [class.market-theme]="data.category_type == 2" (click)="expandChange(data);" >
+            <td *ngIf="!showCheckbox"
+                nzShowCheckbox
+                [(nzChecked)]="data.checked"
+                [nzDisabled]="data.all_disabled"
+                [nzIndeterminate]="data.indeterminate"
+                (click)="$event.stopPropagation();"
+                style="width: 60px;"
+                (nzCheckedChange)="refreshStatus(data);">
+            </td>
+
+            <td *ngIf="columns && columns.length > 0" [attr.colspan]="columns.length">
+              <ng-container *ngFor="let column of columns; trackBy: trackByFn">
+                <ng-container *ngIf="column['hidden_category'] | some : data['category_type']; else elseBlock1 "></ng-container>
+
+                <ng-template #elseBlock1>
+                  <ng-container [ngSwitch]="column.type">
+                    <ng-container *ngSwitchCase="'html'">
+                      <ng-container *ngIf="data[column.key]">
+                        {{column.label}}: <span [innerHTML]="data[column.key]"></span>
+                      </ng-container>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'bubble_tip'">
+                      <div class="parent-title" *ngIf="data[column.key]" >{{column.label}}：
+                        <ng-container *ngIf="data[column.key] != ''">
+                          <i nz-icon type="info-circle" theme="outline" nz-popover [nzTitle]="false"
+                            [nzContent]="contentTemplate"></i>
+                          <!-- 引用模板，可输出html -->
+                          <ng-template #contentTemplate><a [innerHTML]="data[column.key]"></a></ng-template>
+                        </ng-container>
+                      </div>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'title'">
+                      <div class="parent-title" (click)="getClickEvent(column.key, data, column.classify, $event)" *ngIf="data[column.key] && data[column.key] !== '0.00' && data[column.key] !== ''" [ngClass]="column.color ? 'text-white' : ''">{{data[column.key]}}</div>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'bubble_tip_text'">
+                      <div class="parent-title" *ngIf="data[column.key]" >{{column.label}}：
+                        <ng-container *ngIf="data[column.key] != ''">
+                          <span nz-popover [nzContent]="contentTemplate">
+                            {{data[column.key].substring(0, 10) }}
+                            <span *ngIf="data[column.key].length >= 10">...</span>
+                          </span>
+                          <!-- 引用模板，可输出html -->
+                          <ng-template #contentTemplate><a [innerHTML]="data[column.key]"></a></ng-template>
+                        </ng-container>
+                      </div>
+                    </ng-container>
+
+
+
+                    <ng-container *ngSwitchCase="'link'">
+                        <div *ngIf="data[column.key] && data[column.key] !== '0.00' && data[column.key] !== ''"
+                            class="parent-title"
+                            (click)="getClickEvent(column.key, data, column.classify, $event)"
+                           >
+                            {{column.label}}: {{data[column.key]}}
+                        </div>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'fr'">
+                      <ng-container *ngIf="column.label === ''">
+                        <div class="parent-title" style="float: right">{{data[column.key]}}</div>
+                      </ng-container>
+                      <ng-container *ngIf="column.label !== ''">
+                        <div class="parent-title" style="float: right">{{column.label}}: {{data[column.key]}}</div>
+                      </ng-container>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'click'">
+                      <ng-container *ngIf="data['error_status'] && data['error_status'] !== '0' && !data[column.key + '_status'];">
+                        <button class="mb-0" style="font-size: 12px;" nz-button nzType="default" nzSize="small" (click)="getClickEvent(column.key, data, column.classify, $event)">{{column.label}}</button>
+                      </ng-container>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'button'">
+                       <ng-container *ngIf="data[column.key] == 1">
+                        <button class="mb-0" style="font-size: 12px;" nz-button [nzType]=" column.nzType ||'default'" nzSize="small" (click)="getClickEvent(column.key, data, column.classify, $event)">{{column.label}}</button>
+                      </ng-container>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'click_sync_epo_order'">
+                      <ng-container *ngIf="data['sync_epo_order'] && data['sync_epo_order'].toString !== '0'">
+                        <button class="mb-0" style="font-size: 12px;" nz-button nzType="default" nzSize="small" (click)="getClickEvent(column.key, data, column.classify, $event)">{{column.label}}</button>
+                        <ng-container *ngIf="data['create_po_msg']">
+                          <i nz-icon type="info-circle" theme="outline" nz-popover [nzTitle]="false"
+                          [nzContent]="contentTemplate1"></i>
+                        <!-- 引用模板，可输出html -->
+                          <ng-template #contentTemplate1><a [innerHTML]="data['create_po_msg']"></a></ng-template>
+                        </ng-container>
+                      </ng-container>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'price_check'">
+                      <ng-container *ngIf="column.key == 'product_available_text' && data[column.key] != ''">
+                        <div class="parent-title" [ngStyle]="{'color': (strToNumber(data['product_available']) < data['product_price']) ? 'red' : ''}">{{column.label}}: {{data[column.key]}}</div>
+                      </ng-container>
+                      <ng-container *ngIf="column.key == 'brand_available_text' && data[column.key] != ''">
+                        <div class="parent-title" [ngStyle]="{'color':(strToNumber(data['brand_available']) < data['brand_price']) ? 'red' : ''}">{{column.label}}: {{data[column.key]}}</div>
+                      </ng-container>
+                      <ng-container *ngIf="column.key == 'content_available_text' && data[column.key] != ''">
+                        <div class="parent-title" [ngStyle]="{'color':(strToNumber(data['content_available']) < data['order_amount']) ? 'red' : ''}">{{column.label}}: {{data[column.key]}}</div>
+                      </ng-container>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'operator'">
+                      <div [class]="column.class" [ngClass]="data[column.key] | operator : data : column">
+                       {{column.label}}: {{data[column.key]  | mycurrency:true}}
+                      </div>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'order_amount'">
+                      <div *ngIf="data[column.key] && data[column.key] !== '0.00' && data[column.key] !== ''"
+                            class="mr-2"
+                            [ngStyle]="{
+                                        'color':((strToNumber(data[column.param1]) < data['product_price']) || (strToNumber(data[column.param2]) < data['brand_price']) ) ? 'red' : '',
+                                        'float':column.float?column.float:''
+                                      }">
+                            {{column.label}}: {{data[column.key]|mycurrency}}
+                      </div>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'merger_count'">
+                      <div class="parent-title">
+                        {{column.label}}: {{data[column.param2]}}/{{data[column.param1]}}
+                      </div>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'is_hidden'">
+                      <div class="parent-title" *ngIf="data['category_type'] == '2'">
+                        {{column.label}}: {{data[column.key]}}
+                      </div>
+                    </ng-container>
+
+                    <ng-container *ngSwitchDefault>
+                      <div class="parent-title"
+                           *ngIf="data[column.key] && data[column.key] !== ''&&data['category_type']!=='1'"
+                           [ngStyle]="{'color':column.color?column.color:'', 'float':column.float?column.float:''}">
+                            {{column.label}}: {{data[column.key]}}
+                      </div>
+                      <div class="parent-title"
+                           *ngIf="data[column.key] && data[column.key] !== ''&&data['category_type']=='1'&&column.label=='可用预算'"
+                           [ngStyle]="{'color':column.color?column.color:'', 'float':column.float?column.float:''}">
+                           {{column.label}}: {{'CNY'+"  "+data[column.key]}}
+                      </div>
+                      <div class="parent-title"
+                          *ngIf="data[column.key] && data[column.key] !== ''&&data['category_type']=='1'&&column.label!=='可用预算'"
+                          [ngStyle]="{'color':column.color?column.color:'', 'float':column.float?column.float:''}">
+                          {{column.label}}: {{data[column.key]}}
+                     </div>
+                   
+                    </ng-container>
+                  </ng-container>
+                </ng-template>
+              </ng-container>
+            </td>
+          </tr>
+          <!--子表格-->
+          <tr [nzExpand]="!data.expand" class="children-tr" [class.isCheck]="data.checked" >
+            <td  *ngIf="columns && columns.length > 0" [attr.colspan]="columns.length + 2" style="padding: 0px;">
+              <nz-table
+                #innerTable
+                nzVirtualScroll
+                [nzData]="data.children"
+                [nzVirtualItemSize]="116"
+                [nzFrontPagination]="false"
+                [nzShowPagination]="false"
+                [nzVirtualMaxBufferPx]="2320"
+                [nzVirtualMinBufferPx]="1160"
+                [nzLoading]="data.tbloading"
+                [nzScroll]="{ x: '1000px', y:data.children[0].score_options?(data.children[0].score_options.length==1?200:data.children[0].score_options.length*120 )+'px': (data.children.length > 10 ? 116 * 10 : data.children.length * 116) + 'px' }"
+              >
+                <thead (nzSortChange)="sort($event, data.children, i)">
+                  <tr cdkDragHandle style="cursor: move;" class="children-th" (click)="data.checked = !data.checked; refreshStatus(data)">
+                    <th *ngIf="!showCheckbox"></th>
+                    <ng-container *ngFor="let column2 of childrenColumns trackBy: trackByFn" >
+                      <ng-container *ngIf="column2['show']">
+                        <!-- 满足要求隐藏: 1.category_hide 中的有category_type对应value值做隐藏处理 -->
+                        <ng-container *ngIf="!(column2['hidden_category'] | some : data['category_type']); ">
+                          <ng-container [ngSwitch]="column2.key" >
+                            <ng-container *ngSwitchCase="'expected_expenditure_str'"  >
+                              <ng-container  *ngIf="data['budget_amount'] && data['budget_amount'] != ''">
+                                  <th [ngStyle]="{ 'width': column2?.width, 'max-width': column2?.width, 'min-width': column2?.width }"
+                                   (click)="stopPropagation($event, column2.sort)" [nzShowSort]="column2.sort" [nzSortKey]="column2.key")>{{column2.label}}</th>
+                              </ng-container>
+                            </ng-container>
+
+                            <!-- 使用预算 -->
+                            <ng-container *ngSwitchCase="'budget_type_title'">
+                              <ng-container  *ngIf="data['category_type'] == '2'">
+                                <th [ngStyle]="{ 'width': column2?.width, 'max-width': column2?.width, 'min-width': column2?.width }" (click)="stopPropagation($event, column2.sort)" [nzShowSort]="column2.sort" [nzSortKey]="column2.key">{{column2.label}}</th>
+                              </ng-container>
+                            </ng-container>
+
+                            <ng-container *ngSwitchCase="'score_option'">
+                              <th class="tableTH" [ngStyle]="{ 'width': column2?.width, 'max-width': column2?.width, 'min-width': column2?.width }" (click)="stopPropagation($event, column2.sort)" [nzShowSort]="column2.sort" [nzSortKey]="column2.key">
+                                <div *ngFor="let optonItem of column2.option"
+                                [ngStyle]="{ 'width': optonItem?.width, 'max-width': optonItem?.width, 'min-width': optonItem?.width }"
+                                 class="text-center">
+                                 <span *ngIf="optonItem.key=='score'&&!id_detail" style="color:red;height:15px;line-height:15px;font-size:15px;display:inline-block;margin-right:2px;">*</span>
+                                  {{optonItem.label}}
+                                </div>
+                              </th>
+                            </ng-container>
+
+                            <ng-container *ngSwitchCase="'demand_acceptance_score'">
+                              <th [ngStyle]="{ 'width': column2?.width, 'max-width': column2?.width, 'min-width': column2?.width }" (click)="stopPropagation($event, column2.sort)" [nzShowSort]="column2.sort" [nzSortKey]="column2.key">{{column2.label}}</th>
+                            </ng-container>
+
+                            <ng-container *ngSwitchDefault>
+                              <th [ngClass]="column2.key=='annotation'?'text-center':''" [ngStyle]="{ 'width': column2?.width, 'max-width': column2?.width, 'min-width': column2?.width }" (click)="stopPropagation($event, column2.sort)" [nzShowSort]="column2.sort" [nzSortKey]="column2.key">{{column2.label}}</th>
+                            </ng-container>
+
+                          </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </ng-container>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ng-template nz-virtual-scroll let-data2 let-index="index">
+                    <tr style="max-height: 116px; height: 116px;"
+                      (click)="isChildrenDisabled || data2['disabled'] ? null : data2.checked = !data2.checked; refreshChildrenStatus(data); $event.stopPropagation();" [class.checked]="data2.checked">
+
+                      <td *ngIf="!showCheckbox" [ngStyle]="{ 'width': column2?.width, 'max-width': column2?.width, 'min-width': column2?.width }">
+                        <label class="mr-3">No.{{index + 1}}</label>
+                        <label nz-checkbox
+                          [(nzChecked)]="data2.checked"
+                          [nzDisabled]="isChildrenDisabled || data2['disabled']"
+                          (click)="$event.stopPropagation();"
+                          (keyup)="keyUpSearch($event, data.children)"
+                          style="width: 24px;"
+                          (nzCheckedChange)="refreshChildrenStatus(data)">
+                        </label>
+                      </td>
+
+                      <ng-container *ngFor="let column2 of childrenColumns; trackBy: trackByFn">
+                        <ng-container *ngIf="column2['show']">
+                          <ng-container *ngIf="column2['hidden_category'] | some : data['category_type']; else elseBlock "></ng-container>
+                          <ng-template #elseBlock>
+
+                            <td [nzRight]="column?.templateOptions?.nzRight"
+                                [ngStyle]="{ 'width': column2?.width, 'max-width': column2?.width, 'min-width': column2?.width }"
+   >
+
+                              <ng-container [ngSwitch]="column2.type">
+
+                              <ng-container *ngSwitchCase="'radio'">
+                                <td *ngIf="data2['degree_of_passage_type'] == 'radio' || !data2['degree_of_passage_type']">
+                                  <nz-radio-group [(ngModel)]="data2['pass_degree']" [nzSize]="'small'" (ngModelChange)="getRadio(data2.id, $event, data2)" (click)="$event.stopPropagation();">
+                                    <label nz-radio nzValue="1">通过</label>
+                                    <label nz-radio nzValue="2">部分通过</label>
+                                    <label nz-radio nzValue="3">不通过</label>
+                                  </nz-radio-group>
+
+                                  <ng-container *ngIf="(data2['pass_degree'] == '2' || data2['pass_degree'] == '3')">
+                                    <label nzSize="small" class="mt-2 mb-1 d-block ant-form-item-required"  nzRequired nzFor="reason" for="reason">结算比例:</label>
+<!--                              <textarea rows="1" style="width: 100px;resize:none;overflow:hidden" [(ngModel)]="data2['settlement_ratio']" id="ratio" placeholder="请输入结算比例" [title]="data2['settlement_ratio'] && data2['settlement_ratio'].length > 20 ? data2['settlement_ratio'] : ''" (click)="$event.stopPropagation();"></textarea>&ndash;&gt;-->
+                                     <nz-input-number
+                                       [(ngModel)]="data2['settlement_ratio']"
+                                       [nzMin]="0"
+                                       [nzMax]="100"
+                                       [nzStep]="0.01"
+                                       [nzPrecision]=2
+                                       class="mr-2"
+                                     ></nz-input-number>%
+                                  </ng-container>
+
+                                <ng-container *ngIf="(data2['pass_degree'] == '1' || data2['pass_degree'] == '2' || data2['pass_degree'] == '3') && data2['is_test'] == '1'">
+                                    <label nzSize="small" *ngIf="data2['pass_degree'] == '1'" class="mt-2 mb-1 d-block"  nzRequired nzFor="reason" for="reason">验收说明:</label>
+                                    <label nzSize="small" *ngIf="data2['pass_degree'] != '1'" class="mt-2 mb-1 d-block ant-form-item-required"  nzRequired nzFor="reason" for="reason">验收说明:</label>
+                                    <textarea style="width: 250px;resize:none;overflow:hidden" [(ngModel)]="data2['acceptance_reason']" id="reason" placeholder="请输入通过程度的理由" [title]="data2['acceptance_reason'] && data2['acceptance_reason'].length > 20 ? data2['acceptance_reason'] : ''" (click)="$event.stopPropagation();"></textarea>
+                                  </ng-container>
+
+                                  <ng-container *ngIf="(data2['pass_degree'] == '2' || data2['pass_degree'] == '3') && data2['is_test'] == '0'">
+                                    <label nzSize="small" class="mt-2 mb-1 d-block ant-form-item-required"  nzRequired nzFor="reason" for="reason">验收说明:</label>
+                                    <textarea style="width: 250px;resize:none;overflow:hidden" [(ngModel)]="data2['acceptance_reason']" id="reason" placeholder="请输入通过程度的理由" [title]="data2['acceptance_reason'] && data2['acceptance_reason'].length > 20 ? data2['acceptance_reason'] : ''" (click)="$event.stopPropagation();"></textarea>
+                                  </ng-container>
+                                </td>
+                                <td *ngIf="data2['degree_of_passage_type'] == 'input'">
+                                  <div [ngSwitch]="data2['degree_of_passage']" [ngStyle]="{color: 'red'}" (click)="$event.stopPropagation();" >
+                                    <span *ngSwitchCase="0">未选择</span>
+                                    <span *ngSwitchCase="1" [ngStyle]="{color: '#0a1f44'}">通过</span>
+                                    <div *ngSwitchCase="2">
+                                      部分通过
+                                      <div *ngIf="data2['acceptance_reason_str']">
+                                        <span [ngStyle]="{color: 'rgba(0, 0, 0, 0.65)'}">验收说明 : {{data2['acceptance_reason_str']}}</span>
+                                      </div>
+                                      <div *ngIf="data2['settlement_ratio_str']">
+                                        <span [ngStyle]="{color: 'rgba(0, 0, 0, 0.65)'}">结算比例 : {{data2['settlement_ratio_str']}}%</span>
+                                      </div>
+                                    </div>
+                                    <div *ngSwitchCase="3">
+                                      不通过
+                                      <div *ngIf="data2['acceptance_reason_str']">
+                                        <span [ngStyle]="{color: 'rgba(0, 0, 0, 0.65)'}">验收说明 : {{data2['acceptance_reason_str']}}</span>
+                                      </div>
+                                      <div *ngIf="data2['settlement_ratio_str']">
+                                        <span [ngStyle]="{color: 'rgba(0, 0, 0, 0.65)'}">结算比例 : {{data2['settlement_ratio_str']}}%</span>
+                                      </div>
+                                    </div>
+                                    <span *ngSwitchCase="'NA'" style="color:#000000A6">NA</span>
+                                  </div>
+                                </ng-container>
+
+
+                                <ng-container *ngSwitchCase="'unit_price'">
+                                  <ng-container *ngIf="data2[column2.key]">
+                                    {{ data2[column2.key] }} <span *ngIf="data2.fixed_price_status">固定价</span>
+                                  </ng-container>
+                                  <span *ngIf="!data2[column2.key]">NA</span>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'table'">
+                                  <nz-table #editRowTable nzBordered
+                                  [nzNoResult]="null"
+                                  [nzData]="data2.score_options"
+                                  [nzShowPagination]="false"
+                                  [nzNoResult]=""
+                                  [ngStyle]="{ 'width': column2?.width, 'max-width': column2?.width, 'min-width': column2?.width }"
+                                   style="margin:-12px 0px;border-bottom:0;border-top:0;">
+                                    <!-- <thead>
+                                      <tr>
+                                        <th nzWidth="20%">Name</th>
+                                        <th nzWidth="40%">Age</th>
+                                        <th nzWidth="20%">Address</th>
+                                        <th nzWidth="20%">Action</th>
+                                      </tr>
+                                    </thead> -->
+                                    <tbody>
+                                      <tr *ngFor="let item of editRowTable.data;let idx = index" class="editable-row"
+                                        style="border-bottom:none;"
+                                      >
+
+
+                                       <td *ngFor="let item1 of column2.option"
+                                       [ngClass]="idx==(editRowTable.data.length-1)?'no-border-bottom':''"
+                                        style="padding-left:8px;padding-right:8px;border-top:0;"
+                                        [ngStyle]="{ 'width': item1?.width, 'max-width': item1?.width, 'min-width': item1?.width }"
+                                        >
+                                        <ng-container *ngIf="item1.key!='score'||c">
+                                          <pre [ngClass]="item1.key!='describe'?'text-center':''" style="white-space:pre-wrap;color:rgba(0, 0, 0, 0.65);font-size:12px;font-weight:400;margin-bottom:0px;">{{ item[item1.key] }}</pre>
+                                        </ng-container>
+                                        <ng-container *ngIf="item1.key=='score'&&!id_detail">
+                                        <!-- <input class="text-center" style="border:none;" placeholder="请填写0~100，5倍数的整数" nzCompact type="text" nz-input [(ngModel)]="item[item1.key]" /> -->
+
+                                            <input
+                                            class="text-center"
+                                            [ngClass]="!item.complyRule||item.complyRule=='yes'||(item[item1.key]===0||(item[item1.key]>0&&item[item1.key]<=100&&item[item1.key]%5==0))?'black-border':'red-border'"
+                                            style="height:100px"
+                                            (keypress)="onlyNumber($event)"
+                                            [placeholder]="item['placeholder'] || '必填项，请填写0~100，5倍数的整数'"
+                                            (blur)="getKeydown(i,index,idx,true,item[item1.key],$event)"
+                                            (ngModelChange)="getKeydown(i,index,idx)"
+                                            type="number"
+                                            rows="4" nz-input [(ngModel)]="item[item1.key]" />
+
+                                        </ng-container>
+                                      </td>
+                                      </tr>
+                                    </tbody>
+                                  </nz-table>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'file'">
+                                  <ng-container *ngIf="data2[column2.key] && data2[column2.key] != 0">
+                                    <a download="下载" [href]="'/web/file/' + data2[column2.key] ">下载</a>
+                                  </ng-container>
+                                  <ng-container *ngIf="!(data2[column2.key] && data2[column2.key] != 0)">
+                                    NA
+                                  </ng-container>
+                                </ng-container>
+
+                                <!-- <ng-container *ngSwitchCase="'image'">
+                                  <img *ngIf="data2[column2.key]"
+                                      defaultImage="/assets/images/pic-thumb-default.60.jpg"
+                                      [lazyLoad]="data2[column2.key]"
+                                      (click)="preview(data2[column2.key]); $event.stopPropagation()"/>
+                                  <span *ngIf="!data2[column2.key]">NA</span>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'thumb'">
+                                  <img defaultImage="/assets/images/pic-thumb-default.60.jpg" [lazyLoad]="data2[column2.key]"
+                                    *ngIf="data2[column2.key]" (click)="preview(data2[column2.key]); $event.stopPropagation()"/>
+                                  <span *ngIf="!data2[column2.key]">NA</span>
+                                </ng-container> -->
+
+                                  <ng-container *ngSwitchCase="'image'">
+                                    <ng-container *ngIf="data2[column2.key]" >
+                                      <img
+                                        nz-popover
+                                        [nzContent]="contentTemplate"
+                                        nzTrigger="hover"
+                                        nzOverlayClassName="preview-image"
+                                        defaultImage="/assets/images/pic-thumb-default.60.jpg"
+                                        (click)="preview(data2[column2.key]); $event.stopPropagation()"
+                                        [lazyLoad]="data2[column2.key]"/>
+                                      <ng-template #contentTemplate>
+                                        <div [innerHtml]="data2[column2.key] | preview | async"></div>
+                                      </ng-template>
+                                    </ng-container>
+                                    <ng-container *ngIf="!data2[column2.key]">NA</ng-container>
+                                  </ng-container>
+
+                                  <ng-container *ngSwitchCase="'thumb'">
+                                    <ng-container *ngIf="data2[column2.key]" >
+                                      <img
+                                        nz-popover
+                                        [nzContent]="contentTemplate"
+                                        nzTrigger="hover"
+                                        defaultImage="/assets/images/pic-thumb-default.60.jpg"
+                                        (click)="preview(data2[column2.key]); $event.stopPropagation()"
+                                        [lazyLoad]="data2[column2.key]"/>
+                                      <ng-template #contentTemplate>
+                                        <div [innerHtml]="data2[column2.key] | preview | async"></div>
+                                      </ng-template>
+                                    </ng-container>
+                                    <ng-container *ngIf="!data2[column2.key]">NA</ng-container>
+                                  </ng-container>
+
+                                <ng-container *ngSwitchCase="'produce_breakdown'">
+                                  <span [ngStyle]="{color: data2[column2['color_red']] ? 'red' : ''}">
+                                    {{data2[column2.key] && data2[column2.key] !== '0.00' ? data2[column2.key] : 'NA'}}
+                                  </span>
+                                  <!--是否存在明细?-->
+                                  <ng-container *ngIf="data2[column2['option_key']] && data2[column2['option_key']]!==''">
+                                    <a *ngIf="isShowDetail(data2, column2['option_key'])"  (click)="showPriceDetail(data2, column2['option_key'], $event)">明细</a>
+                                    <a *ngIf="data2.price_type == 1"  (click)="showPriceDetail(data2, column2['option_key'], $event)">模板</a>
+                                  </ng-container>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'bubble_tip'">
+                                  <span *ngIf="data2[column2.key] == ''">NA</span>
+                                  <div class="parent-title" *ngIf="data2[column2.key]" >
+                                    <ng-container *ngIf="data2[column2.key] != ''">
+                                      <span nz-popover [nzContent]="contentTemplates" [ngStyle]="{color: column2['color'] ? 'red' : ''}">
+                                        {{data2[column2.key].substring(0, 10) }}
+                                        <span *ngIf="data2[column2.key] && data2[column2.key].length >= 10">...</span>
+                                      </span>
+                                      <!-- 引用模板，可输出html -->
+                                      <ng-template #contentTemplates><a [innerHTML]="data2[column2.key]"></a></ng-template>
+                                    </ng-container>
+                                  </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'tooltip'">
+                                  {{data2[column2.key] ? data2[column2.key] : 'NA' }}
+                                  <ng-container *ngIf="data2[column2.key + '_description'] && data2[column2.key + '_description']">
+                                      <i class="mx-1 f12" nz-icon nzType="question-circle" nz-tooltip [nzTitle]="data2[column2.key + '_description']" nzTheme="outline"></i>
+                                  </ng-container>
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'input'">
+
+                                  <!--spm变更确认 定制内容-->
+                                  <ng-container *ngIf="column2.key === 'new_tax_price_edit'">
+
+                                    <ng-container *ngIf="!data2['tax_type'] || data2['tax_type'] == '0'">
+                                      NA
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data2['tax_type'] && data2['tax_type'] != '0'">
+                                      <ng-container *ngIf="data2['tax_type'] != '3'">
+                                        <span [ngStyle]="{color: data2[column2['color_red']] ? 'red' : ''}">
+                                          {{data2['new_tax_price'] && data2['new_tax_price'] !== '0.00' ? data2['new_tax_price'] : 'NA'}}
+                                        </span>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['tax_type'] == '3'">
+                                        <input type="text" nz-input nzSize="small" placeholder="{{column2['placeholder'] || ''}}" [disabled]="data2[column2['disabled']] || false" [(ngModel)]="data2[column2.key]" (blur)="getBlurEvent(column2.key, data2, data)" (click)="$event.stopPropagation();">
+                                      </ng-container>
+                                    </ng-container>
+                                  </ng-container>
+
+                                  <ng-container *ngIf="column2.key !== 'new_tax_price_edit'">
+                                    <input type="text" nz-input nzSize="small" placeholder="{{column2['placeholder'] || ''}}" [disabled]="data2[column2['disabled']] || false" [(ngModel)]="data2[column2.key]" (blur)="getBlurEvent(column2.key, data2)" (click)="$event.stopPropagation();">
+                                  </ng-container>
+
+                                </ng-container>
+
+                                <ng-container *ngSwitchCase="'click'">
+                                  <ng-container *ngIf="column2.templateOptions && column2.templateOptions.options">
+                                    <a (click)="getClickEvent(btn['value'], data2, null, $event);"
+                                       *ngFor="let btn of column2.templateOptions.options;trackBy: trackByFn"
+                                       style="margin: 0 6px;">{{btn['label']}}</a>
+                                  </ng-container>
+
+                                  <ng-container *ngIf="!column2.templateOptions && column2.img">
+                                    <ng-container *ngIf="data2[column2.key]">
+                                      <a (click)="getClickEvent(column2.key, data2, 'img',  $event);">
+                                          <img defaultImage="/assets/images/pic-thumb-default.60.jpg" [lazyLoad]="data2[column2.key]"/>
+                                      </a>
+                                    </ng-container>
+                                    <ng-container *ngIf="!data2[column2.key]">NA</ng-container>
+                                  </ng-container>
+
+                                  <ng-container *ngIf="!column2.templateOptions && !column2.img">
+                                    <ng-container *ngIf="data2[column2.key]">
+                                      <a (click)="getClickEvent(column2.key, data2, false, $event)">{{data2[column2.key] }}</a>
+                                    </ng-container>
+                                    <ng-container *ngIf="!data2[column2.key]">NA</ng-container>
+                                  </ng-container>
+                                </ng-container>
+
+                                <ng-container  *ngSwitchCase="'attribute'">
+                                  <app-label-edit [data]="data2[column2.key]"></app-label-edit>
+                                </ng-container>
+                                <ng-container *ngSwitchCase="'textarea'">
+                                  <textarea rows="2" nz-input
+                                    [placeholder]="column2['placeholder'] || ''"
+                                    [(ngModel)]="data2[column2.key]"
+                                    style="min-height:190px;"
+                                    [ngClass]="data2[column2.key] && data2[column2.key].length>200?'red-border':'black-border'"
+                                    [disabled]="id_detail"
+                                    ></textarea>
+                                </ng-container>
+                                <ng-container  *ngSwitchCase="'attribute-edit'">
+                                  <app-label-edit [(data)]="data2[column2.key]" edit="true" (click)="$event.stopPropagation();"></app-label-edit>
+                                </ng-container>
+
+                                <!--验收评分-->
+
+                                <ng-container *ngSwitchCase="'evaluateDetail'" >
+                                  <div *ngIf="data2[column2.key] && data2[column2.key].length>5 " nz-popover  [nzContent]="contentTemplate" nzPlacement="topRight" >
+                                    <div  [innerHTML]=" data2[column2.key] ? data2[column2.key] : 'NA'"  id="changeHight" ></div>
+                                    <ng-template #contentTemplate>
+                                      <div  [innerHTML]=" data2[column2.key] ? data2[column2.key] : 'NA'"  >
+                                      </div>
+                                    </ng-template>
+                                  </div>
+
+                                  <div  *ngIf="data2[column2.key] && data2[column2.key].length<5 ">
+                                    <div  [innerHTML]=" data2[column2.key] ? data2[column2.key] : 'NA'"   >
+                                    </div>
+                                  </div>
+                                </ng-container>
+
+                                <ng-container *ngSwitchDefault>
+                                  <ng-container [ngSwitch]="column2.key">
+                                    <div class="thing-code" *ngSwitchCase="'thing_code'">
+                                      <ng-container *ngIf="column2.html && column2.html != ''">
+                                        <div [innerHTML]="data2[column2.html]"></div>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_rejected'] == 1">
+                                        <ng-container *ngIf="data2['auto_record_data'] && data2['auto_record_data'] != ''">
+                                          <span class="text-red cu-p d-inline-block" nz-popover [nzContent]="contentRejected1">[被驳回]</span>
+                                          <!-- 引用模板，可输出html -->
+                                          <ng-template #contentRejected1><a [innerHTML]="data2['auto_record_data'] || 'NA'"></a></ng-template>
+                                        </ng-container>
+                                        <ng-container *ngIf="!data2['auto_record_data'] || data2['auto_record_data'] == ''">
+                                          <span class="text-red cu-p d-inline-block">[被驳回]</span>
+                                        </ng-container>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_withdraw'] == 1">
+                                        <ng-container *ngIf="data2['auto_record_data'] && data2['auto_record_data'] != ''">
+                                          <span class="text-red cu-p d-inline-block" nz-popover [nzContent]="contentRejected1">[撤回]</span>
+                                          <!-- 引用模板，可输出html -->
+                                          <ng-template #contentRejected1><a [innerHTML]="data2['auto_record_data'] || 'NA'"></a></ng-template>
+                                        </ng-container>
+                                        <ng-container *ngIf="!data2['auto_record_data'] || data2['auto_record_data'] == ''">
+                                          <span class="text-red cu-p d-inline-block">[撤回]</span>
+                                        </ng-container>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_rejected'] == 2">
+                                        <ng-container *ngIf="data2['auto_record_data'] && data2['auto_record_data'] != ''">
+                                          <span class="text-red cu-p d-inline-block" nz-popover [nzContent]="contentRejected2">[放弃报价]</span>
+                                          <!-- 引用模板，可输出html -->
+                                          <ng-template #contentRejected2><a [innerHTML]="data2['auto_record_data'] || 'NA'"></a></ng-template>
+                                        </ng-container>
+                                        <ng-container *ngIf="!data2['auto_record_data'] || data2['auto_record_data'] == ''">
+                                          <span class="text-red cu-p d-inline-block">[放弃报价]</span>
+                                        </ng-container>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_rejected'] == 3">
+                                        <span class="text-red d-inline-block">[超时未接收]</span>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_rejected'] == 31">
+                                          <ng-container *ngIf="data2['auto_record_data'] && data2['auto_record_data'] != ''">
+                                            <span class="text-red cu-p d-inline-block" nz-popover [nzContent]="contentRejected3">[放弃接收]</span>
+                                            <!-- 引用模板，可输出html -->
+                                            <ng-template #contentRejected3><a [innerHTML]="data2['auto_record_data'] || 'NA'"></a></ng-template>
+                                          </ng-container>
+                                          <ng-container *ngIf="!data2['auto_record_data'] || data2['auto_record_data'] == ''">
+                                            <span class="text-red cu-p d-inline-block">[放弃接收]</span>
+                                          </ng-container>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_rejected'] == 4">
+                                        <span class="text-red d-inline-block">[超时未报价]</span>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_rejected'] == 5">
+                                        <span class="text-red d-inline-block">[结束报价]</span>
+                                      </ng-container>
+<!--
+                                      <ng-container *ngIf="data2['is_expired'] == 1">
+                                        <span class="text-red d-inline-block">[已超期]</span>
+                                      </ng-container> -->
+
+                                      <ng-container *ngIf="data2['is_test'] == '1'">
+                                        <span class="text-red d-inline-block">[测试单]</span>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_price_error'] == 10">
+                                        <span class="text-primary d-inline-block">[价格已修正]</span>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_price_error'] == 12">
+                                        <span class="text-primary d-inline-block">[价格未变更]</span>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['demand_type'] === '基地'">
+                                        <img style="width: 40px;" src="/assets/images/base.png" />
+                                      </ng-container>
+                                      <ng-container *ngIf="data2['demand_type'] === '画师'">
+                                        <span class="text-red d-inline-block">[画师]</span>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_reduce_process'] && data2['is_reduce_process'] == 1">
+                                        <img style="width: 40px;" src="assets/images/icon_fei.gif" />
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['create_po_error_msg'] && data2['create_po_error_msg'] != ''">
+                                        <span class="text-red">[{{data2['create_po_error_msg']}}]</span>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['is_backstage'] && data2['is_backstage'] == 1">
+                                        <span class="text-red d-inline-block">[后台退回]</span>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['over_due_flag'] && data2['over_due_flag'] == 1">
+                                        <span class="text-red d-inline-block">[已超期]</span>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['thing_tag'] && data2['thing_tag'].length">
+                                        <ng-container *ngFor="let item of data2['thing_tag']">
+                                          <ng-container *ngIf="!item.tip">
+                                            <span class="text-red d-inline-block mx-1">[{{item.title}}]</span>
+                                          </ng-container>
+                                          <ng-container *ngIf="item.tip">
+                                            <span class="text-red d-inline-block mx-1" nz-tooltip [nzTitle]="item.tip" >[{{item.title}}]</span>
+                                          </ng-container>
+                                        </ng-container>
+                                      </ng-container>
+
+                                      <a (click)="getClickEvent(column2.key, data2, false, $event)">{{data2[column2.key] ? data2[column2.key] : 'NA'}}</a>
+
+                                      <ng-container  *ngIf="data2['create_po_error']" >
+                                        <ng-container *ngIf="data2['create_po_error'] != ''">
+                                          <i class="mx-1" nz-icon type="info-circle" theme="outline" nz-popover [nzTitle]="false"
+                                            [nzContent]="contentTemplate1"></i>
+                                          <!-- 引用模板，可输出html -->
+                                          <ng-template #contentTemplate1><a [innerHTML]="data2['create_po_error']"></a></ng-template>
+                                        </ng-container>
+                                      </ng-container>
+
+                                      <ng-container *ngIf="data2['create_order_err_msg']" >
+                                        <ng-container *ngIf="data2['create_order_err_msg'] != ''">
+                                          <i class="mx-1" nz-icon type="info-circle" theme="outline" nz-popover [nzTitle]="false"
+                                            [nzContent]="contentTemplate1"></i>
+                                          <!-- 引用模板，可输出html -->
+                                          <ng-template #contentTemplate1><a [innerHTML]="data2['create_order_err_msg']"></a></ng-template>
+                                        </ng-container>
+                                      </ng-container>
+                                      <i class="thing-copy-hover mx-1" nz-icon nzType="copy" nzTheme="outline" (click)="copy(data2[column2.key]);"></i>
+                                    </div>
+                                    <ng-container *ngSwitchCase="'describe'">
+                                      <pre style="white-space:pre-wrap;color:rgba(0, 0, 0, 0.65);">{{ data2[column2.key] }}</pre>
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'score'">
+                                      <!-- <input class="text-center" style="border:none;" placeholder="请填写0~100，5倍数的整数" nzCompact type="text" nz-input [(ngModel)]="item[item1.key]" /> -->
+
+                                          <input
+                                          class="text-center"
+                                          [ngClass]="!data2.complyRule||data2.complyRule=='yes'||(data2[column2.key]===0||(data2[column2.key]>0&&data2[column2.key]<=100&&data2[column2.key]%5==0))?'black-border':'red-border'"
+                                          style="height:100px"
+                                          (keypress)="onlyNumber($event)"
+                                          [placeholder]="'请填写0~100，5倍数的整数'"
+                                          (blur)="getKeydown(i,index,true,data2[column2.key],$event)"
+                                          (ngModelChange)="getKeydown(i,index)"
+                                          type="number"
+                                          rows="4" nz-input [(ngModel)]="data2[column2.key]" />
+
+                                      </ng-container>
+                                    <ng-container *ngSwitchCase="'expected_expenditure_str'">
+                                      <ng-container *ngIf="data['budget_amount'] && data['budget_amount'] != '' && data2['category_type'] == '2'">
+                                          {{data2[column2.key] && data2[column2.key] !== '' ? data2[column2.key] : 'NA'}}
+                                      </ng-container>
+                                    </ng-container>
+
+                                    <ng-container  *ngSwitchCase="'attribute'">
+                                      <app-label-edit [data]="data2[column2.key]"></app-label-edit>
+                                    </ng-container>
+
+                                    <ng-container  *ngSwitchCase="'acceptance_reason'">
+                                      <ng-container *ngIf="(data2.acceptance_reason || data2.pass_reason) && ((data2.acceptance_reason && data2.acceptance_reason.length > 0) || (data2.pass_reason && data2.pass_reason.length > 0)); else elseAttribute">
+                                        <div style="width: 100%;" [title]="data2.acceptance_reason || data2.pass_reason" class="text-overflow-10" >{{data2.acceptance_reason || data2.pass_reason}}</div>
+                                      </ng-container>
+                                      <ng-template #elseAttribute>
+                                        NA
+                                      </ng-template>
+                                    </ng-container>
+
+                                    <ng-container *ngSwitchCase="'current_user_names'">
+                                      <ng-container *ngIf="data2[column2.key]; else userBlock">
+                                        <!-- <div [innerHtml]="data2[column2.key] | user"></div> -->
+                                        <app-user-info [user]="data2[column2.key]"></app-user-info>
+                                      </ng-container>
+                                      <ng-template #userBlock>
+                                        NA
+                                      </ng-template>
+                                    </ng-container>
+
+                                    <ng-container *ngSwitchCase="'demand_acceptance_score'">
+                                      <div style="word-break: break-all;word-wrap: break-word;" [innerHTML]=" data2[column2.key] ? data2[column2.key] : 'NA'">
+
+                                      </div>
+                                    </ng-container>
+
+                                    <ng-container *ngSwitchDefault>
+                                      <span [title]="data2[column2.key]" class="text-overflow-10" [ngStyle]="{color: data2[column2['color_red']] || column2['color'] || data2[column2.key] == '部分通过' || data2[column2.key] == '不通过' ? 'red' : ''}">
+                                        {{data2[column2.key] && data2[column2.key] !== '' ? data2[column2.key] : 'NA'}}
+                                      </span>
+                                    </ng-container>
+                                  </ng-container>
+                                </ng-container>
+                              </ng-container>
+                            </td>
+
+                          </ng-template>
+                        </ng-container>
+                      </ng-container>
+                    </tr>
+                  </ng-template>
+                </tbody>
+              </nz-table>
+            </td>
+          </tr>
+        </ng-template>
+      </tbody>
+    </nz-table>
+    </span>
+  </div>
+</nz-card>
+
+<ng-template #totalTemplate let-total>
+  总计 {{pagination.total_count}} 条
+</ng-template>
+
+

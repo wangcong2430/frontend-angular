@@ -1,0 +1,21 @@
+<div class="custom-control-group">
+    <ng-container *ngFor="let option of to.options;let i = index; trackBy: trackByFn">
+        <div class="custom-control custom-checkbox">
+            <input type="checkbox"
+                   class="custom-control-input"
+                   [disabled]="to.disabled"
+                   id="{{key + '_'+ i}}"
+                   value="{{option[to.valueProp||'value']}}"
+                   [checked]="option[to.checkedProp || 'checked']"
+                   (click)="toggle(option)"
+                   name="{{key + '_'+ i}}">
+            <label class="custom-control-label" for="{{key + '_'+ i}}">{{option[to.labelProp||'label']}}</label>
+        </div>
+        <input type="text" class="form-control"
+               style="max-width: 15rem;"
+               *ngIf="to.otherKey === option[to.valueProp || 'value'] && option[to.checkedProp || 'checked']"
+               [(ngModel)]="option['otherVal']"
+               [disabled]="to.disabled"
+               (input)="toggle()">
+    </ng-container>
+</div>

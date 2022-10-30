@@ -1,0 +1,78 @@
+<app-component-crumb>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      [showCheckbox]="false"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+<!-- 频次配置 -->
+<nz-modal [(nzVisible)]="formDataShow" [nzTitle]="formDataTitle" [nzOkLoading]="formDataLoading" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+  <ng-container *ngIf="formDataLoading">
+    <div class="example m-3">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="!formDataLoading">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" style="text-align: left">次数</nz-form-label>
+      <nz-form-control [nzSm]="16">
+        <input type="number" [min]="0" nz-input [(ngModel)]="formData.use_time" />
+      </nz-form-control>
+    </nz-form-item>  
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" style="text-align: left">频率</nz-form-label>
+      <nz-form-control [nzSm]="16">
+        <nz-select nzShowSearch nzAllowClear [(ngModel)]="formData.time">
+          <nz-option *ngFor="let item of formConfig[1]['templateOptions']['options']" [nzLabel]="item.label" [nzValue]="item.value"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+  </ng-container>
+</nz-modal>
+
+<!-- 订单金额配置 | 接口配置 -->
+<nz-modal [(nzVisible)]="configModalShow" [nzTitle]="configModalTitle" (nzOnCancel)="configModalCancel()" (nzOnOk)="configModalSubmit()" [nzOkLoading]="configModalLoading">
+  <ng-container *ngIf="configModalLoading">
+    <div class="example m-3">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="!configModalLoading">
+    <label class="block" nz-checkbox [(ngModel)]="configModal.is_order_tax_amount">是否显示含税金额</label>
+    <label class="block" nz-checkbox [(ngModel)]="configModal.is_order_amount">是否显示金额</label>
+    <label class="block" nz-checkbox [(ngModel)]="configModal.is_currency">是否显示货币</label>
+    <label class="block" nz-checkbox [(ngModel)]="configModal.is_unit">是否显示单价</label>
+    <label class="block" nz-checkbox [(ngModel)]="configModal.is_total">是否显示总价</label>
+  </ng-container>
+</nz-modal>

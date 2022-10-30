@@ -1,0 +1,13 @@
+export * from './administrativeDivision.service';
+import { AdministrativeDivisionService } from './administrativeDivision.service';
+export * from './category.service';
+import { CategoryService } from './category.service';
+export * from './form.service';
+import { FormService } from './form.service';
+export * from './style.service';
+import { StyleService } from './style.service';
+export * from './supplier.service';
+import { SupplierService } from './supplier.service';
+export * from './user.service';
+import { UserService } from './user.service';
+export const APIS = [AdministrativeDivisionService, CategoryService, FormService, StyleService, SupplierService, UserService];

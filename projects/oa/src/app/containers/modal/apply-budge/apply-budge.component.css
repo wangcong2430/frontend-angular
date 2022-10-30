@@ -1,0 +1,33 @@
+.control-padding{
+  padding: 0 !important;
+}
+:host ::ng-deep .ant-upload {
+  float: left !important;
+}
+.upload-list {
+  max-width: 300px !important;
+}
+.upload-list a {
+  float: left;
+  padding: 0 8px;
+  height: 23px;
+  line-height: 23px;
+  margin-top: 10px;
+}
+.upload-list a:hover {
+  background-color: #ddebdd;
+}
+.upload-list a .paper-clip {
+  float: left;
+  margin-top: 6px;
+}
+.upload-list a .file-sapn {
+  max-width: 220px;
+  overflow: hidden;
+  height: 25px;
+}
+.upload-list a .close {
+  float: left;
+  margin-top: 6px;
+  font-size: 5px;
+}

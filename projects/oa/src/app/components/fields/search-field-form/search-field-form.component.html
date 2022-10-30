@@ -1,0 +1,14 @@
+
+<form  [formGroup]="form" (ngSubmit)="ngSubmit($event)" autocomplete="off">
+    <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form" class="search-bar d-flex row" [class.iscollapse]="isCollapse">
+        <div [ngClass]="isCollapse ? 'ant-col-6 text-right ml-auto' : 'ant-col-24 mb-2 text-center'" class="button-group" style="margin-top: 3px;">
+            <button nzType="primary" class="mr-1" nz-button nzType="primary" i18n>搜索</button>
+            <ng-container *ngIf="isCollapse && fields && fields.length > 3">
+                <a style="margin-left:8px;font-size:12px;" (click)="toggleCollapse()">展开<i nz-icon type="down"></i></a>
+            </ng-container>
+            <ng-container *ngIf="!isCollapse">
+                <a style="margin-left:8px;font-size:12px;" (click)="toggleCollapse()">关闭<i nz-icon type="up"></i></a>
+            </ng-container>
+        </div>
+    </formly-form>
+</form>

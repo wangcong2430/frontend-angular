@@ -1,0 +1,36 @@
+.thing-modal .modal-section-title {
+  background-color: #f9fafb;
+  border-bottom: #e8e8e8 solid 1px;
+  border-right-width: 0;
+  border-left-width: 0;
+  color: #5a6779;
+  padding: 0 20px;
+  height: 50px;
+  line-height: 50px;
+  margin: 0;
+}
+
+.thing-modal .modal-section {
+  padding: 12px;
+}
+
+.modal-section .ant-form-item {
+  margin-bottom: 4px
+}
+
+.modal-section .item-label {
+  width: 15px;
+  text-align: right;
+}
+.modal-section .item-control {
+  width: calc(100% - 115px);
+  min-height: 40px;
+}
+::ng-deep .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+  margin-left: 0px;
+}
+
+::ng-deep .ant-select-dropdown {
+  max-height: 300px !important;
+}
+

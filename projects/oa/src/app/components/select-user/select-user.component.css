@@ -1,0 +1,36 @@
+.search-user-body .search-user-ul li{
+  font-size: 12px;
+  overflow: hidden;
+  line-height: 40px;
+  height: 40px;
+  min-width: 120%;
+  word-break: break-all;
+}
+
+.search-user-body textarea {
+  font-size: 12px;
+  height: 20px;
+  min-width: 100px;
+}
+.search-user-body {
+  min-width: 100px;
+}
+
+.need-approver-modal .ant-modal-body{
+  padding: 0;
+}
+
+:ng-deep  .need-approver-modal .ant-table-thead > tr > th, .ant-table-tbody > tr > td {
+  padding: 8px 16px;
+
+}
+
+.search-user-body {
+  line-height:32px;
+}
+
+:host .content-modal .search-user-body .search-user-ul {
+  min-width: 200px;
+  width: 100%;
+  max-width: 300px;
+}

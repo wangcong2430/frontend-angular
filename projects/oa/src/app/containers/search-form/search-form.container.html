@@ -1,0 +1,237 @@
+<nz-card class="pb-0" *ngIf="data && data.length > 0">
+  <div class="search-filters">
+    <form class="d-flex flex-wrap bg-white" nz-form [formGroup]="_searchForm"  [nzLayout]="'horizontal'">
+        <ng-container  *ngFor="let item of data;trackBy: trackByFn">
+          <ng-container *ngIf="item.show">
+            <ng-container [ngSwitch]="item.type">
+              <ng-container *ngSwitchCase="'select'">
+                <nz-form-item  nzFlex="true" class="mb-0">
+                  <nz-form-label [nzFor]="'field'+item.key" class="px-0" >{{item.templateOptions.label}}</nz-form-label>
+                  <nz-form-control  style="flex: 1;" class="pr-0">
+                    <nz-select [nzPlaceHolder]="item.placeholder" 
+                        [nzFilterOption]="filterOption"
+                        [formControlName]="item.key"
+                        [attr.id]="item.key"
+                        [nzShowSearch]="true"
+                        [nzMode]="!item.mode ? 'default' : item.mode" [nzAllowClear]="true" (ngModelChange)="onSubscribe($event, item.key)">
+                      <nz-option *ngFor="let option of item.templateOptions.options;trackBy: trackByFn" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'tree_select'">
+                <nz-form-item  [nzFlex]="true"  class="mb-0" >
+                  <nz-form-label [nzFor]="'field'+item.key" class="px-0" >{{item.templateOptions.label}}</nz-form-label>
+                  <nz-form-control style="flex: 1;" class="pr-0">
+                    <nz-tree-select *ngIf="item['templateOptions'] && item.templateOptions['options']"
+                      [nzNodes]="item.templateOptions['options']"
+                      nzShowSearch
+                      nzCheckable
+                      [nzShowLine]="true"
+                      nzPlaceHolder="...输入关键字搜索"
+                      [formControlName]="item.key"
+                      [attr.id]="item.key">
+                    </nz-tree-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'select-oa-user'">
+                <nz-form-item  [nzFlex]="true"  class="mb-0" >
+                  <nz-form-label [nzFor]="'field'+item.key" class="px-0" >{{item.templateOptions.label}}</nz-form-label>
+                  <nz-form-control style="flex: 1;" class="pr-0">
+                    <nz-select
+                      nzShowSearch
+                      nzAllowClear
+                      [nzMode]="!item.mode ? 'default' : item.mode"
+                      [nzPlaceHolder]="'...输入关键字搜索'"
+                      [formControlName]="item.key"
+                      [nzServerSearch]="true"
+                      (nzOnSearch)="onOaSearch($event, item.key)">
+                      <nz-option *ngIf="isSearchOaSelect" nzDisabled nzCustomContent>
+                        <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                      </nz-option>
+                      <ng-container *ngIf="!optionOaSearchs[item.key]">
+                        <ng-container *ngFor="let option of optionOaSearchs['0']; trackBy: trackByFn">
+                          <nz-option *ngIf="!isSearchOaSelect" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                        </ng-container>
+                      </ng-container>
+                      <ng-container *ngIf="optionOaSearchs[item.key]">
+                        <ng-container *ngFor="let option of optionOaSearchs[item.key]; trackBy: trackByFn">
+                          <nz-option *ngIf="!isSearchOaSelect" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                        </ng-container>
+                      </ng-container>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'select-supplier-list'">
+                <nz-form-item  [nzFlex]="true"  class="mb-0" >
+                  <nz-form-label [nzFor]="'field'+item.key" class="px-0" >{{item.templateOptions.label}}</nz-form-label>
+                  <nz-form-control style="flex: 1;" class="pr-0">
+                    <nz-select
+                      nzShowSearch
+                      nzAllowClear
+                      [nzMode]="!item.mode ? 'default' : item.mode"
+                      [nzPlaceHolder]="'...输入关键字搜索'"
+                      [formControlName]="item.key"
+                      [nzServerSearch]="true"
+                      (nzOnSearch)="onSupplierSearch($event, item.key)">
+                      <nz-option *ngIf="isSearchSupplierSelect" nzDisabled nzCustomContent>
+                        <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                      </nz-option>
+                      <ng-container *ngIf="!optionSupplierSearchs[item.key]">
+                        <ng-container *ngFor="let option of optionSupplierSearchs['0']; trackBy: trackByFn">
+                          <nz-option *ngIf="!isSearchSupplierSelect" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                        </ng-container>
+                      </ng-container>
+                      <ng-container *ngIf="optionSupplierSearchs[item.key]">
+                        <ng-container *ngFor="let option of optionSupplierSearchs[item.key]; trackBy: trackByFn">
+                          <nz-option *ngIf="!isSearchSupplierSelect" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                        </ng-container>
+                      </ng-container>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'input'">
+                <nz-form-item  [nzFlex]="true"  class="mb-0" >
+                  <nz-form-label [nzFor]="'field'+item.key" class="px-0" >{{item.templateOptions.label}}</nz-form-label>
+                  <nz-form-control style="flex: 1;" class="pr-0">
+                    <input nz-input [formControlName]="item.key" [placeholder]="item.templateOptions.placeholder || ''" [attr.id]="item.key">
+                  </nz-form-control>
+                </nz-form-item>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'interval'">
+                <nz-form-item  [nzFlex]="true"  class="mb-0" style="width: 40%;">
+                  <nz-form-label [nzFor]="'field'+item.key" class="px-0" >{{item.templateOptions.label}}</nz-form-label>
+                  <nz-form-control style="flex: 1;" class="pr-0">
+                    <div class="d-flex justify-content-around">
+                      <input class="fl" nz-input [formControlName]="item.key + '1'" [placeholder]="item.placeholder || ''" [attr.id]="item.key" [ngStyle]="{width: '40%'}">
+                      <span class="fl">~</span>
+                      <input class="fl" nz-input [formControlName]="item.key + '2'" [placeholder]="item.placeholder || ''" [attr.id]="item.key" [ngStyle]="{width: '40%'}">
+                      <span class="mr-1" *ngIf="item.templateOptions  && item.templateOptions.unit ">{{item.templateOptions.unit}}</span>
+                    </div>
+                  </nz-form-control>
+                </nz-form-item>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'range-picker'">
+                <nz-form-item  [nzFlex]="true"  class="mb-0" style="width: 40%;">
+                  <nz-form-label [nzFor]="'field'+item.key" class="px-0" >{{item.templateOptions.label}}</nz-form-label>
+                  <nz-form-control style="flex: 1;" class="pr-0">
+                    <nz-range-picker
+                      nzShowTime
+                      [formControlName]="item.key"
+                      [nzFormat]="item.templateOptions.nzFormat"
+                      style="flex: 1;"
+                    >
+                    </nz-range-picker>
+                  </nz-form-control>
+                </nz-form-item>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'date-picker'">
+                <nz-form-item  [nzFlex]="true"  class="mb-0">
+                  <nz-form-label [nzFor]="'field'+item.key" class="px-0" >{{item.templateOptions.label}}</nz-form-label>
+                  <nz-form-control style="flex: 1;" class="pr-0">
+                    <nz-date-picker
+                      nzShowTime
+                      [formControlName]="item.key"
+                      [nzFormat]="item.templateOptions.nzFormat || 'YYYY-MM-DD'"
+                      style="flex: 1;"
+                    >
+                    </nz-date-picker>
+                  </nz-form-control>
+                </nz-form-item>
+              </ng-container>
+  
+              <ng-container *ngSwitchCase="'label-select'">
+                <nz-form-item  [nzFlex]="true"  class="mb-0" >
+                  <nz-form-label [nzFor]="'field'+item.key" class="px-0" >{{item.templateOptions.label}}</nz-form-label>
+                  <nz-form-control style="flex: 1;" class="pr-0">
+                    <nz-select  [formControlName]="item.key"
+                                [attr.id]="item.key"
+                                [nzShowSearch]="true"
+                                [nzPlaceHolder]="item.placeholder"
+                                [nzMode]="!item.mode ? 'default' : item.mode"
+                                [nzAllowClear]="true"
+                                (ngModelChange)="modelChange($event, item)">
+                      <nz-option *ngFor="let option of item.templateOptions.options;trackBy: trackByFn"
+                                  [nzValue]="option.id"
+                                  [nzLabel]="option.label">
+                      </nz-option>
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+  
+                <!-- 标签属性 -->
+                <ng-container *ngFor="let item of selectOptions; trackBy: trackByFn">
+                  <nz-form-item  [nzFlex]="true"  class="mb-0" style="min-width: 280px;" >
+                    <nz-form-label [nzFor]="'field'+item.key" class="px-0 mb-0" >{{item.label}}</nz-form-label>
+                    <nz-form-control style="flex: 1;" class="pr-0">
+                      <ng-container *ngIf="item.attr_type == '1'">
+                        <ng-container *ngFor="let o of item.options; trackBy: trackByFn; let index = index " >
+                          <div class="d-flex align-items-center">
+                            <label class="mb-0">{{o.label}}: </label>
+                            <input [(ngModel)]="o.minValue"
+                                    [ngModelOptions]="{standalone: true}"
+                                    autocomplete="off"
+                                    type="number"
+                                    style="width: 60px; flex: 1"
+                                    class="mx-1"
+                                    [class.has-warning]="item.check_status == '1'"
+                                    nz-input
+                                    placeholder="最小值"
+                                    (ngModelChange)="valueChange()">-
+                            <input [(ngModel)]="o.maxValue"
+                                    [ngModelOptions]="{standalone: true}"
+                                    autocomplete="off"
+                                    type="number"
+                                    style="width: 60px; flex: 1"
+                                    class="mx-1"
+                                    [class.has-warning]="item.check_status == '1'"
+                                    nz-input
+                                    placeholder="最大值"
+                                    (ngModelChange)="valueChange()">
+                          </div>
+                        </ng-container>
+                      </ng-container>
+  
+                      <ng-container *ngIf="item.attr_type == '2'">
+                        <nz-select style="flex: 1;"
+                                    [class.has-warning]="item.check_status == '1'"
+                                    class="mx-1"
+                                    nzMode="multiple"
+                                    [(ngModel)]="item.value"
+                                    [ngModelOptions]="{standalone: true}"
+                                    nzAllowClear
+                                    nzPlaceHolder=""
+                                    (ngModelChange)="valueChange()">
+                          <ng-container *ngFor="let o of item.options; trackBy: trackByFn; let index = index">
+                            <nz-option [nzValue]="o" [nzLabel]="o"></nz-option>
+                          </ng-container>
+                        </nz-select>
+                      </ng-container>
+                    </nz-form-control>
+                  </nz-form-item>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+
+        </ng-container>
+        <div nz-row class="mb-2" style="width: 100%">
+          <div nz-col [nzSpan]="24" style="text-align: center;">
+            <button nz-button [nzType]="'primary'" [nzLoading]="loading" (click)="submitForm()" [disabled]="is_disabled">查询</button>
+            <ng-content></ng-content>
+          </div>
+        </div>
+    </form>
+  </div>
+</nz-card>
+

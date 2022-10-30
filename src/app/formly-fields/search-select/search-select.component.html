@@ -1,0 +1,11 @@
+<app-selector *ngIf="!to.disabled"
+              [ngClass]="{'is-invalid': showError}"
+              [list]="to.options"
+              [bindLabel]="to.labelProp || 'label'"
+              [bindValue]="to.valueProp || 'value'"
+              [placeholder]="to.placeholder"
+              [searchKey]="to.searchKey || 'label'"
+              [isCur]="to.isCur === true ? true: false"
+              [value]="model[key]" (valueChange)="valueChange($event)"
+></app-selector>
+<div class="formly-field-text" *ngIf="to.disabled">{{text}}</div>

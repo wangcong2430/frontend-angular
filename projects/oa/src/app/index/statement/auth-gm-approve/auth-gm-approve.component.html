@@ -1,0 +1,28 @@
+<app-component-crumb [(list)]="list" [isChildren]="true" (changeDisabledButton)="changeDisabledButton($event)">
+  <button nzSize="small" nz-button nzType="primary" [disabled]="disabledButton" (click)="approvalSubmit('pass')">通过</button>
+  <button nzSize="small" nz-button nzType="danger" [disabled]="disabledButton" (click)="approvalSubmit('reject')">驳回</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table-group-new
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(childrenColumns)]="childrenColumns"
+      [(pagination)]="pagination"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      [(disabledButton)]="disabledButton"
+      [(queryFields)]="queryFields"
+    >
+    </app-container-table-group-new>
+  </div>
+</ng-container>

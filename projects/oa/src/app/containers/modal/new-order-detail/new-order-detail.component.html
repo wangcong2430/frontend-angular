@@ -1,0 +1,241 @@
+<nz-modal
+  #orderDetail
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  nzMaskClosable="false"
+  [nzFooter]="null"
+  [nzWidth]="1300"
+  [nzZIndex]="nzZIndex"
+  (nzOnCancel)="modalCancel()"
+>
+
+  <ng-template #modalTitle>
+    <div
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content">  订单详情
+    </div>
+  </ng-template>
+
+  <ng-template #modalContent>
+
+    <ng-container *ngIf="isOpen">
+      <ng-container *ngIf="loading">
+        <div class="example">
+          <nz-spin></nz-spin>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!loading && info">
+        <div class="modal-section" [ngStyle]="{padding: '12px'}">
+          <div nz-row class="d-flex align-items-stretch flex-wrap ant-row" >
+            <div nz-col [nzSpan]="8">
+              <nz-form-item [nzFlex]="true" class="mb-0">
+                <nz-form-label [nzFor]="'field_index'" ><span class="label">订单号</span> </nz-form-label>
+                <nz-form-control class="control-padding" [title]="info['order_code']"><span class="text-overflow-2">{{info['order_code'] || 'NA'}}</span></nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="8">
+              <nz-form-item [nzFlex]="true" class="mb-0">
+                <nz-form-label  ><span class="label">合同号</span> </nz-form-label>
+                <nz-form-control class="control-padding"  [title]="info['contract_number']">
+                  <span class="text-overflow-2" [class.link]="info?.contract_id"  (click)="openContractInfo(info['contract_id'])">{{info['contract_number'] || 'NA'}}</span>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="8">
+              <nz-form-item [nzFlex]="true"  class="mb-0">
+                <nz-form-label [nzFor]="'field_index2'">
+                  <span class="label">创建时间</span>
+                </nz-form-label>
+                <nz-form-control class="control-padding" [title]="info['create_time']" ><span class="text-overflow-2">{{info['create_time'] || 'NA'}}</span></nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="8">
+              <nz-form-item [nzFlex]="true" class="mb-0">
+                <nz-form-label [nzFor]="'field_index2'" >
+                  <span class="label">CP名称</span>
+                </nz-form-label>
+                <nz-form-control class="control-padding" [title]="info['supplier_name']" >
+                  <span [class.link]="!!info['supplier_id']"  (click)="openSupplierInfo(info['supplier_id'])" class="text-overflow-2">{{info['supplier_name'] || 'NA'}}</span>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="8">
+              <nz-form-item [nzFlex]="true"  class="mb-0">
+                <nz-form-label [nzSpan]="6"><span>采购经理</span> </nz-form-label>
+                <nz-form-control [nzSpan]="18" class="control-padding"  [title]="info['purchase_manager']">
+                  <span class="text-overflow-2" [innerHtml]="info['purchase_manager'] | user"></span>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="8">
+              <nz-form-item [nzFlex]="true" class="mb-0">
+                <nz-form-label ><span class="label">资源数量</span> </nz-form-label>
+                <nz-form-control class="control-padding"  [title]="info['thing_number']" ><span class="text-overflow-2">{{info['thing_number'] || 'NA'}}</span></nz-form-control>
+              </nz-form-item>
+            </div>
+            <div nz-col [nzSpan]="8">
+              <nz-form-item [nzFlex]="true" class="mb-0">
+                <nz-form-label   class="label"><span class="label">汇率</span> </nz-form-label>
+                <nz-form-control class="control-padding"  [title]="info['currency_exchange_rate']"><span class="text-overflow-2">{{info['currency_exchange_rate'] || 'NA'}}</span></nz-form-control>
+              </nz-form-item>
+            </div>
+            <ng-container *ngIf="info['tax_type'] && (info['tax_type'] == 1 || info['tax_type'] == 2)">
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label ><span class="label">税率</span> </nz-form-label>
+                  <nz-form-control class="control-padding"  [title]="info['tax_value']"><span class="text-overflow-2">{{info['tax_value'] || 'NA'}}</span></nz-form-control>
+                </nz-form-item>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="info['tax_type'] && info['tax_type'] == 3">
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label ><span class="label">税金</span> </nz-form-label>
+                  <nz-form-control class="control-padding"  [title]="info['tax_price']"><span class="text-overflow-2">{{info['tax_price'] || 'NA'}}</span></nz-form-control>
+                </nz-form-item>
+              </div>
+            </ng-container>
+
+            <div nz-col [nzSpan]="8">
+              <nz-form-item [nzFlex]="true" class="mb-0">
+                <nz-form-label ><span class="label">订单金额</span> </nz-form-label>
+                <nz-form-control class="control-padding"  [title]="info['amount']"><span class="text-overflow-2">{{info['amount'] || 'NA'}}</span></nz-form-control>
+              </nz-form-item>
+            </div>
+
+            <ng-container *ngIf="info['tax_type'] && (info['tax_type'] == 1 || info['tax_type'] == 2 || info['tax_type'] == 3)">
+              <div nz-col [nzSpan]="8">
+                <nz-form-item [nzFlex]="true" class="mb-0">
+                  <nz-form-label ><span class="label">订单含税金额</span> </nz-form-label>
+                  <nz-form-control class="control-padding"  [title]="info['tax_amount']"><span class="text-overflow-2">{{info['tax_amount'] || 'NA'}}</span></nz-form-control>
+                </nz-form-item>
+              </div>
+            </ng-container>
+
+            <div nz-col [nzSpan]="8" *ngIf="info['attachment_id']">
+              <nz-form-item [nzFlex]="true" class="mb-0">
+                <nz-form-label ><span class="label">议价过程附件</span> </nz-form-label>
+                <nz-form-control class="control-padding" >
+                  <span class="text-overflow-2">
+                    <a class="mr-3" [href]="info['attachment_id']" download="效果示例"><i nz-icon type="arrow-down" theme="outline"></i>附件</a>
+                  </span>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+
+            <div nz-col [nzSpan]="8" *ngIf="info['remark1'] !== undefined">
+              <nz-form-item [nzFlex]="true" class="mb-0">
+                <nz-form-label><span class="label">订单说明</span></nz-form-label>
+                <nz-form-control type="control-padding">
+                  <span class="text-overflow-2" [title]="info['remark1']">{{info['remark1'] || 'NA'}}</span>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+
+            <div nz-col [nzSpan]="8">
+              <nz-form-item [nzFlex]="true" class="mb-0">
+                <nz-form-label ><span class="label">供应商选择方法</span> </nz-form-label>
+                <nz-form-control class="control-padding"  nz-popover [nzTitle]="false"  [nzContent]="seleteMethodTemplate">
+                  <span class="text-overflow-2">{{info['select_reason'] || 'NA'}}</span>
+                </nz-form-control>
+                <ng-template #seleteMethodTemplate><a [innerHTML]="info['select_reason']"></a></ng-template>
+              </nz-form-item>
+            </div>
+          </div>
+
+          <div *ngIf="info['is_purchase_manager']">
+            <h6 style="font-size: 18px; font-weight: normal" class="mt-4">订单备注<button class="ml-3"  nzType="primary" nzSize="small" nz-button (click)="addRemark()">添加备注</button></h6>
+            <nz-table #remarkTable [nzData]="remark_list">
+              <thead>
+                <tr>
+                  <th>备注人</th>
+                  <th>备注</th>
+                  <th>备注时间</th>
+                  <th>附件</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of remarkTable.data; let i= index;trackBy: trackByFn">
+                  <td>{{item['creator_name'] || 'NA'}}</td>
+                  <td>{{item['remark'] || 'NA'}}</td>
+                  <td>{{item['create_time'] || 'NA'}}</td>
+                  <td>
+                    <a *ngIf="item['upload_file_url']" [href]="item['upload_file_url']" target="_blank">下载</a>
+                    <span *ngIf="!item['upload_file_url']">NA</span>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </div>
+
+          <h6 style="font-size: 18px; font-weight: normal" class="mt-4">物件列表</h6>
+
+          <nz-table
+            #orderTable
+            [nzBordered]="true"
+            [nzData]="thing_list"
+          >
+            <thead>
+              <tr>
+                <th>物件名称</th>
+                <th>物件单号</th>
+                <th>类别</th>
+                <th>单价</th>
+                <th>数量</th>
+                <th>承诺交付日期</th>
+                <th>当前状态</th>
+                <th>当前处理人</th>
+                <th>物件总价</th>
+                <th>税金</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of orderTable.data; let i = index;trackBy: trackByFn">
+                <td>{{item['thing_name'] || 'NA'}}</td>
+                <td><span  [class.link]="!!item['id']" (click)="openThingInfo(item['id'])">{{item['thing_code'] || 'NA'}}</span></td>
+                <td>{{item['category'] || 'NA'}}</td>
+                <td>{{item['unit_price'] || 'NA'}} <span *ngIf="item.fixed_price_status">固定价</span></td>
+                <td>{{item['workload'] || 'NA'}}</td>
+                <td>{{item['committed_delivery_date'] || 'NA'}}</td>
+                <td>{{item['current_workflow_name'] || 'NA'}}</td>
+                <td>{{item['current_username'] || 'NA'}}</td>
+                <td>{{item['total_price'] || 'NA'}}  <a><span *ngIf="item && item.pre_produce_breakdown && item.produce_breakdown" [ngClass]="(item | orderDetailIsRed) ? 'red' : 'green' " (click)="showDetail(item, $event)">明细</span></a></td>
+                <td>{{item['tax_price'] || 'NA'}}</td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </ng-container>
+    </ng-container>
+
+  </ng-template>
+</nz-modal>
+
+<!-- 添加备注 -->
+<nz-modal [(nzVisible)]="isRemarkVisible"
+  nzTitle="添加备注"
+  nzMaskClosable="false"
+  (nzOnCancel)="cancelRemarkModel()"
+  (nzOnOk)="submitRemarkModel()">
+  <div>
+    <h6>备注信息: </h6>
+    <textarea rows="4" class="mb-2" nz-input placeholder="...输入备注内容" [(ngModel)]="remarkModalData.remark"></textarea>
+    <nz-upload
+      nzType="primary"
+      nzLimit="1"
+      nzAction="/web/cos/upload?type=1055"
+      [nzCustomRequest]="cos.customReqs"
+      [nzBeforeUpload]="cos.beforeUploadFile"
+      [(nzFileList)]="remarkModalData.fileList"
+      (click)="$event.stopPropagation();"
+      (nzChange)="uploadRemarkChange($event)">
+      <button nz-button>
+        <i nz-icon type="upload"></i><span>附件上传</span>
+      </button>
+    </nz-upload>
+  </div>
+</nz-modal>
+

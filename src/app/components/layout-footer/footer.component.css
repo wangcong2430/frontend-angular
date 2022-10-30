@@ -1,0 +1,29 @@
+.sup-footer2{
+  height: 72px;
+  line-height: 72px;
+  margin: 0px auto 0;
+  background-color: #fff;
+  position: relative;
+  bottom: 0;
+  font-size: 14px;
+  text-align: center;
+  padding:0 100px;
+}
+.sup-footer>p{
+  display: inline-block;
+  font-size: 12px;
+  margin:0;
+  color:#999;
+}
+.sup-footer2>p>span{
+  color:#666;
+}
+.sup-footer-divider{
+  height: 1px;
+  margin: 40px 38px 0 38px;
+  background-color: #ddd;
+  position: relative;
+  bottom: 0;
+  text-align: center;
+  padding:0 100px;
+}

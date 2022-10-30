@@ -1,0 +1,15 @@
+<nz-modal
+  [nzWidth]="230"
+  [(nzVisible)]="uploadService.uploadModal.isShow"
+  [nzContent]="uploadModalContent"
+  nzClosable="false"
+  nzMaskClosable="false"
+  [nzOkText]="null"
+  [nzCancelText]="null"
+  [nzFooter]="null"
+  >
+  <ng-template #uploadModalContent>
+    <nz-progress [nzPercent]="uploadService.uploadModal.percent" nzType="circle" [nzWidth]="50"></nz-progress>
+    <span style="margin-left: 16px">{{uploadService.uploadModal.msg}}</span>
+  </ng-template>
+</nz-modal>

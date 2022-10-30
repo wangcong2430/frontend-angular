@@ -1,0 +1,13 @@
+<nz-modal 
+  [(nzVisible)]="isVisible" 
+  nzMaskClosable="false"
+  nzWidth="900px"
+  [nzTitle]="title"
+  [nzOkLoading]="okLoading"
+  (nzOnCancel)="handleCancel()" 
+  (nzOnOk)="handleOk()">
+  <ng-container *ngIf="isVisible">
+    <p *ngIf="introduce" [innerHtml]="introduce" style="line-height: 2"></p>
+    <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
+  </ng-container>
+</nz-modal>

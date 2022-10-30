@@ -1,0 +1,94 @@
+:host ::ng-deep .ant-form-item-label label {
+  margin-bottom: 0;
+}
+
+:host ::ng-deep .ant-input {
+  font-size: 13px;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+::ng-deep .main-layout-body {
+  min-width: 1600px;
+}
+
+:host ::ng-deep .ant-card-body {
+  padding: 16px;
+}
+::ng-deep .text-center {
+  display: flex;
+  flex-direction: column;
+}
+::ng-deep .ant-form-item-label {
+  text-align: right;
+}
+::ng-deep .ant-checkbox-group {
+  text-align: left;
+}
+::ng-deep .media,
+.ant-form-item-label {
+  flex-direction: column;
+  width: 200px !important;
+  margin-left: 200%;
+}
+
+::ng-deep .create-demand-tap .text-center .ant-form-item-label .text-danger {
+  font-family: PingFangSC-Medium;
+  font-weight: 500;
+  font-size: 16px ;
+  color: rgba(0, 0, 0, 0.9)!important ;
+  line-height: 24px ;
+  text-align: left ;
+  float: left ;
+}
+::ng-deep .ng-star-inserted .ant-table-header-column .text-danger {
+  height: 22px;
+  font-family: PingFangSC-Regular;
+  font-weight: 400;
+  font-size: 12px;
+  color: #ff3e00;
+  text-align: left;
+  line-height: 22px;
+}
+::ng-deep .ant-alert-info {
+  width: 100%;
+  height: 58px;
+  line-height: 58px;
+  background: rgba(255, 58, 50, 0.06);
+  border-radius: 4px;
+  text-align: left;
+}
+::ng-deep .create-demand-tap .text-center .p-2{
+  padding: 0 1rem!important;
+}
+::ng-deep .ant-table-thead > tr > th {
+  word-break: keep-all !important;
+}
+
+::ng-deep .ant-table-tbody > tr:hover:not(.ant-table-expanded-row) > td {
+  background-color: #F5F8FC;
+}
+
+::ng-deep  .painter_name {
+  display: flex;flex-direction: column-reverse;
+}
+
+::ng-deep .main-layout-body .pb-5{
+  padding-bottom: 0!important;
+}
+:host ::ng-deep .project_id .ant-form-item-label > label::after {
+  content: "项目名称=产品名称(母项目名称)";
+  margin-left: 1rem;
+  height: 20px;
+  font-family: PingFangSC-Regular;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+}
+:host ::ng-deep textarea{
+  margin-bottom: 0px!important;
+}
+:host ::ng-deep #formly_2_nz-radio_user_role_level_1{
+  line-height: 56px;
+}

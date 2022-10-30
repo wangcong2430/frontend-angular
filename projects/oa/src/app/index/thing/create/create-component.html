@@ -1,0 +1,66 @@
+<!-- 操作栏 -->
+<app-component-crumb>
+  <button nz-button nzSize="small" (click)="save()" [nzLoading]="isSaveLoading">保存</button>
+  <button nz-button nzSize="small" (click)="submit()" nzType="primary" [nzLoading]="isSubmitLoading">提交</button>
+</app-component-crumb>
+
+<!-- 主体栏 -->
+<nz-card [nzBodyStyle]="{'min-width': '1000px'}" style="min-width: 1380px;">
+    <ng-container *ngIf="!(isAuth && isRenderForm && model) && !this.isAuthErrorMsg">
+        <div class="example">
+            <nz-spin></nz-spin>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="isAuth && isRenderForm && model">
+        <div class="row" style="margin-left: 0; margin-right: -28px;">
+            <nz-form-item class="ant-col-6 d-flex mb-3">
+                <nz-form-label nzRequired style="width: 106px" class="mb-0" [nzSpan]="3">项目名称</nz-form-label>
+                <nz-form-control style="flex: 1; margin-right: 12px">
+                    <nz-select  nzMaxMultipleCount="5"
+                                [(ngModel)]="project_id"
+                                nzPlaceHolder = "请选择"
+                                [nzDisabled]="!model.is_demand_edit"
+                                style="min-width: 120px; width: 100%;"
+                                (ngModelChange)="onModelChange($event)"
+                                >
+                        <nz-option *ngFor="let option of projectSelectedOptions;trackBy: trackByFn"
+                                    [nzDisabled]="option.nzDisabled"
+                                    [nzLabel]="option.label"
+                                    [nzValue]="option.value"></nz-option>
+                    </nz-select>
+                </nz-form-control>
+            </nz-form-item >
+                <nz-form-item class="ant-col-6  d-flex">
+                    <nz-form-label style="width: 106px" [nzSpan]="3">产品名称</nz-form-label>
+                    <nz-form-control  style="flex: 1;margin-right: 12px"  >
+                        <input nz-input  disabled [value]="model.product_name">
+                    </nz-form-control>
+                </nz-form-item >
+            <nz-form-item class="ant-col-6  d-flex">
+                <nz-form-label style="width: 106px" [nzSpan]="3">母项目名称</nz-form-label>
+                <nz-form-control  style="flex: 1;margin-right: 12px">
+                    <input nz-input disabled [value]="model.project_group_name">
+                </nz-form-control>
+            </nz-form-item >
+            <nz-form-item class="ant-col-6 d-flex">
+                <nz-form-label style="width: 106px" [nzSpan]="3">品牌经理负责人</nz-form-label>
+                <nz-form-control style="flex: 1;margin-right: 12px">
+                    <input nz-input  disabled [value]="model.brand_principal">
+                </nz-form-control>
+            </nz-form-item >
+        </div>
+
+        <form *ngIf="isRenderForm && model" [formGroup]="formGroup" nz-form nzLayout="horizontal" style="margin-top: -15px">
+            <button type="submit" style="display: none"></button>
+            <formly-form [model]="model" [fields]="formFields" [options]="options" [form]="form"></formly-form>
+        </form>
+    </ng-container>
+    <div *ngIf="!isAuth && this.isAuthErrorMsg" class="text-center">
+        {{isAuthErrorMsg}}
+    </div>
+
+</nz-card>
+
+<app-modal-upload-plan></app-modal-upload-plan>
+
+

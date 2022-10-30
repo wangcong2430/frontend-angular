@@ -1,0 +1,219 @@
+
+<nz-card class="bg-white ">
+  <div class="body-pagination mt-3" *ngIf="list && list.length > 0 && pagination.total_count != 0">
+    <app-component-filter-list [(queryFields)]="queryFields" [(columns)]="columns" [(list)]="list"></app-component-filter-list>
+    <nz-pagination
+      style="float: right;"
+      nzShowSizeChanger
+      [nzShowTotal]="totalTemplate"
+      [nzTotal]="pagination.total_count"
+      [nzPageIndex]="pagination.page_index"
+      [nzPageSize]="pagination.page_size"
+      [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+      (nzPageIndexChange)="pageIndexChange($event)"
+      (nzPageSizeChange)="pageSizeChange($event)"
+      [nzHideOnSinglePage]="false"
+    >
+    </nz-pagination>
+  </div>
+
+  <span cdkDrag (cdkDragMoved)="dragmove($event)" (cdkDragStarted)="dragstart($event)" >
+    <nz-table
+      #nestedTable
+      nzSize="middle"
+      [nzData]="list"
+      [nzFrontPagination]="false"
+      [nzShowPagination]="false"
+      [(nzLoading)]="loading"
+      [nzPageSize]="10"
+      [nzHideOnSinglePage]="true"
+
+      nzVirtualScroll
+      [nzVirtualItemSize]="116"
+      [nzVirtualMaxBufferPx]="2320"
+      [nzVirtualMinBufferPx]="1160"
+      [nzScroll]="{ x: (120 * columns.length) + 'px', y: (list.length > 20 ? 116 * 20 : list.length * 116) + 'px' }"
+
+    >
+      <thead>
+      <tr  cdkDragHandle style="cursor: move;">     
+        <th *ngIf="showCheckbox" (nzCheckedChange)="checkAll($event)"></th>
+        <th *ngFor="let column of columns;trackBy: trackByFn" style="max-width: 335px"  [ngStyle]="{'width':column.width ? column.width : '' }">
+          <ng-container *ngIf="column.show">
+            <ng-container [ngSwitch]="column.type">
+              <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+            </ng-container>
+        </ng-container>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+        <ng-template nz-virtual-scroll let-data let-index="index">
+
+          <tr *ngIf="data.show !== false">
+            <ng-container *ngIf="data.children">
+              <td *ngIf="data.children.length > 0" nzShowExpand [(nzExpand)]="expand[data.id]"  style="color: #666; padding: 16px 0 16px 16px;"></td>
+              <td *ngIf="data.children.length == 0" style="color: #666; padding: 16px 0 16px 16px;"></td>
+            </ng-container>
+            <ng-container *ngIf="!data.children && showCheckbox">
+              <td nzShowCheckbox [(nzChecked)]="data.checked" (nzCheckedChange)="refreshStatus()"></td>
+            </ng-container>
+            <td *ngFor="let column of columns;trackBy: trackByFn" >
+              <ng-container *ngIf="column.show">
+
+                <ng-container [ngSwitch]="column.type">
+                  <ng-container *ngSwitchCase="'index'">
+                    {{i+1}}
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'image'">
+                    <td *ngIf="data[column.key]" >
+                      <img defaultImage="/assets/images/pic-thumb-default.60.jpg" (click)="preview(data[column.key]); $event.stopPropagation()" [lazyLoad]="data[column.key]"/>
+                    </td>
+                    <td *ngIf="!data[column.key]">NA</td>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'unit_price'">
+                    <ng-container *ngIf="data[column.key]">
+                      {{ data[column.key] }} <span *ngIf="data.fixed_price_status">固定价</span>
+                    </ng-container>
+                    <span *ngIf="!data[column.key]">NA</span>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'produce_breakdown'">
+                    {{data[column.key] && data[column.key] !== '0.00' ? data[column.key] : 'NA'}}
+                    <!--是否存在明细-->
+                    <ng-container *ngIf="data[column['option_key']]">
+                      <a (click)="showPriceDetail(data, column['option_key'])">{{ 'DETAIL' | translate }}</a>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'input'">
+                    <input type="text" nz-input placeholder="{{column['placeholder'] || ''}}" [(ngModel)]="data[column.key]" (blur)="getClickEvent(column.key, data)">
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'click'">
+                    <ng-container *ngIf="column.templateOptions">
+                      <a (click)="getClickEvent(btn['value'], data)" *ngFor="let btn of column.templateOptions.options;trackBy: trackByFn" style="margin: 0 6px;">{{btn['label']}}</a>
+                    </ng-container>
+                    <ng-container *ngIf="!column.templateOptions && column.img">
+                      <ng-container *ngIf="data[column.key]">
+                        <a (click)="getClickEvent(column.key, data, data[column.img])">
+                          <!-- <img  [src]="data[column.key]"/> -->
+                          <img defaultImage="/assets/images/pic-thumb-default.60.jpg" [lazyLoad]="data[column.key]"/>
+                        </a>
+                      </ng-container>
+                      <ng-container *ngIf="!data[column.key]">NA</ng-container>
+                    </ng-container>
+                    <ng-container *ngIf="!column.templateOptions && !column.img">
+                      <a (click)="getClickEvent(column.key, data)">{{data[column.key] ? data[column.key] : 'NA'}}</a>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-container  *ngSwitchCase="'attribute'">
+                    <td><app-label-edit [data]="data[column.key]"></app-label-edit></td>
+                  </ng-container>
+
+                  <ng-container  *ngSwitchCase="'attribute-edit'">
+                    <td><app-label-edit [(data)]="data[column.key]" edit="true" (click)="$event.stopPropagation();"></app-label-edit></td>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'bubble_tip'">
+                    <span *ngIf="data[column.key] == ''">NA</span>
+                    <div class="parent-title" *ngIf="data[column.key]" >
+                      <ng-container *ngIf="data[column.key] != ''">
+                            <span nz-popover [nzContent]="contentTemplates">
+                              {{data[column.key].substring(0, 10) }}
+                              <span *ngIf="data[column.key].length >= 10">...</span>
+                            </span>
+                        <!-- 引用模板，可输出html -->
+                        <ng-template #contentTemplates><a [innerHTML]="data[column.key]"></a></ng-template>
+                      </ng-container>
+                    </div>
+                  </ng-container>
+
+
+                  <ng-container *ngSwitchDefault>
+                    <ng-container [ngSwitch]="column.key">
+                      <ng-container *ngSwitchCase="'thing_code'">
+
+                        <ng-container *ngIf="data['thing_tag'] && data['thing_tag'].length">
+                              <ng-container *ngFor="let item of data['thing_tag']">
+                                <ng-container *ngIf="!item.tip">
+                                  <span class="text-red d-inline-block mx-1">[{{ item.title}}]</span>
+                                </ng-container>
+                                <ng-container *ngIf="item.tip">
+                                  <span class="text-red d-inline-block mx-1" nz-tooltip [nzTitle]="item.tip" >[{{ item.title}}]</span>
+                                </ng-container>
+                              </ng-container>
+                        </ng-container>
+
+                        <a (click)="getClickEvent(column.key, data)">{{data[column.key] ? data[column.key] : 'NA'}}</a>
+                      </ng-container>
+                      <ng-container *ngSwitchDefault>{{data[column.key] ? data[column.key] : 'NA'}}</ng-container>
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+            </td>
+          </tr>
+
+          <ng-container *ngIf="data.children">
+            <ng-template ngFor let-data2 [ngForOf]="data.children" let-i2="index" [ngForTrackBy]="trackByFn">
+              <tr [nzExpand]="expand[data.id]">
+                <ng-container *ngIf="data2.children">
+                  <td *ngIf="data.children.length > 0" nzShowExpand [(nzExpand)]="expand[data2.id]"  style="color: #666;padding: 16px 0 16px 32px;"></td>
+                  <td *ngIf="data.children.length == 0" style="color: #666;padding: 16px 0 16px 32px;"></td>
+                </ng-container>
+                <ng-container *ngIf="!data2.children">
+                  <td></td>
+                </ng-container>
+                <td *ngFor="let column of columns;trackBy: trackByFn">
+                  <ng-container [ngSwitch]="column.type">
+                    <ng-container *ngSwitchCase="'index'">
+                      &nbsp;&nbsp;&nbsp;{{i+1}}-{{i2+1}}
+                    </ng-container>
+                    <ng-container *ngSwitchCase="'click'">
+                      <ng-container *ngIf="column.templateOptions">
+                        <a (click)="getClickEvent(btn['value'], data2)" *ngFor="let btn of column.templateOptions.options;trackBy: trackByFn" style="margin: 0 6px;">{{btn['label']}}</a>
+                      </ng-container>
+                    </ng-container>
+                    <ng-container *ngSwitchDefault>
+                      <ng-container [ngSwitch]="column.key">
+                        <ng-container *ngSwitchCase="'title'">{{data[column.key]}}//{{data2[column.key]}}</ng-container>
+                        <ng-container *ngSwitchDefault>{{data2[column.key] ? data2[column.key] : 'NA'}}</ng-container>
+                      </ng-container>
+                    </ng-container>
+                  </ng-container>
+                </td>
+              </tr>
+
+            </ng-template>
+          </ng-container>
+
+        </ng-template>
+      </tbody>
+    </nz-table>
+  </span>
+
+  <div class="body-pagination mt-3" *ngIf="list && list.length > 0 && pagination.total_count != 0">
+    <nz-pagination
+      style="margin-top: 8px;float: right;"
+      nzShowSizeChanger
+      [nzShowTotal]="totalTemplate"
+      [nzTotal]="pagination.total_count"
+      [nzPageIndex]="pagination.page_index"
+      [nzPageSize]="pagination.page_size"
+      [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+      (nzPageIndexChange)="pageIndexChange($event)"
+      (nzPageSizeChange)="pageSizeChange($event)"
+      [nzHideOnSinglePage]="false"
+    >
+    </nz-pagination>
+    <ng-template #totalTemplate let-total>
+      {{ 'PAGINATION_COUNT' | translate }} {{pagination.total_count}}
+    </ng-template>
+  </div>
+</nz-card>
+
+

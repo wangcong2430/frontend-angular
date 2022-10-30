@@ -1,0 +1,52 @@
+<app-component-crumb  [title]="'BUSINESS_CONFIRMATION_TIP' | translate " [(list)]="list" [isChildren]="true" (changeDisabledButton)="changeDisabledButton($event)">
+  <button nz-button nzSize="small" nzType="primary" [disabled]="disabledButton" [nzLoading]="submitLoading" (click)="confirmSubmit('accept')">{{'CONFIRM_ACCEPTANCE' | translate}}</button>
+  <button nz-button nzSize="small" [disabled]="disabledButton" [nzLoading]="submitLoading" (click)="confirmSubmit('reject')">{{'RETURN_PURCHASING_MANAGER' | translate}}</button>
+</app-component-crumb>
+
+<div class="main-body">
+  <ng-container *ngIf="loading">
+    <div class="example mt-4">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="!loading">
+
+    <!--列表-->
+    <div class="search-results px-3">
+      <app-container-table-group-new
+        [loading]="listLoading"
+        [isChildrenDisabled]="false"
+        (getList)="getList($event)"
+        [(list)]="list"
+        [(columns)]="columns"
+        [(childrenColumns)]="childrenColumns"
+        [(pagination)]="pagination"
+        (changeDisabledButton)="changeDisabledButton($event)"
+        (blurEvent)="blurEvent($event)"
+        (clickEvent)="clickEvent($event)"
+        [(disabledButton)]="disabledButton"
+      >
+      </app-container-table-group-new>
+    </div>
+    <p style="clear: both"></p>
+  </ng-container>
+</div>
+
+<nz-modal [(nzVisible)]="msgHint.isShow" [nzTitle]="'CONFIRM' | translate" [nzOkLoading]="msgHint.isSubmitLoading" (nzOnCancel)="msgHint.isShow = false" (nzOnOk)="confirmSubmit(msgHint.flag, false)">
+  <p>{{msgHint.msg}}</p>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="rejectVisible" [nzTitle]="'THE_REASON_OF_REJECTION' | translate" (nzOnCancel)="rejectVisible = false" (nzOnOk)="confirmSubmit(msgHint.flag, false)">
+
+  <nz-form-item>
+    <nz-form-control>
+      <textarea nz-input [placeholder]="'ENTER_THE_REASON_OF_REJECTION' | translate" [(ngModel)]="rejectReason" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+<app-modal-thing-detail></app-modal-thing-detail>
+
+
+
+

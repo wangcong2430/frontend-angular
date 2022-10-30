@@ -1,0 +1,15 @@
+.injecting-old-version {
+  // import 公共样式
+  @import (less) '../../node_modules/ant-design-vue/dist/antd.css';
+  @import (less) '../../node_modules/vxe-table/lib/style.css';
+  @import (less) './src/global.less';
+  // 把各个页面的样式inject进来
+  @import (less) './src/views/perf/demand-score/style.less';
+  @import (less) './src/views/perf/acceptance-approve/style.less';
+  @import (less) './src/views/perf/purchasing-score/style.less';
+  // 把各个modal的样式单独拉一个文件出来，在组件style中import，这样这里也能import，就不用同步了
+  @import (less) './src/components/perf_score/demand_detail/style.less';
+  @import (less) './src/components/perf_score/batch_score_form/style.less';
+  @import (less) './src/components/perf_score/del_score/style.less';
+  @import (less) './src/components/perf_score/add_score/style.less';
+}

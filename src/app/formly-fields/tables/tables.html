@@ -1,0 +1,50 @@
+<ng-container *ngIf="to.type === 'default'">
+    <table class="table table-condensed" *ngIf="to.data">
+        <thead>
+        <tr>
+            <th *ngFor="let th of to.data.head">{{th.value}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let item of to.data.body;let i = index;">
+            <td *ngFor="let td of item">{{td.value}}</td>
+        </tr>
+        </tbody>
+    </table>
+</ng-container>
+<ng-container *ngIf="to.type == 'text'">
+    <table class="table-text">
+        <tr *ngFor="let item of to.options">
+            <td>{{item.label}}</td>
+            <td>{{item.value}}</td>
+        </tr>
+    </table>
+</ng-container>
+<ng-container *ngIf="to.type == 'table'">
+    <div class="table-condensed-wrap">
+        <div class="table-condensed-body">
+            <table class="table table-condensed">
+                <thead>
+                <tr>
+                    <th *ngFor="let item of to.options['th']">{{item.label}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let item of to.options['td']">
+                    <td *ngFor="let key of to.options['th']" [innerHTML]="item[key['value']]"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</ng-container>
+<ng-container *ngIf="to.type == 'steps'">
+    <div class="m-insert-process">
+        <ul>
+            <li *ngFor="let item of to.options">
+                <div class="detail" [innerHTML]="item.value"></div>
+                <div class="sub">{{item.label}}</div>
+            </li>
+        </ul>
+    </div>
+</ng-container>

@@ -1,0 +1,3 @@
+<div [ngClass]="{'is-invalid': showError}">
+  <nz-input-number [formControl]="formControl" [(ngModel)]="model[key]" [nzMin]="1" [nzMax]="9999999999" [nzStep]="1" [ngStyle]="{'width':'100%'}"></nz-input-number>
+</div>

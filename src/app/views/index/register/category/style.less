@@ -1,0 +1,46 @@
+.register-category-selector {
+  .top-level {
+    float: left;
+    width: 150px;
+    ul {
+      background: #f1f9fe;
+      padding: 8px 0;
+      li {
+        height: 42px;
+        line-height: 42px;
+        padding: 0 12px;
+        position: relative;
+        &.active {
+          background: #dfeefa;
+          &:before {
+            display: block;
+            height: 8px;
+            width: 8px;
+            content: " ";
+            position: absolute;
+            top: 50%;
+            right: -20px;
+            margin-top: -10px;
+            border: 10px solid transparent;
+            border-left-color: #dfeefa;
+          }
+        }
+      }
+    }
+  }
+  .children-level {
+    padding: 8px 20px;
+    float: left;
+    width: 735px;
+    .row {
+      border-top: 1px solid #dedede;
+    }
+    .row:first-child {
+      border-top: none;
+    }
+    h4 {
+      font-size: 1.1rem;
+      margin: 10px 0;
+    }
+  }
+}

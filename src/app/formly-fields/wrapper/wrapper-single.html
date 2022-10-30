@@ -1,0 +1,16 @@
+<div class="info-label">{{to.label}}<span *ngIf="to.required" class="text-danger"> *</span></div>
+<div class="info-control">
+    <div class="info-value">{{text}}</div>
+    <div class="info-action" *ngIf="!to.disabled">
+        <button type="button" class="btn btn-primary btn-sm flat" (click)="editClick()"><i class="fa fa-pencil"></i></button>
+    </div>
+    <div class="info-form" [hidden]="!form['singleKey'] || form['singleKey'].indexOf(key) === -1">
+        <div class="form-group">
+            <ng-container #fieldComponent></ng-container>
+        </div>
+        <div class="info-form-btns">
+            <button type="submit" class="btn btn-primary btn-sm">提交修改</button>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="cancel()">取消</button>
+        </div>
+    </div>
+</div>

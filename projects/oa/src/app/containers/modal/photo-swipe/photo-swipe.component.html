@@ -1,0 +1,20 @@
+<ng-template #tplContent>
+  <div class="d-flex justify-content-center align-items-center" (click)="close()">
+    <!-- 展示图片 -->
+    <img *ngIf="type == 'image'" [src]="url" style="max-width: 98%;" (click)="$event.stopPropagation()" />
+
+    <!-- 展示视频 -->
+    <video *ngIf="type == 'video'" width="640" height="480" controls (click)="$event.stopPropagation()">
+      <source [src]="url" type="video/mp4">
+      <source [src]="url" type="video/webm">
+      <source [src]="url" type="video/ogg">
+    </video>
+
+    <!-- 展示音频 -->
+    <audio *ngIf="type == 'audio'" controls (click)="$event.stopPropagation()">
+      <source [src]="url" type="audio/mp3">
+      <source [src]="url" type="audio/wav">
+      <source [src]="url" type="audio/ogg">
+    </audio>
+  </div>
+</ng-template>

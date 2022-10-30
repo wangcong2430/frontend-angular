@@ -1,0 +1,78 @@
+<app-component-crumb>
+   <button nzSize="small" nz-button nzType="primary" (click)="edit()" *ngIf="disabled">编辑</button>
+   <button nzSize="small" nz-button nzType="primary" (click)="save()" *ngIf="!disabled">保存</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--列表-->
+  <nz-card class="search-results bg-white m-3" >
+    <nz-table  #listTable [nzFrontPagination]="false" [nzShowPagination]="false" [nzData]="roles">
+      <thead>
+        <tr>
+          <th>角色/权限</th>
+          <ng-container *ngFor="let option of options; trackBy: trackByFn">
+            <th>{{option.label}}
+              <ng-container *ngIf="option.parent_id == 10">
+                <i class="mx-1" nz-icon nzType="setting" nzTheme="outline" (click)="roleConfig(option, 'role')"></i>
+              </ng-container>
+            </th>
+          </ng-container>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let data of listTable.data; trackBy: trackByFn">
+          <tr>
+            <td>{{data.label}}</td>
+            <ng-container *ngFor="let option of options; trackBy: trackByFn">
+              <ng-container *ngFor="let children of data.children; let i = index; trackBy: trackByFn">
+                <ng-container *ngIf="children.key == option.value">
+                  <td><label
+                          [nzDisabled]="disabled || option.parent_id == '10'"
+                          nz-checkbox
+                          [(ngModel)]="children.value"
+                           [nzIndeterminate]="children.indeterminate"
+                      ></label></td>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+            <td><a class="text-primary" (click)="roleConfig(data, 'auth')">配置</a></td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </nz-table>
+  </nz-card>
+</ng-container>
+
+<nz-modal [(nzVisible)]="isConfigVisible" nzWidth="750px" nzTitle="权限配置" (nzOnCancel)="configCancel()" (nzOnOk)="configOk()">
+  <ng-container *ngIf="configList && configList.length > 0">
+    <div class="config-field">
+      <ng-container *ngFor="let item of configList; trackBy: trackByFn">
+        <div>
+          <label
+            nz-checkbox
+            class="d-block"
+            style="width: 100px;"
+            [(ngModel)]="item.checked"
+            (ngModelChange)="updateAllChecked(item)"
+            [nzIndeterminate]="item.indeterminate"
+          >
+            <span class="text-danger">{{item.label}}</span>
+          </label>
+        </div>
+        <nz-checkbox-group class="mb-3" [(ngModel)]="item.children" (ngModelChange)="updateSingleChecked($event, item)"></nz-checkbox-group>
+      </ng-container>
+    </div>
+  </ng-container>
+</nz-modal>
+
+
+
+
+

@@ -1,0 +1,13 @@
+<nz-modal [(nzVisible)]="isVisible" nzMaskClosable="false" nzWidth="900px" [nzTitle]="modalTitle" [nzOkLoading]="okLoading" (nzOnCancel)="handleCancel()" nzMaskClosable="false" (nzOnOk)="handleOk()">
+  <ng-container *ngIf="isVisible">
+    <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
+  </ng-container>
+
+  <ng-template #modalTitle>
+    <div       
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content">  {{ title }}
+    </div>
+  </ng-template>
+</nz-modal>

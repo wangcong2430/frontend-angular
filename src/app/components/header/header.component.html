@@ -1,0 +1,31 @@
+<!--
+ * @Author: v_hhlihuang 1724690469@qq.com
+ * @Date: 2022-06-30 20:40:14
+ * @LastEditors: v_swwu v_swwu@tencent.com
+ * @LastEditTime: 2022-07-22 15:54:03
+ * @FilePath: /wcc/cpm/frontend/src/app/components/header/header.component.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<div class="header">
+    <img src="assets/images/index/head-logo.png" class="fl">
+    <div class="header-notice fl">
+        <img src="assets/images/index/head-notice-fff.png">
+        <ng-container i18n>Announcement:</ng-container>
+        互娱外包管理平台上线啦互娱资源外包管理平台
+    </div>
+    <a href="/qq/logout" target="_self" class="fr" style="color:#999;">({{userInfoService.user.username}}) <span i18n>logout</span></a>
+    <div class="language"
+         dropdown>
+        <span dropdownToggle aria-controls="basic-link-dropdown">
+            <ng-container i18n>{language.language_text[language.language], select, en {en} zh {zh}}</ng-container>
+            <i></i>
+        </span>
+
+        <ul id="basic-link-dropdown" *dropdownMenu class="dropdown-menu"
+            role="menu" aria-labelledby="basic-link">
+            <li *ngFor="let item of language.languages">
+                <span class="dropdown-item" (click)="language.change(item)" i18n>{language.language_text[item], select, en {en} zh {zh}}</span>
+            </li>
+        </ul>
+    </div>
+</div>

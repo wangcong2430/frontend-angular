@@ -1,0 +1,86 @@
+<!--
+ * @Author: v_swwu v_swwu@tencent.com
+ * @Date: 2022-07-01 14:45:22
+ * @LastEditors: v_swwu v_swwu@tencent.com
+ * @LastEditTime: 2022-07-19 12:56:16
+ * @FilePath: \cpm\frontend\projects\oa\src\app\index\order\create\create.component.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<app-component-crumb
+  [(list)]="list"
+  [isCheckAll]="false"
+  [isCheckReverse]="false"
+  [isChildren]="true"
+  (changeDisabledButton)="changeDisabledButton($event)">
+  <button nzSize="small" nz-button nzType="primary" (click)="checkAll(true)">全选</button>
+  <button nzSize="small" nz-button nzType="primary" (click)="checkReverse()">反选</button>
+  <button nzSize="small" nz-button nzType="primary" [disabled]="disabledButton" (click)="delayNotice()">延时提醒</button>
+  <button nzSize="small" nz-button nzType="primary" (click)="newCreateOrder()" [disabled]="disabledButton">生成订单</button>
+  <button nzSize="small" nz-button (click)="rejectOrder(false)" nzType="primary"[disabled]="disabledButton">重新核价</button>
+  <button nzSize="small" nz-button (click)="rejectOrderDemand(false)" nzType="primary" [disabled]="disabledButtonDemand">驳回到草稿</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table-group-new
+      [(loading)]="listLoading"
+      [(list)]="list"
+      [(columns)]="columns"
+      [frontPagination]="true"
+      [(childrenColumns)]="childrenColumns"
+      [(pagination)]="pagination"
+      (clickEvent)="clickEvent($event)"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      [(disabledButton)]="disabledButton"
+      [isChildrenDisabled]="false"
+      [(queryFields)]="queryFields"
+      (getList)="getList($event)"
+    >
+    </app-container-table-group-new>
+  </div>
+</ng-container>
+
+<!--生成订单弹窗-->
+<!-- <app-order-modal-create-order
+  (getList)="getList($event)">
+</app-order-modal-create-order> -->
+
+<nz-modal [(nzVisible)]="msgHint.isShow" nzTitle="提交确认" [nzOkLoading]="msgHint.isSubmitLoading" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+  <p>{{msgHint.msg}}</p>
+  <nz-form-item>
+    <nz-form-control>
+      <textarea nz-input placeholder="填写驳回原因" [(ngModel)]="msgHint.reason" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="msgHintDemand.isShow" nzTitle="驳回到需求草稿" [nzOkLoading]="msgHintDemand.isSubmitLoading" (nzOnCancel)="handleCancelDemand()" (nzOnOk)="handleOkDemand()">
+  <p>{{msgHint.msg}}</p>
+  <nz-form-item>
+    <nz-form-control>
+      <textarea nz-input placeholder="填写驳回原因" [(ngModel)]="msgHintDemand.reason" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+<!-- 生成订单 -->
+<app-modal-new-create-order></app-modal-new-create-order>

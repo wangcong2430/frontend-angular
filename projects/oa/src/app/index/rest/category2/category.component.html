@@ -1,0 +1,211 @@
+<app-component-crumb>
+  <button nzSize="small" *ngIf="isAdd" nz-button nzType="primary" (click)="openModal({})">新建</button>
+  <nz-dropdown *ngIf="isAdd">
+    <button nzSize="small" nz-button nzType="primary" nz-dropdown><span>导出</span> <i nz-icon type="down"></i></button>
+    <ul nz-menu>
+      <li nz-menu-item (click)="export('1')">
+        <a >设计类品类</a>
+      </li>
+      <li nz-menu-item (click)="export('0')">
+        <a >内容类品类</a>
+      </li>
+    </ul>
+  </nz-dropdown>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <div class="search-results m-3">
+    <nz-card class="bg-white">
+      <div class="result-body">
+        <!--<div class="body-border">-->
+        <nz-table
+          #nzTable
+          [nzData]="list"
+          [nzSize]="'middle'"
+          [nzFrontPagination]="false"
+          [nzShowPagination]="false"
+          [(nzLoading)]="listLoading"
+        >
+          <thead (nzSortChange)="sort($event)">
+          <tr>
+            <th style="background-color: #E8EFFB !important; color: #000000;" ></th>
+            <th [nzShowSort]="(column.key != 'operate' && column.type != 'index' && column.type != 'click') ? true : false" [nzSortKey]="column.key" *ngFor="let column of columns;trackBy: trackByFn" [ngStyle]="{maxWidth: '335px'}"  [ngStyle]="{'width':column.width ? column.width : ''}" style="background-color: #E8EFFB !important; color: #000000;">
+              <ng-container [ngSwitch]="column.type">
+                <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+              </ng-container>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <ng-template ngFor let-data [ngForOf]="nzTable.data" let-i="index">
+            <tr>
+              <ng-container *ngIf="data.children">
+                <td nzShowExpand [(nzExpand)]="expand[data.id]"  style="color: #666; padding: 16px 0 16px 16px;"></td>
+              </ng-container>
+              <ng-container *ngIf="!data.children">
+                <td></td>
+              </ng-container>
+              <td *ngFor="let column of columns" [ngStyle]="{maxWidth: '335px'}">
+                <ng-container [ngSwitch]="column.type">
+                  <ng-container *ngSwitchCase="'index'">
+                    {{i+1}}
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'click'">
+                    <ng-container *ngIf="column.templateOptions">
+                      <a class="text-primary" (click)="getClickEvent(btn['value'], data)" *ngFor="let btn of column.templateOptions.options;trackBy: trackByFn" style="margin: 0 6px;">{{btn['label']}}</a>
+                    </ng-container>
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>
+                    <ng-container [ngSwitch]="column.key">
+                      <ng-container *ngSwitchDefault>{{data[column.key] ? data[column.key] : 'NA'}}</ng-container>
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
+              </td>
+            </tr>
+            <ng-container *ngIf="data.children">
+              <ng-template ngFor let-data2 [ngForOf]="data.children" let-i2="index">
+                <tr [nzExpand]="expand[data.id]">
+                  <ng-container *ngIf="data2.children">
+                    <td nzShowExpand [(nzExpand)]="expand[data2.id]"  style="color: #666;padding: 16px 0 16px 32px;"></td>
+                  </ng-container>
+                  <ng-container *ngIf="!data2.children">
+                    <td></td>
+                  </ng-container>
+                  <td *ngFor="let column of columns" [ngStyle]="{maxWidth: '335px'}">
+                    <ng-container [ngSwitch]="column.type">
+                      <ng-container *ngSwitchCase="'index'">
+                        {{i+1}}-{{i2+1}}
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'click'">
+                        <ng-container *ngIf="column.templateOptions">
+                          <a (click)="getClickEvent(btn['value'], data2)" *ngFor="let btn of column.templateOptions.options;trackBy: trackByFn" style="margin: 0 6px;">{{btn['label']}}</a>
+                        </ng-container>
+                      </ng-container>
+                      <ng-container *ngSwitchDefault>
+                        <ng-container [ngSwitch]="column.key">
+                          <ng-container *ngSwitchCase="'title'">{{data[column.key]}}//{{data2[column.key]}}</ng-container>
+                          <ng-container *ngSwitchDefault>{{data2[column.key] ? data2[column.key] : 'NA'}}</ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </ng-container>
+                  </td>
+                </tr>
+
+                <ng-container *ngIf="data2.children">
+                  <ng-template ngFor let-data3 [ngForOf]="data2.children" let-i3="index">
+                    <tr [nzExpand]="expand[data.id] && expand[data2.id]" style="background: #F0F0F0;">
+                      <ng-container *ngIf="data3.children">
+                        <td nzShowExpand [(nzExpand)]="expand[data3.id]"  style="color: #666;padding: 16px 0 16px 42px;"></td>
+                      </ng-container>
+                      <ng-container *ngIf="!data3.children">
+                        <td></td>
+                      </ng-container>
+                      <td *ngFor="let column of columns" [ngStyle]="{maxWidth: '335px'}">
+                        <ng-container [ngSwitch]="column.type">
+                          <ng-container *ngSwitchCase="'index'">
+                            {{i+1}}-{{i2+1}}-{{i3+1}}
+                          </ng-container>
+                          <ng-container *ngSwitchCase="'click'">
+                            <ng-container *ngIf="column.templateOptions">
+                              <a (click)="getClickEvent(btn['value'], data3)" *ngFor="let btn of column.templateOptions.options;trackBy: trackByFn" style="margin: 0 6px;">{{btn['label']}}</a>
+                            </ng-container>
+                          </ng-container>
+                          <ng-container *ngSwitchDefault>
+                            <ng-container [ngSwitch]="column.key">
+                              <ng-container *ngSwitchCase="'title'">{{data[column.key]}}//{{data2[column.key]}}//{{data3[column.key]}}</ng-container>
+                              <ng-container *ngSwitchDefault>{{data3[column.key] ? data3[column.key] : 'NA'}}</ng-container>
+                            </ng-container>
+                          </ng-container>
+                        </ng-container>
+                      </td>
+                    </tr>
+
+                    <ng-container *ngIf="data3.children">
+                      <ng-template ngFor let-data4 [ngForOf]="data3.children" let-i4="index">
+                        <tr [nzExpand]="expand[data.id] && expand[data2.id] && expand[data3.id]" style="background: #E0E0E0;">
+                          <td></td>
+                          <td *ngFor="let column of columns" [ngStyle]="{maxWidth: '335px'}">
+                            <ng-container [ngSwitch]="column.type">
+                              <ng-container *ngSwitchCase="'index'">
+                                {{i+1}}-{{i2+1}}-{{i3+1}}-{{i4+1}}
+                              </ng-container>
+                              <ng-container *ngSwitchCase="'click'">
+                                <ng-container *ngIf="column.templateOptions">
+                                  <a (click)="getClickEvent(btn['value'], data4)" *ngFor="let btn of column.templateOptions.options;trackBy: trackByFn" style="margin: 0 6px;">{{btn['label']}}</a>
+                                </ng-container>
+                              </ng-container>
+                              <ng-container *ngSwitchDefault>
+                                <ng-container [ngSwitch]="column.key">
+                                  <ng-container *ngSwitchCase="'title'">{{data[column.key]}}//{{data2[column.key]}}//{{data3[column.key]}}//{{data4[column.key]}}</ng-container>
+                                  <ng-container *ngSwitchDefault>{{data4[column.key] ? data4[column.key] : 'NA'}}</ng-container>
+                                </ng-container>
+                              </ng-container>
+                            </ng-container>
+                          </td>
+                        </tr>
+
+                        <ng-container *ngIf="data4.children">
+                          <ng-template ngFor let-data5 [ngForOf]="data4.children" let-i5="index">
+                            <tr [nzExpand]="expand[data.id] && expand[data2.id] && expand[data3.id] && expand[data4.id]" style="background: #E0E0E0;">
+                              <td></td>
+                              <td *ngFor="let column of columns;trackBy: trackByFn" [ngStyle]="{maxWidth: '335px'}">
+                                <ng-container [ngSwitch]="column.type">
+                                  <ng-container *ngSwitchCase="'index'">
+                                    {{i+1}}-{{i2+1}}-{{i3+1}}-{{i4+1}}-{{i5+1}}
+                                  </ng-container>
+                                  <ng-container *ngSwitchCase="'click'">
+                                    <ng-container *ngIf="column.templateOptions">
+                                      <a (click)="getClickEvent(btn['value'], data5)" *ngFor="let btn of column.templateOptions.options;trackBy: trackByFn" style="margin: 0 6px;">{{btn['label']}}</a>
+                                    </ng-container>
+                                  </ng-container>
+                                  <ng-container *ngSwitchDefault>
+                                    <ng-container [ngSwitch]="column.key">
+                                      <ng-container *ngSwitchCase="'title'">{{data[column.key]}}//{{data2[column.key]}}//{{data3[column.key]}}//{{data4[column.key]}}//{{data5[column.key]}}</ng-container>
+                                      <ng-container *ngSwitchDefault>{{data5[column.key] ? data5[column.key] : 'NA'}}</ng-container>
+                                    </ng-container>
+                                  </ng-container>
+                                </ng-container>
+                              </td>
+                            </tr>
+                          </ng-template>
+                        </ng-container>
+
+                      </ng-template>
+                    </ng-container>
+                  </ng-template>
+                </ng-container>
+
+              </ng-template>
+            </ng-container>
+          </ng-template>
+          </tbody>
+        </nz-table>
+        <!--</div>-->
+      </div>
+    </nz-card>
+  </div>
+</ng-container>
+
+<!--编辑弹窗-->
+<app-modal-save
+  (submit)="submitSaveForm($event)">
+</app-modal-save>
+
+

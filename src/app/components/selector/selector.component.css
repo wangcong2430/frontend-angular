@@ -1,0 +1,102 @@
+.selector {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+.selector-wrapper {
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    font-size: 1rem;
+    padding: .5rem 2rem .5rem 1rem;
+    height: 100%;
+    display: flex;
+}
+.selector-wrapper .select-close {
+    position: absolute;
+    right: 24px;
+    top: .5rem;
+    cursor: pointer;
+}
+.selector-wrapper .select-input {
+    width: 100%;
+    border: 0;
+}
+.selector-wrapper .select-input:focus {
+    outline: none;
+}
+.selector-wrapper.active+.select-list{
+    display: inline-block;
+    z-index: 999;
+    left: 0;
+}
+.selector-wrapper.active>.selector-bg {
+    display: inline-block;
+}
+.selector-wrapper .selector-arrow {
+    padding: 0 5px;
+    width: 25px;
+    position: absolute;
+    right: 0;
+    top: calc(1rem - 3px);
+    text-align: center;
+    transition: .5s;
+}
+.selector-wrapper .arrow {
+    border-color: #495057 transparent transparent;
+    border-width: 6px 3px 2.5px;
+    border-style: solid;
+    display: inline-block;
+}
+.selector-wrapper.active .rotate {
+    transform: rotate(180deg);
+}
+.select-list {
+    display: none;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-top: 0;
+    background-color: #fff;
+    position: absolute;
+}
+.select-list-item {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 240px;
+    overflow-y: auto;
+    cursor: pointer;
+}
+.select-list-item>li {
+    padding: 5px 8px;
+}
+.select-list-item>li:hover {
+    background-color: #EBF5FF;
+}
+.select-list-item>li.active {
+    background-color: #EBF5FF;
+    font-weight: 700;
+}
+.select-list-item .not-found {
+    display: none;
+}
+.select-list-item>li:first-child.not-found {
+    display: block;
+}
+.selector-search {
+    padding: 5px;
+}
+.selector-search>input{
+    width: 100%;
+    padding: 2px 5px;
+    color: #2d3845;
+}
+.selector-bg {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}

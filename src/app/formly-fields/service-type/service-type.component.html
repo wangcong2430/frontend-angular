@@ -1,0 +1,52 @@
+<table class="insert-service-table">
+    <thead>
+    <tr class="service-header">
+        <th style="min-width: 200px;"></th>
+        <th width="50%" class="service-left">必选服务</th>
+        <th width="50%" class="service-right">可选服务</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let row of serviceList;let i = index;trackBy: trackByFn">
+        <th [ngClass]="{subCategory: !row.parentCategory}">
+            <span>{{row.category}}</span>
+        </th>
+        <td class="service-left">
+            <ul class="insert-service-choices">
+                <ng-container *ngFor="let item of row.list;let j = index; trackBy: trackByFn">
+                    <li *ngIf="item.required">
+                        <label class="c-checkbox" [ngClass]="{'not-allowed': isDisabled(item), 'checkbox-enabled': !+item.enabled, 'c-primary': oldModel.indexOf(item[to.valueProp || 'id']) === -1 && +item.enabled}">
+                            <input type="checkbox"
+                                   [disabled]="isDisabled(item)"
+                                   [checked]="model[key].indexOf(item[to.valueProp || 'id'])>-1"
+                                   value="{{item[to.valueProp||'id']}}"
+                                   [id]="id + '_' + i + j"
+                                   (click)="toggle(item)">
+                            <i></i><span>{{item.name}}</span>
+                        </label>
+                        <div class="c-popover" *ngIf="item.desc">{{item.desc}}</div>
+                    </li>
+                </ng-container>
+            </ul>
+        </td>
+        <td class="service-right">
+            <ul class="insert-service-choices">
+                <ng-container *ngFor="let item of row.list;let j = index; trackBy: trackByFn">
+                    <li *ngIf="!item.required">
+                        <label class="c-checkbox" [ngClass]="{'not-allowed': isDisabled(item), 'checkbox-enabled': !+item.enabled, 'c-primary': oldModel.indexOf(item[to.valueProp || 'id']) === -1 && +item.enabled}">
+                            <input type="checkbox"
+                                   [disabled]="isDisabled(item)"
+                                   [checked]="model[key].indexOf(item[to.valueProp || 'id'])>-1"
+                                   value="{{item[to.valueProp||'id']}}"
+                                   [id]="id + '_' + i + j"
+                                   (click)="toggle(item)">
+                            <i></i><span>{{item.name}}</span>
+                        </label>
+                        <div class="c-popover" *ngIf="item.desc">{{item.desc}}</div>
+                    </li>
+                </ng-container>
+            </ul>
+        </td>
+    </tr>
+    </tbody>
+</table>

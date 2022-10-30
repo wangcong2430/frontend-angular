@@ -1,0 +1,71 @@
+<app-component-crumb [isChildren]="true" >
+  <button nzSize="small" nz-button nzType="primary" (click)="openAttributeModel()">添加标签</button>
+  <button nzSize="small" nz-button nzType="primary" (click)="openAttributeClassifyModel()">标签分类管理</button>
+</app-component-crumb>
+
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading && queryFields.length > 1">
+  <div class="search-filters m-3">
+      <app-container-search-form
+        style="width: 100%"
+        [(data)]="queryFields"
+        (submit)="submitSearchForm($event)"
+      >
+      </app-container-search-form>
+    </div>
+
+  <div class="search-results bg-white  m-3">
+
+    <app-container-table
+      [showCheckbox]="false"
+      [listMessage]="listMessage"
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [showPagination] = "false"
+      [(pagination)]="pagination"
+      (clickEvent)="clickEvent($event)"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+<!-- 添加/编辑属性弹窗 -->
+<nz-modal [nzWidth]="640"
+          [(nzVisible)]="isAttributeVisible"
+          [nzTitle]="'添加标签'"
+          [nzFooter]="attributeModalFooter"
+          (nzOnCancel)="closeAttributeModel()"
+          (nzOnOk)="AttributeSave()">
+
+  <ng-container *ngIf="isAttributeLoading">
+    <div class="example">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container >
+
+  <ng-container *ngIf="!isAttributeLoading">
+    <form>
+      <formly-form [model]="attributeModel" [fields]="attributeFields" [options]="attributeOptions" [form]="AttributeForm"></formly-form>
+    </form>
+  </ng-container>
+
+  <ng-container *ngIf="">
+    <div class="example" style="color: #888">
+      <i nz-icon type="exception" theme="outline" style="font-size: 60px;"></i>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<ng-template #attributeModalFooter>
+  <button nz-button nzType="default" (click)="closeAttributeModel()">取消</button>
+  <button type="submit" nz-button nzType="primary" (click)="AttributeSave()" [nzLoading]="isOkLoading">确定</button>
+</ng-template>
+

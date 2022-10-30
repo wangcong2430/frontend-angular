@@ -1,0 +1,103 @@
+.trigger {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: color .3s;
+}
+
+.trigger:hover {
+  color: #1890ff;
+}
+
+.main-layout-body{
+  height: 100vh;
+  overflow-x: hidden;
+}
+
+/*侧边栏*/
+.main-layout-sider {
+  overflow: auto;
+  height: 100vh;
+  left: 0;
+}
+
+
+.main-layout-sider::-webkit-scrollbar {
+  display: none;
+}
+
+.ant-menu-item .anticon,  .ant-menu-submenu > .ant-menu-submenu-title .anticon {
+  font-size: 18px;
+}
+.logo {
+  height: 48px;
+  overflow: hidden;
+  background: #052151;
+}
+
+.system-title {
+  color: #fff;
+  font-weight: bold;
+  width: 120px;
+  font-size: 13px;
+  margin-top: 4px;
+  margin-left: 4px;
+}
+.menu-trigger {
+  padding: 8px 17px 0 17px;
+  text-align: right;
+  cursor: pointer;
+  background-color: #052151;
+}
+.menu-trigger i{
+  color: #0fa878;
+}
+
+.sup-footer{
+  background-color: #fff;
+}
+
+/*顶部*/
+.header-menu-user {
+  height: 46px;
+}
+.header-user-info {
+  color: #e0e6e5;
+}
+
+:host ::ng-deep.ant-layout-header{
+  background-color: #f7f7f7;
+}
+
+
+:host ::ng-deep .ant-menu-dark.ant-menu-inline .ant-menu-submenu-title {
+  overflow: inherit;
+}
+
+:host ::ng-deep .ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title {
+  padding: 0 24px !important;
+}
+
+:host ::ng-deep .ant-badge-count {
+  border: none;
+  box-shadow: none;
+  font-size: 12px;
+  padding: 0px 8px;
+  line-height: 15px;
+  height: 16px;
+  top: -2px;
+}
+
+:host ::ng-deep .ant-badge-status-text,
+:host ::ng-deep .ant-badge-status-dot {
+  display: none;
+}
+
+:host ::ng-deep .ant-menu-item .anticon,
+:host ::ng-deep .ant-menu-submenu-title .anticon,
+:host ::ng-deep .ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title .anticon  {
+  font-size: 18px;
+}
+
+

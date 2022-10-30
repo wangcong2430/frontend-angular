@@ -1,0 +1,16 @@
+<app-component-crumb></app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<nz-card *ngIf="!loading" class="card m-3" style="width: 100%; background-color: white; ">
+  <ng-container *ngIf="isVisible">
+    <app-supplier-info-detail [dataModal]="dataModal" (getList)="getList($event)"></app-supplier-info-detail>
+  </ng-container>
+</nz-card>
+
+
+

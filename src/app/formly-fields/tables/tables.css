@@ -1,0 +1,25 @@
+.formly-tables {
+    margin-bottom: 5px;
+}
+.formly-tables label{
+    font-weight: 700;
+}
+.table-text {
+    border: 1px solid #d5dee7;
+    width: 100%;
+    background-color: #f8fafd;
+}
+.table-text td{
+    padding: .75rem 2rem .75rem 0;
+    text-align: left;
+    font-size: .75rem;
+    color: #2d3845;
+    vertical-align: top;
+    border-bottom: 1px solid #d5dee7;
+    word-break: break-all;
+}
+.table-text td:first-child {
+    text-align: right;
+    width: 28%;
+    font-weight: bold;
+}

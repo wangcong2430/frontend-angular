@@ -1,0 +1,474 @@
+<app-component-crumb [isCheckAll]="false" [isCheckReverse]="false" title="(如有明细报价跟需求不一致，明细按钮将标记为红色，点击可查看详情)">
+  <button nz-button nzType="primary"  nzSize="small" (click)="openOrCloseAll(false)" >全部展开</button>
+  <button nz-button nzType="primary" nzSize="small" (click)="openOrCloseAll(true)">全部收起</button>
+  <button nzSize="small" nz-button nzType="primary" (click)="checkedAll();">全选</button>
+  <button nzSize="small" nz-button nzType="primary" (click)="checkReverse();">反选</button>
+  <button nzSize="small" nz-button nzType="primary" [disabled]="disabledButton" (click)="delayNotice()">延时提醒</button>
+  <button nzSize="small" nz-button nzType="primary" (click)="checkedOne();">选中唯一</button>
+
+  <button nzSize="small" nz-button nzType="primary" [disabled]="false" [nzLoading]="isAcceptLoading" (click)="submitPostData('accept'); ">确认提交</button>
+  <button nzSize="small" nz-button [disabled]="false" (click)="reinquiry()">重新询价</button>
+  <button nzSize="small" nz-button [disabled]="false" (click)="isVisible = true">返回询价</button>
+  <button nzSize="small" nz-button [disabled]="false" (click)="isVisibleDemand = true">驳回到草稿</button>
+</app-component-crumb>
+
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading" >
+  <!-- 搜索 -->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <nz-card class="bg-white m-3" style="min-height: 200px;">
+    <div class="body-pagination d-flex justify-content-between" style="margin-bottom: 12px; height: 32px;">
+      <div>
+        <nz-dropdown *ngIf="queryFields && queryFields.length > 0 && list && list.length > 0" [nzPlacement]="'bottomCenter'" [nzTrigger]="'click'" [nzClickHide]="false" [(nzVisible)]="isSearchDropdown" (nzVisibleChange)="dropdownChange($event, 'search')">
+          <button nz-button nz-dropdown style="background: #fff;">
+            <i nz-icon nzType="menu" nzTheme="outline"></i>
+            显示查询选择
+            <i nz-icon nzType="caret-down" nzTheme="outline"></i>
+          </button>
+          <ul nz-menu style="max-height:220px; overflow-y: auto;">
+            <li  style="text-align: right;padding-right: 10px;">
+              <i nz-icon nzType="close" nzTheme="outline" (click)="closeDropdown('search')" style="cursor: pointer;"></i>
+            </li>
+            <li nz-menu-item *ngFor="let filed of queryFields">
+              <label nz-checkbox [(ngModel)]="filed.show" (ngModelChange)="checkModelChange()">{{filed.templateOptions.label}}</label>
+            </li>
+          </ul>
+        </nz-dropdown>
+        <nz-dropdown *ngIf="list && list.length > 0" style="margin: 0 10px;" [nzPlacement]="'bottomCenter'" [nzTrigger]="'click'" [nzClickHide]="false" [(nzVisible)]="isColumnDropdown" (nzVisibleChange)="dropdownChange($event, 'column')">
+          <button  nz-button nz-dropdown>
+            <i nz-icon nzType="menu" nzTheme="outline"></i>
+            显示列选择
+            <i nz-icon nzType="caret-down" nzTheme="outline"></i>
+          </button>
+          <ul nz-menu style="max-height:220px; overflow-y: auto;">
+            <li style="text-align: right;padding-right: 10px;">
+              <i nz-icon nzType="close" nzTheme="outline" (click)="closeDropdown('column')" style="cursor: pointer;"></i>
+            </li>
+            <ng-container *ngFor="let column2 of childrenColumns">
+              <li nz-menu-item *ngIf="column2.key != 'not_pass_percent' || column2.is_test == '1'">
+                <label nz-checkbox [(ngModel)]="column2.show" (ngModelChange)="columnChange($event, column2)">{{column2.label}}</label>
+              </li>
+            </ng-container>
+          </ul>
+        </nz-dropdown>
+        <ng-container *ngIf="list && list.length > 0">
+          <span>在页面中过滤：</span>
+          <input  nz-input [(ngModel)]="filterValue" style="display: inline-block; width: 200px;margin-right: 15px;"/>
+          <button  nz-button nzType="primary" style="vertical-align: top;" (click)="searchData()">查询</button>
+        </ng-container>
+      </div>
+      <nz-pagination
+      style="margin-bottom: 8px;"
+      nzShowSizeChanger
+      *ngIf="list && list.length > 0"
+      class="mr-n2"
+      [nzTotal]="pagination.total_count"
+      [(nzPageIndex)]="pagination.page_index"
+      [(nzPageSize)]="pagination.page_size"
+      (nzPageIndexChange)="pageIndexChange($event)"
+      (nzPageSizeChange)="pageSizeChange($event)"
+      [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+      [nzHideOnSinglePage]="false"
+      [nzShowTotal]="totalTemplate"
+    >
+    </nz-pagination>
+    </div>
+
+    <div class="search-results">
+      <nz-table #storyTable
+                [nzData]="list"
+                [nzLoading]="listLoading"
+                [nzShowPagination]="false"
+                [nzFrontPagination]="false">
+        <thead></thead>
+        <tbody>
+          <ng-container *ngFor="let story_list of storyTable.data; index as story_index">
+            <tr>
+              <td [ngStyle]="{padding: '0'}" >
+                <nz-table #thingTable [nzData]="story_list['thing']" [nzFrontPagination]="false" [nzShowPagination]="false" nzBordered>
+                  <thead>
+                    <tr class="parent-th" (click)="checkThingAll(story_index); $event.stopPropagation()">
+                      <th style="width: 60px;" nzShowCheckbox [nzChecked]="story_list.checked" [nzIndeterminate]="story_list.indeterminate" (nzCheckedChange)="checkThingAll(story_index)"></th>
+                      <th (click)="story_list.expand = !story_list.expand;">
+                        <div class="row w-100">
+                          <div class="mr-3" *ngIf="story_list['category_type_name']">{{story_list['category_type_name']}}</div>
+                          <div class="mr-3 ">需求编号：{{story_list['story_code']}}</div>
+                          <div class="mr-3">需求名称：{{story_list['story_name']}}</div>
+                          <div class="mr-3" *ngIf="story_list['manager'] != ''">需求经办人：{{story_list['manager']}}</div>
+                          <div class="mr-3">项目名称：{{story_list['project_name']}}</div>
+                          <div class="mr-3" *ngIf="story_list['budget_amount'] != '' && story_list['budget_amount'] != '0.00'">预计花费：{{"CNY"+'  '+story_list['budget_amount']}}</div>
+                          <div class="mr-3" *ngIf="story_list['remark'] != ''">需求说明：
+                            <ng-container *ngIf="story_list['remark'] != ''">
+                              <i nz-icon type="info-circle" theme="outline" nz-popover [nzTitle]="false"
+                                [nzContent]="story_list['remark']"></i>
+                            </ng-container>
+                          </div>
+                          <div class="mr-3">物件数量：{{story_list['thingNumber']}}</div>
+                          <div class="mr-3" *ngIf="story_list['attachment_list'] != ''">需求附件：
+                            <ng-container *ngIf="story_list['attachment_list'] != ''">
+                              <i nz-icon type="info-circle" theme="outline" nz-popover [nzTitle]="false"
+                                [nzContent]="contentTemplate"></i>
+                            </ng-container>
+                            <ng-template #contentTemplate><a [innerHTML]="story_list['attachment_list']"></a></ng-template>
+                          </div>
+                          <div class="mr-3" *ngIf="story_list['budget_type'] == '1'">可用品牌费用: {{story_list.brand_available|mycurrency}} </div>
+                          <div class="mr-3" *ngIf="story_list['budget_type'] == '2'">可用产品费用: {{story_list.product_available|mycurrency}} </div>
+
+                          <div class="mr-3">单价范围: {{ (story_list.unit_price_low ?(story_list.unit_price_low|mycurrency): 'NA') + '~' + (story_list.unit_price_height ?(story_list.unit_price_height|mycurrency): 'NA')}} {{story_list?.currency?.symbol}}</div>
+                          <div class="mr-3">总金额: {{story_list.total_price ?(story_list.total_price|mycurrency): 'NA'}} {{story_list?.currency?.symbol}}</div>
+                          <div class="mr-3">预估数量: {{story_list.pre_workload || 'NA'}} {{story_list?.workload_unit}}</div>
+                          <div class="mr-3">报价数量: {{story_list.workload || 'NA'}} {{story_list?.workload_unit}}</div>
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <ng-container *ngFor="let thing_list of thingTable.data; index as thingIndex">
+                      <tr [class.hide]="story_list.expand" (click)="checkThing(story_index, thingIndex); $event.stopPropagation()" >
+                        <td nzShowCheckbox
+                            [nzChecked]="thing_list.checked"
+                            [nzIndeterminate]="thing_list.indeterminate"
+                            (nzCheckedChange)="checkThing(story_index, thingIndex)"
+                            style="border-right: 'none'"></td>
+                        <td style="padding: '0';border-right: '1px solid #e8e8e8'">
+                          <div class="ant-row" style="padding: 8px 0;background: #F7F7F7">
+                            <div class="ant-col-4 line-height-2">物件名称：{{thing_list['thing_name']}}</div>
+                            <div  class="ant-col-4 line-height-2" (click)="clickThingDetail(thing_list); $event.stopPropagation()">物件单号：
+                              <ng-container *ngIf="thing_list['is_test'] == '1'">
+                                <span class="text-red">[测试单]</span>
+                              </ng-container>
+                              <ng-container *ngIf="thing_list['is_rejected'] == 2">
+                                <span class="text-red">[放弃报价]</span>
+                              </ng-container>
+                              <ng-container *ngIf="thing_list['thing_tag'] && thing_list['thing_tag'].length">
+                                <ng-container *ngFor="let item of thing_list['thing_tag']">
+                                  <ng-container *ngIf="!item.tip">
+                                    <span class="text-red d-inline-block mx-1">[{{ item.title}}]</span>
+                                  </ng-container>
+                                  <ng-container *ngIf="item.tip">
+                                    <span class="text-red d-inline-block mx-1" nz-tooltip [nzTitle]="item.tip" >[{{ item.title}}]</span>
+                                  </ng-container>
+                                </ng-container>
+                              </ng-container>
+                              <ng-container *ngIf="thing_list['is_rejected'] == 3">
+                                <span class="text-red">[未接收]</span>
+                              </ng-container>
+                              <ng-container *ngIf="thing_list['is_rejected'] == 4">
+                                <span class="text-red">[超时未报价]</span>
+                              </ng-container>
+                              <ng-container *ngIf="thing_list['is_rejected'] == 5">
+                                <span class="text-red">[结束报价]</span>
+                              </ng-container>
+                              <!-- <ng-container *ngIf="thing_list['is_expired'] == 1">
+                                <span class="text-red">[已超期]]</span>
+                              </ng-container> -->
+                              <ng-container *ngIf="thing_list['is_price_error'] == 10">
+                                <span class="text-primary">[价格已修正]</span>
+                              </ng-container>
+                              <ng-container *ngIf="thing_list['is_price_error'] == 12">
+                                <span class="text-primary">[价格未变更]</span>
+                              </ng-container>
+                              <ng-container *ngIf="thing_list['over_due_flag'] && thing_list['over_due_flag'] == 1">
+                                <span class="text-red d-inline-block">[已超期]</span>
+                              </ng-container>
+                              <ng-container *ngIf="thing_list['demand_type'] === '基地'">
+                                <img  style="width: 40px;" src="/assets/images/base.png" />
+                              </ng-container>
+                              <ng-container *ngIf="thing_list['demand_type'] === '画师'">
+                                <span class="text-red">[画师]</span>
+                              </ng-container>
+                              <ng-container *ngIf="thing_list['is_rejected'] == 1">
+                                <ng-container *ngIf="thing_list['auto_record_data'] && thing_list['auto_record_data'] != ''">
+                                  <span class="text-red cu-p" nz-popover [nzContent]="contentRejected1">[被驳回]</span>
+                                  <!-- 引用模板，可输出html -->
+                                  <ng-template #contentRejected1><a [innerHTML]="thing_list['auto_record_data'] || 'NA'"></a></ng-template>
+                                </ng-container>
+                                <ng-container *ngIf="!thing_list['auto_record_data'] || thing_list['auto_record_data'] == ''">
+                                  <span class="text-red cu-p">[被驳回]</span>
+                                </ng-container>
+                              </ng-container>
+                              <a href="javascript:;">{{thing_list['thing_code']}}</a></div>
+                            <div class="ant-col-4 line-height-2">类别：{{thing_list['category']}}</div>
+                            <div class="ant-col-4 line-height-2">制作等级：{{thing_list['produce_grade_str']}}</div>
+                            <div  class="ant-col-4 line-height-2">制作人员：{{thing_list['production_staff'] || 'NA'}}</div>
+                            <!--<div class="col-3">平面尺寸：？？{{thing_list['category']}}</div>-->
+                            <!--<div class="col-3">精度：？？{{thing_list['category']}}</div>-->
+
+                            <div  class="ant-col-4 line-height-2" *ngIf="thing_list['expected_expenditure'] > 0">预计花费： {{thing_list['expected_expenditure_text']|mycurrency}}</div>
+                            <div  class="ant-col-4 line-height-2">期望交付日期：{{thing_list['expected_complete_date']}}</div>
+
+                            <div  class="ant-col-4 line-height-2">停留时间：{{thing_list['retention_time']}}</div>
+
+                            <div  class="ant-col-4 line-height-2">
+                              项目组备注：
+                              <ng-container *ngIf="thing_list['remark'] != ''">
+                                <span nz-popover [nzContent]="contentTemplates">
+                                  {{thing_list['remark'].substring(0, 10) }}
+                                  <span *ngIf="thing_list['remark'].length >= 10">...</span>
+                                </span>
+                                <!-- 引用模板，可输出html -->
+                                <ng-template #contentTemplates><a [innerHTML]="thing_list['remark']"></a></ng-template>
+                              </ng-container>
+                            </div>
+
+
+                            <div  class="ant-col-4 line-height-2">
+                              预估数量：
+                              {{thing_list['pre_workload']}}
+                              <ng-container *ngIf="thing_list['produce_breakdown'] && thing_list['produce_breakdown'] != ''">
+                                <a class="text-primary" *ngIf="thing_list.price_type != '4' && thing_list.price_type" (click)="showPriceDetail(thing_list, 'produce_breakdown', false, [],2); $event.stopPropagation()">明细</a>
+                              </ng-container>
+                              {{thing_list['workload_unit']}}
+                            </div>
+
+                            
+                            <div  class="ant-col-4 line-height-2">
+                              采购经理：
+                              {{thing_list['last_pm_name']}}
+                            </div>
+                            <!-- <ng-container *ngIf="thing_list['attribute'] && thing_list['attribute'].length > 0;">
+                              <ng-container *ngFor="let item of thing_list['attribute']">
+                                <ng-container *ngIf="item.attr_type == '1' && item.form_num == 1 && item.value">
+                                    <span class="ant-col-4 line-height-2 attribute-item d-flex">
+                                        <span class="label mr-2" >{{item.title}} :</span>
+                                        <span class="control mr-2">
+                                            <span>{{item.value}}</span>
+                                        </span>
+                                        <span class="unit">{{item.form_unit}}</span>
+                                    </span>
+                                  </ng-container>
+
+                                  <ng-container *ngIf="item.attr_type == '1' && item.form_num > 1">
+                                    <span class="ant-col-4 line-height-2 attribute-item d-flex">
+                                      <span class="label mr-2">{{item.title}} :</span>
+                                      <span class="control mr-2">
+                                        <ng-container *ngFor="let o of item.options; let index = index">
+                                          <span>{{o.value}}</span><span *ngIf="index < (item.options.length - 1)">{{item.form_separator ? item.form_separator : ' 1'}}</span>
+                                        </ng-container>
+                                      </span>
+                                      <span class="unit">{{item.form_unit}}</span>
+                                    </span>
+                                  </ng-container>
+
+                                  <ng-container *ngIf="item.attr_type == '2' && item.value">
+                                    <span class="ant-col-4 line-height-2 attribute-item d-flex">
+                                        <span class="label mr-2">{{ item.title }} :</span>
+                                        <span class="control mr-2">
+                                            <span>{{item.value}}</span>
+
+                                        </span>
+                                        <span class="unit">{{item.form_unit}}</span>
+                                    </span>
+                                  </ng-container>
+                                </ng-container>
+                            </ng-container> -->
+
+                          </div>
+                          <nz-table class="mb-2 mr-2"  #quoteTable [nzData]="thing_list['thing_quote']" [nzFrontPagination]="false" [nzShowPagination]="false">
+                            <thead>
+                              <tr class="thing-th">
+                                <th>选择</th>
+                                <th>是否有预付款</th>
+                                <th *ngIf="showChildrenColumns.supplier">CP名称</th>
+                                <th *ngIf="showChildrenColumns.recent_price">最近一次单价</th>
+                                <th *ngIf="showChildrenColumns.unit_price_text">单价</th>
+                                <th *ngIf="showChildrenColumns.workload">报价数量</th>
+                                <!-- <ng-container *ngIf="thing_list['category_type'] == 1"><th>预估数量</th></ng-container> -->
+                                <th *ngIf="showChildrenColumns.total_price">总价</th>
+                                <th *ngIf="showChildrenColumns.down_price_template">下载报价模板</th>
+                                <!-- <th>工作量单位</th> -->
+                                <th *ngIf="showChildrenColumns.produce_grade">制作等级</th>
+                                <th *ngIf="showChildrenColumns.complete_date">承诺交付日期</th>
+                                <ng-container *ngIf="is_test == '1'">
+                                  <th *ngIf="showChildrenColumns.not_pass_percent">不通过结算比例</th>
+                                </ng-container>
+                                <th *ngIf="showChildrenColumns.remark">CP备注</th>
+                                <th *ngIf="showChildrenColumns.manager_remark">采购经理备注</th>
+                                <th *ngIf="showChildrenColumns.contract_remark">合同备注</th>
+                              </tr>
+
+                            </thead>
+                            <tbody>
+                              <ng-container *ngFor="let quote_list of quoteTable.data; let quoreIndex = index">
+                                <tr (click)="selectSupplier(quoreIndex, story_index, thingIndex, quote_list);$event.stopPropagation() " class="hover" [ngStyle]="{'background': thing_list.checked?'#F9FBFF':''}">
+                                  <ng-container [ngSwitch]="quote_list['flow_step']">
+                                    <ng-container *ngSwitchCase="3005">
+                                      <td>
+                                        <!-- <input *ngIf="is_test == '0'" [type]="'radio'" [checked]="quote_list.checked" [name]="'thing['+ quote_list['thing_id'] +']'" [value]="quote_list['id']"/> -->
+                                        <label  *ngIf="is_test == '0'" nz-radio  [ngModel]="quote_list.checked" (ngModelChange)="selectSupplier(quoreIndex, story_index, thingIndex, quote_list);"></label>
+                                        <label *ngIf="is_test != '0'" nz-checkbox  [ngModel]="quote_list.checked" (ngModelChange)="selectSupplier(quoreIndex, story_index, thingIndex, quote_list);"></label>
+                                      </td>
+                                      <td>
+                                        <nz-switch [(ngModel)]="quote_list.prepayments_status" (click)="$event.stopPropagation()"  nzCheckedChildren="是" nzUnCheckedChildren="否"></nz-switch>
+                                      </td>
+                                      <td *ngIf="showChildrenColumns.supplier">{{quote_list.supplier}}</td>
+                                      <td *ngIf="showChildrenColumns.recent_price">{{quote_list['recent_price']|mycurrency}}</td>
+                                      <td *ngIf="showChildrenColumns.unit_price_text">
+                                        {{quote_list['unit_price_text']|mycurrency}}
+                                        <span *ngIf="quote_list.fixed_price_status">固定价</span>
+                                      </td>
+                                      
+                                      <td *ngIf="showChildrenColumns.workload"
+                                      [ngStyle]="{'color': setColor(thing_list['category_type'],quote_list['is_change_workload'],quote_list['workload'],thing_list['pre_workload'])}">
+                                      {{quote_list['workload']}} {{quote_list['workload_unit']}}</td>
+                                    <!-- <td *ngIf="thing_list['category_type'] == 1">{{thing_list['pre_workload']}}</td> -->
+                                    <td *ngIf="showChildrenColumns.total_price"
+                                      [ngStyle]="{'color': thing_list['category_type'] == '2' &&quote_list['total_price']-0>thing_list['expected_expenditure']-0?'red' :quote_list['total_price']-0<thing_list['expected_expenditure']-0?'#00A870' :'#000000'}"
+                                      >
+                                      {{quote_list['total_price_text']|mycurrency}}
+                                      <ng-container
+                                        *ngIf="quote_list['agency_fees'] && quote_list['agency_fees'] != null && quote_list['agency_fees'] != '0' && (thing_list['price_type'] == 4)">
+                                        (代理费比例：{{quote_list['agency_fees']|mycurrency}}%)
+                                      </ng-container>
+                                      <ng-container [ngSwitch]="quote_list['price_type']">
+                                        <ng-container *ngSwitchCase="1">
+                                          <a *ngIf="quote_list.produce_breakdown.length > 0"
+                                            (click)="showPriceDetail(quote_list, 'produce_breakdown', true);$event.stopPropagation()">模板</a>
+                                        </ng-container>
+                                        <ng-container *ngSwitchCase="2">
+                                          <a *ngIf="quote_list.produce_breakdown.length > 0"
+                                            [ngStyle]="{'color': thing_list['category_type'] == '2' &&quote_list['total_price']-0>thing_list['expected_expenditure']-0?'red' :quote_list['total_price']-0<thing_list['expected_expenditure']-0?'#00A870' :'#000000'}"
+                                            (click)="showPriceDetail(quote_list, 'produce_breakdown', true, thing_list['produce_breakdown'], 1); $event.stopPropagation()">明细</a>
+                                        </ng-container>
+                                        <ng-container *ngSwitchCase="3">
+                                          <a *ngIf="quote_list.produce_breakdown.length > 0"
+                                            [ngStyle]="{'color': thing_list['category_type'] == '2' &&quote_list['total_price']-0>thing_list['expected_expenditure']-0?'red' :quote_list['total_price']-0<thing_list['expected_expenditure']-0?'#00A870' :'#000000'}"
+                                            (click)="showPriceDetail(quote_list, 'produce_breakdown', true, thing_list['produce_breakdown'], 1); $event.stopPropagation()">明细</a>
+                                        </ng-container>
+                                      </ng-container>
+                                    </td>
+
+                                      <td *ngIf="showChildrenColumns.down_price_template">
+                                        <a *ngIf="thing_list.thing_quote_template_id"
+                                          (click)="download(quote_list['thing_quote_template_id'])" class="mr-2">
+                                          {{quote_list['template_file_name']}}
+                                        </a>
+                                        <span *ngIf="!thing_list.thing_quote_template_id">NA</span>
+                                      </td>
+                                      <!-- <td>{{}}</td> -->
+                                      <td *ngIf="showChildrenColumns.produce_grade">{{quote_list['produce_grade'] == '' ? 'NA' : quote_list['produce_grade']}}</td>
+                                      <td *ngIf="showChildrenColumns.complete_date">{{quote_list['complete_date']}}</td>
+                                      <ng-container *ngIf="is_test == '1'"> <td *ngIf="showChildrenColumns.not_pass_percent">{{quote_list['not_pass_percent']}}</td></ng-container>
+                                      <td *ngIf="showChildrenColumns.remark">
+                                        <span *ngIf="quote_list['remark'] == ''">NA</span>
+                                        <div class="parent-title" *ngIf="quote_list['remark']" >
+                                          <ng-container *ngIf="quote_list['remark'] != ''">
+                                            <span class="text-overflow-10" style="max-width: 210px;" [title]="quote_list['remark']">
+                                              {{quote_list['remark']}}
+                                            </span>
+                                          </ng-container>
+                                        </div>
+                                      </td>
+                                      <td *ngIf="showChildrenColumns.manager_remark">
+                                        <span *ngIf="quote_list['manager_remark'] == ''">NA</span>
+                                        <div class="parent-title" *ngIf="quote_list['manager_remark']" >
+                                          <ng-container *ngIf="quote_list['manager_remark'] != ''">
+                                            <span class="text-overflow-10"  style="max-width: 210px;" [title]="quote_list['manager_remark']">
+                                              {{quote_list['manager_remark']}}
+                                            </span>
+                                          </ng-container>
+                                        </div>
+                                      </td>
+                                      <td *ngIf="showChildrenColumns.contract_remark">{{quote_list['contract_remark']==""?"NA":quote_list['contract_remark']}}</td>
+                                    </ng-container>
+                                    <ng-container *ngSwitchDefault>
+                                      <td>
+                                        <ng-container *ngIf="quote_list['flow_step'] == 3020">
+                                          <!-- 放弃报价:  -->
+                                          <span class="red">{{quote_list['quote_flow_step']}}</span>
+                                        </ng-container>
+                                        <ng-container *ngIf="quote_list['flow_step'] == 3035">
+                                          超时
+                                        </ng-container>
+                                      </td>
+
+                                      <td>{{quote_list.supplier}}</td>
+                                      <td>NA</td>
+                                      <td>{{quote_list['recent_price']}}</td>
+                                      <td>NA</td>
+                                      <td>NA</td>
+                                      <td>NA</td>
+                                      <td>NA</td>
+                                      <td>NA</td>
+                                      <td>NA</td>
+                                      <td>NA</td>
+                                      <td>{{quote_list['contract_remark']==""?"NA":quote_list['contract_remark']}}</td>
+                                    </ng-container>
+                                  </ng-container>
+                                </tr>
+                              </ng-container>
+                            </tbody>
+                          </nz-table>
+                        </td>
+                      </tr>
+                    </ng-container>
+                  </tbody>
+                </nz-table>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </nz-table>
+    </div>
+
+    <div class="body-pagination" *ngIf="list && list.length != 0">
+      <nz-pagination
+        style="margin-top: 8px;float: right;"
+        nzShowSizeChanger
+        [nzTotal]="pagination.total_count"
+        [(nzPageIndex)]="pagination.page_index"
+        [(nzPageSize)]="pagination.page_size"
+        (nzPageIndexChange)="pageIndexChange($event)"
+        (nzPageSizeChange)="pageSizeChange($event)"
+        [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+        [nzHideOnSinglePage]="false"
+        [nzShowTotal]="totalTemplate"
+      >
+      </nz-pagination>
+    </div>
+  </nz-card>
+
+</ng-container>
+<p style="clear: both"></p>
+<ng-template #totalTemplate let-total>Total {{pagination.total_count}} items</ng-template>
+<!--物件详情-->
+
+
+
+<!-- 驳回原因 -->
+<nz-modal [(nzVisible)]="isVisible" nzTitle="返回询价原因" (nzOnCancel)="isVisible = false" [nzOkLoading]="rejectLoading" [nzCancelLoading]="rejectLoading" (nzOnOk)="submitPostData('reject');">
+  <nz-form-item>
+    <nz-form-control>
+      <textarea nz-input placeholder="填写返回询价原因" [(ngModel)]="reason" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+<!-- 驳回到需求草稿 -->
+<nz-modal [(nzVisible)]="isVisibleDemand" nzTitle="驳回原因" (nzOnCancel)="isVisibleDemand = false" [nzOkLoading]="rejectToDraftLoading" [nzCancelLoading]="rejectToDraftLoading" (nzOnOk)="submitPostData('rejectToDraft');">
+  <nz-form-item>
+    <nz-form-control>
+      <textarea nz-input placeholder="填写返回询价原因" [(ngModel)]="reasonDemand" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+<!-- 询价生产订单 -->
+<app-modal-inquiry></app-modal-inquiry>

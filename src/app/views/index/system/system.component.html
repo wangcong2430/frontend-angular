@@ -1,0 +1,29 @@
+<app-component-layout [menus]="menus" [user]="user" [menu_collapsed]="menu_collapsed">
+  <router-outlet></router-outlet>
+</app-component-layout>
+
+<app-bulletlin-modal></app-bulletlin-modal>
+<app-modal-photo-swipe></app-modal-photo-swipe>
+<app-modal-thing-label></app-modal-thing-label>
+<app-modal-form></app-modal-form>
+
+<app-modal-table></app-modal-table>
+
+<app-modal-invitation></app-modal-invitation>
+<nz-modal [(nzVisible)]="is_read_contract" nzTitle="" [nzCancelText]="null" nzClosable="false" [nzFooter]="null" >
+  <ng-container>
+    <div style="text-align: center;margin-bottom: 15px;">
+      <label nz-checkbox [(ngModel)]="is_checked" (ngModelChange)="changeAgree()"></label>
+      我已详细阅读并同意 
+      <a href="https://www.qq.com/contract.shtml" target="_blank">《腾讯服务协议》</a>
+      <span>、</span>
+      <a href="http://privacy.qq.com/" target="_blank">《腾讯隐私政策 》</a>
+      <span>和</span>
+      <a href="https://rule.tencent.com/rule/preview/80ac764c-b923-4c03-929b-aa19d83b8891" target="_blank">《第三方信息共享清单》</a>
+    </div>
+
+    <div style="text-align: center;">
+      <button nz-button nzType="primary" [disabled]="is_agree" (click)="closeWindow()">同意</button>
+    </div>    
+  </ng-container>
+</nz-modal>

@@ -1,0 +1,304 @@
+<nz-modal
+  #productBudget
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  [nzFooter]="modalFooter"
+  nzMaskClosable="false"
+  [nzWidth]="'1310px'"
+  [nzZIndex]="nzZIndex"
+  (nzOnCancel)="modalCancel()">
+
+  <ng-template #modalTitle>
+    <div
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content">费用管理
+    </div>
+  </ng-template>
+
+  <ng-template #modalContent>
+
+    <ng-container *ngIf="isOpen">
+        <ng-container *ngIf="loading">
+            <div class="example">
+              <nz-spin></nz-spin>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="pullLoading">
+            <div class="example">
+              <nz-spin [nzTip]="'正在通过EPO系统拉取对应立项数据，请稍等...'"></nz-spin>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="!loading && !pullLoading">
+
+            <ng-container *ngIf="dataList && dataList.length > 0">
+              <div nz-row [nzGutter]="0">
+                <div nz-col [nzSpan]="24" style="margin-bottom: 10px" *ngIf="isMsh">
+                  <span>
+                    <span class="red">数据来源于MSH系统，如需要调整预算及人员权限，请到MSH系统操作，</span>
+                    <a href="http://msh.oa.com" target="_blank">点击前往MSH</a>，
+                    <a href="assets/file/msh-V20200605.pdf" target="_blank">下载MSH操作指引</a>。
+                  </span>
+                </div>
+                <div nz-col [nzSpan]="24" style="margin-bottom: 10px" *ngIf="!isMsh && isSave">
+                  <span >没有找到立项信息的话可以点击</span>
+                  <!--<ng-container *ngIf="projNo == ''">-->
+                    通过立项单号：
+                    <input nz-input [(ngModel)]="searchProjectValue" [ngStyle]="{width: '150px', marginRight: '6px'}">
+                    <button nz-button nzType="primary" (click)="searchProjectProduct()">拉取</button>
+                  <!--</ng-container>-->
+                  <ng-container *ngIf="projNo != ''">
+                    &nbsp;or&nbsp;
+                    <a style="color: #0052D9;" (click)="pullProjectProduct()"> 通过EPO母项目批量拉取立项信息。</a>
+                  </ng-container>
+                  <div class="red my-2">MBA开头的立项，验收终审人为项目的推广总监并且不能修改；PRSP开头的立项如之前立项未配置验收终审人将读取项目上的验收终审人信息</div>
+                </div>
+                <div nz-col [nzSpan]="24">
+                  <nz-table
+                    #smallTable
+                    nzSize="small"
+                    [nzFrontPagination]="false"
+                    [nzShowPagination]="false"
+                    [nzHideOnSinglePage]="true"
+                    nzBordered
+                    [nzData]="dataList">
+                    <thead>
+                    <tr>
+                      <th rowspan="2">立项单号</th>
+                      <th rowspan="2">立项名称</th>
+                      <th rowspan="2">营销推广费用</th>
+                      <th colspan="3">品牌费用</th>
+                      <th colspan="3">产品费用</th>
+                      <ng-container *ngIf="isMsh">
+                        <th rowspan="3">产品经理</th>
+                        <th rowspan="3">品牌经理</th>
+                      </ng-container>
+                      <ng-container *ngIf="!isMsh">
+                        <th rowspan="2">验收终审人</th>
+                        <th rowspan="2" style="min-width: 62px">状态</th>
+                        <th rowspan="2" style="min-width: 62px">操作</th>
+                      </ng-container>
+                    </tr>
+                    <tr>
+                      <th>总共</th>
+                      <th class="table-budget-num">可用</th>
+                      <th class="table-budget-num">已用</th>
+                      <th>总共</th>
+                      <th class="table-budget-num">可用</th>
+                      <th class="table-budget-num">已用</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <ng-template ngFor let-item [ngForOf]="smallTable.data">
+                      <tr>
+                        <ng-container *ngIf="item.children && item.children.length > 0">
+                          <td
+                            title="查看关联立项"
+                            [nzShowExpand]="!!item.children"
+                            [(nzExpand)]="item.children && mapOfExpandData[item.id]"
+                          >
+                            <ng-container *ngIf="item['is_lock'] == '1'">
+                              <span class="red">[已锁定]</span>
+                            </ng-container>
+                            <ng-container *ngIf="item['use_cycle_expired'] == '1'">
+                              <span class="red">[冻结]</span>
+                            </ng-container>
+                            {{item.pr_number}}
+                          </td>
+                        </ng-container>
+                        <ng-container *ngIf="!item.children || item.children.length == 0">
+                          <td>
+                            <ng-container *ngIf="item['is_lock'] == '1'">
+                              <span class="red">[已锁定]</span>
+                            </ng-container>
+                            <ng-container *ngIf="item['use_cycle_expired'] == '1'">
+                              <span class="red">[冻结]</span>
+                            </ng-container>
+                            {{item.pr_number}}
+                          </td>
+                        </ng-container>
+                        <td>{{item.pr_name}}</td>
+                        <td>
+                          <ng-container *ngIf="item['flow_step'] == '5000'">
+                            <span class="text-primary">{{ item['new_budget_sum_text'] }}</span>
+                          </ng-container>
+                          <ng-container *ngIf="item['flow_step'] != '5000'">
+                            {{ item['budget_sum'] ? item['budget_sum'] : '0.00' }}
+                          </ng-container>
+                        </td>
+                        <td>
+                          <ng-container *ngIf="item['flow_step'] == '5000'">
+                            <!--<span [ngClass]="{'text-primary' : item['new_brand_budget'] !=  item['brand_budget']}">{{ item['new_brand_budget_text'] }}</span>-->
+                            <span>{{ item['brand_budget_text'] }}</span>
+                          </ng-container>
+                          <ng-container *ngIf="item['flow_step'] != '5000'">
+                            <ng-container *ngIf="isSave">
+                              <nz-input-number [ngClass]="{'hint-border' : (item['brand_budget'] != item['old_brand_budget'])}" [(ngModel)]="item['brand_budget']" (ngModelChange)="getPrice($event, item, 'brand_budget')" [nzMin]="0" [nzMax]="999999999" [nzStep]="2" [ngStyle]="{width: '105px'}"></nz-input-number>
+                            </ng-container>
+                            <ng-container *ngIf="!isSave">
+                              {{ item['brand_budget_text'] ? item['brand_budget_text'] : '0.00' }}
+                            </ng-container>
+                          </ng-container>
+                        </td>
+                        <td><a [ngStyle]="{color: '#0052D9'}" (click)="openThingList(item, 1)">{{ item['brand_available_text'] ? item['brand_available_text'] : '0.00' }}</a></td>
+                        <td><a [ngStyle]="{color: '#0052D9'}" (click)="openThingList(item, 1)">{{ item['brand_used_text'] ? item['brand_used_text'] : '0.00' }}</a></td>
+                        <td>
+                          <ng-container *ngIf="item['flow_step'] == '5000'">
+                            <!--<span [ngClass]="{'text-primary' : item['new_product_budget'] !=  item['product_budget']}">{{ item['new_product_budget_text'] }}</span>-->
+                            <span>{{ item['product_budget_text'] }}</span>
+                          </ng-container>
+                          <ng-container *ngIf="item['flow_step'] != '5000'">
+                            <ng-container *ngIf="isSave">
+                              <nz-input-number [ngClass]="{'hint-border' : (item['product_budget'] != item['old_product_budget'])}" [(ngModel)]="item['product_budget']" (ngModelChange)="getPrice($event, item, 'product_budget')" [nzMin]="0" [nzMax]="999999999" [nzStep]="2" [ngStyle]="{width: '105px'}"></nz-input-number>
+                            </ng-container>
+                            <ng-container *ngIf="!isSave">
+                              {{ item['product_budget_text'] ? item['product_budget_text'] : '0.00' }}
+                            </ng-container>
+                          </ng-container>
+                        </td>
+                        <td><a [ngStyle]="{color: '#0052D9'}" (click)="openThingList(item, 2)">{{ item['product_available_text'] ? item['product_available_text'] : '0.00' }}</a></td>
+                        <td><a [ngStyle]="{color: '#0052D9'}" (click)="openThingList(item, 2)">{{ item['product_used_text'] ? item['product_used_text'] : '0.00' }}</a></td>
+
+                        <ng-container *ngIf="isMsh">
+                          <td [ngStyle]="{width: '180px'}">{{item['product_user_text']}}</td>
+                          <td [ngStyle]="{width: '180px'}">{{item['brand_user_text']}}</td>
+                        </ng-container>
+                        <ng-container *ngIf="!isMsh">
+                          <td [ngStyle]="{width: '180px'}">
+                            <!-- 搜索用户 -->
+                            <app-select-oa-user-component style="flex: 1" [(ngModel)]="item['approver_text']"></app-select-oa-user-component>
+                          </td>
+                          <td [style.color]="item['status'] == -2 ? 'red' : ''">{{item['flow_step_text']}}</td>
+                          <td>
+                            <ng-container *ngIf="item['is_not_info'] == '1'">
+                              NA
+                            </ng-container>
+                            <ng-container *ngIf="item['is_not_info'] != '1'">
+
+                              <nz-dropdown *ngIf="item['id']">
+                                <a nz-dropdown> 操作 <i nz-icon type="down"></i> </a>
+                                <ul nz-menu nzSelectable class="operation-ul">
+                                  <li class="text-primary" nz-menu-item (click)="openInfoModal(item)">详情</li>
+
+                                  <ng-container *ngIf="isSaveStatus && item['is_lock'] == 1">
+                                    <li class="text-primary" nz-menu-item (click)="lockInfo(item, 0)">解除锁定</li>
+                                  </ng-container>
+                                  <ng-container *ngIf="isSaveStatus && item['is_lock'] != 1">
+                                    <li class="text-primary" nz-menu-item (click)="lockInfo(item, 1)">锁定</li>
+                                  </ng-container>
+                                  <ng-container *ngIf="isSaveStatus && item['status'] == -2">
+                                    <li class="text-primary" nz-menu-item (click)="statusInfo(item, 0)">生效</li>
+                                  </ng-container>
+                                  <ng-container *ngIf="isSaveStatus && item['status'] != -2">
+                                    <li class="text-primary" nz-menu-item (click)="statusInfo(item, -2)">失效</li>
+                                  </ng-container>
+                                </ul>
+                              </nz-dropdown>
+
+                            </ng-container>
+
+                          </td>
+                        </ng-container>
+
+                      </tr>
+                      <ng-template ngFor let-item2 [ngForOf]="item.children">
+                        <tr [nzExpand]="mapOfExpandData[item.id]">
+                          <td colspan="12">追加关联立项单号：{{ item2.pr_number }}，立项名称：{{ item2.pr_name }}，添加时间：{{ item2.create_time }}。</td>
+                        </tr>
+                      </ng-template>
+                    </ng-template>
+                    </tbody>
+                  </nz-table>
+                </div>
+
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="!dataList || dataList.length == 0">
+              <div class="example" style="color: #888">
+                <i nz-icon type="exception" theme="outline" style="font-size: 60px;"></i>
+                <ng-container *ngIf="isMsh">
+                  未找到立项信息，请先添加对应MSH系统立项数据，
+                  <a href="http://msh.oa.com" target="_blank">点击前往MSH</a>，
+                  <a href="assets/file/msh-V20200605.pdf" target="_blank">下载MSH操作指引</a>。
+                </ng-container>
+                <ng-container *ngIf="!isMsh && isSave">
+                  未找到立项信息，
+                  <!--<ng-container *ngIf="projNo == ''">-->
+                    通过立项单号：
+                    <input nz-input [(ngModel)]="searchProjectValue" [ngStyle]="{width: '150px', marginRight: '6px'}">
+                    <button nz-button nzType="primary" (click)="searchProjectProduct()">拉取</button>
+                  <!--</ng-container>-->
+                  <ng-container *ngIf="projNo != ''">
+                    &nbsp;or&nbsp;
+                    <a style="color: #0052D9;" (click)="pullProjectProduct()"> 通过EPO母项目批量拉取立项信息。</a>
+                  </ng-container>
+                </ng-container>
+                <ng-container *ngIf="!isMsh && !isSave">
+                  未找到立项信息，请联系品牌负责人添加立项费用。
+                </ng-container>
+              </div>
+            </ng-container>
+
+          </ng-container>
+    </ng-container>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="primary" (click)="handleOk()" [nzLoading]="isSubmitLoading" *ngIf="!isMsh && isSave">提交</button>
+    <button nz-button nzType="default" (click)="modalCancel()">取消</button>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [nzWidth]="920" nzMaskClosable="false" [(nzVisible)]="infoModal.isShow" [nzTitle]="infoModal.title" (nzOnCancel)="infoModal.isShow = false;" [nzOkText]="null">
+  <ng-container *ngIf="infoModal.loading">
+    <div class="example">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="!infoModal.loading">
+    <div nz-row [nzGutter]="0">
+      <!--<div nz-col [nzSpan]="24" style="margin-bottom: 10px">-->
+      <!--<span >系统预算审批人：{{infoModal.msg}}</span>-->
+      <!--</div>-->
+      <div nz-col [nzSpan]="24">
+        <nz-table
+          #smallInfoTable
+          nzSize="small"
+          [nzFrontPagination]="false"
+          [nzShowPagination]="false"
+          [nzHideOnSinglePage]="true"
+          nzBordered
+          [nzData]="infoModal.list">
+          <thead>
+          <tr>
+            <th>品牌申请费用</th>
+            <th>产品申请费用</th>
+            <th>申请后总预算</th>
+            <th>申请人</th>
+            <th>申请时间</th>
+            <th>预算审批人</th>
+            <th>审批时间</th>
+            <th>状态</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let item of smallInfoTable.data;trackBy: trackByFn">
+            <td>{{item['brand_change_sum'] || '0.00'}}</td>
+            <td>{{item['product_change_sum'] || '0.00'}}</td>
+            <td>{{item['budget_sum'] || '0.00'}}</td>
+            <td>{{item['creator_name']}}</td>
+            <td>{{item['create_time']}}</td>
+            <td>{{item['approve_username'] || 'NA'}}</td>
+            <td>{{item['approve_time'] || 'NA'}}</td>
+            <td>{{item['flow_step_text']}}</td>
+          </tr>
+          </tbody>
+        </nz-table>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>

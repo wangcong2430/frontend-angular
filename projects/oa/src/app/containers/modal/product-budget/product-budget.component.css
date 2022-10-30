@@ -1,0 +1,16 @@
+.hint-border {
+  border-radius: 4px;
+  border: 1px #0052D9 solid;
+}
+.hint-red {
+   border-radius: 4px;
+   border: 1px red solid !important;
+ }
+
+.table-budget-num {
+  width: 100px;
+}
+
+.operation-ul li {
+  min-width: 90px;
+}

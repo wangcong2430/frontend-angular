@@ -1,0 +1,14 @@
+<nz-select
+    class="flex-fill"
+    nzShowSearch
+    nzAllowClear
+    nzPlaceHolder="合同税率，可直接填税率"
+    [(ngModel)]="to['tax_rate']"
+    name="tax_rate"
+    (nzOnSearch)="search($event)"
+    (ngModelChange)="taxValueChange()"
+    >
+    <ng-container *ngFor="let item of to['tax_list_options'] ; trackBy: trackByFn">
+      <nz-option [nzLabel]="item.label" [nzValue]="item.value" ></nz-option>
+    </ng-container>
+  </nz-select>

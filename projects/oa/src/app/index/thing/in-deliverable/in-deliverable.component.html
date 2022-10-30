@@ -1,0 +1,52 @@
+<app-component-crumb [isCheckAll]="false" [isCheckReverse]="false">
+  <nz-upload 
+    [nzAction]="'/gd/index/import-excel'"
+    [nzShowUploadList]="false"
+    nzAccept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+    [nzMultiple]="true"
+    [nzCustomRequest]="customBigReq"
+    >
+  <button nz-button nzSize="small" nzType="primary">导入交付件</button>
+</nz-upload>
+<button nz-button nzSize="small" (click)="download()" target="_blank" nzType="primary">下载模板</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <nz-card class="bg-white m-3">
+    <div class="table">
+      <nz-table #table nzSize="middle"
+        [nzData]="list"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        [nzPageSize]="10"
+        [nzHideOnSinglePage]="true"
+        [nzScroll]="{ x: '1100px', y: '600px'}">
+        <thead>
+          <tr>
+            <th>文件名</th>
+            <th>大小</th>
+            <th>状态</th>
+            <th>详情</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <ng-template ngFor let-data [ngForOf]="table.data" let-i="index">
+            <tr>
+              <td>{{data.name}}</td>
+              <td>{{data.size}}</td>
+              <td>{{data.status}}</td>
+              <td>{{data.detail}}</td>
+            </tr>
+          </ng-template>
+        </tbody>
+      </nz-table>
+    </div>
+  </nz-card>
+</ng-container>

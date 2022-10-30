@@ -1,0 +1,37 @@
+<!--
+ * @Author: v_swwu v_swwu@tencent.com
+ * @Date: 2022-07-01 14:45:22
+ * @LastEditors: v_swwu v_swwu@tencent.com
+ * @LastEditTime: 2022-07-22 15:51:56
+ * @FilePath: \cpm\frontend\projects\oa\src\app\components\header\header.component.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<div class="header" style="position: relative;">
+  <div class="d-flex px-3 justify-content-between w-100 h-100 align-items-center">
+    <div class="header-notice">
+      <img src="assets/images/index/head-notice-fffeee.png">
+      <ng-container i18n>公告:</ng-container>
+      <a href="https://wbp-1258344700.cos.ap-guangzhou.myqcloud.com/public/static/wbp-oa-manual_20210710.rar" target="_blank" style="color:#000000">腾讯互娱服务外包平台上线，点击下载新系统操作指引!</a>
+    </div>
+    <ng-container *ngIf="user">
+      <ul class="mb-0 d-flex">
+        <li>
+          <nz-avatar nzIcon="anticon anticon-user" nzSrc="{{user.face}}" style="margin-right: 8px;"></nz-avatar>
+          <span class="header-user-info">{{user.name}}（{{user.username}}）</span>
+        </li>
+        <li class="separator"><span>丨</span></li>
+        <li>
+          <span class="header-user-info pointer" role="button" (click)="feedback()">意见反馈</span>
+        </li>
+        <li class="separator"><span>丨</span></li>
+        <li style="margin-right: 8px;">
+          <a href="http://waibao.oa.com" target="_blank" [ngStyle]="{color: '#000000'}">切换老系统</a>
+          <nz-badge [nzCount]="count" [nzOverflowCount]="999" [nzStyle]="{ float: 'left', backgroundColor: '#ea5a5a', margin: '-6px 0px 0px 3px', boxShadow: 'none' }"></nz-badge>
+        </li>
+        <li class=" separator"><span>丨</span></li>
+        <li style="margin-right: 8px;">
+          <a href="/site/logout" class="text-white" style="color: #000 !important;;">退出</a>
+        </li>
+      </ul>
+    </ng-container>
+</div>

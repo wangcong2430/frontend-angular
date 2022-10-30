@@ -1,0 +1,99 @@
+<app-component-crumb
+  title="({{'AWAIT_EMAIL_TIP' | translate}})"
+  [(list)]="list"
+  [isChildren]="true"
+  (changeDisabledButton)="changeDisabledButton($event)">
+  <button
+    nz-button
+    nzSize="small"
+    nzType="primary"
+    [disabled]="disabledButton"
+    [nzLoading]="submitLoading"
+    (click)="confirmSubmit('accept')">
+    {{'AWAIT_MAIL' | translate}}
+  </button>
+</app-component-crumb>
+
+
+<ng-container *ngIf="loading">
+  <div class="example mt-4">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results mx-3">
+    <app-container-table-group-new
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(childrenColumns)]="childrenColumns"
+      [(pagination)]="pagination"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [isChildrenDisabled]="true"
+    >
+    </app-container-table-group-new>
+  </div>
+</ng-container>
+
+<nz-modal [(nzVisible)]="noFullOnlineProcess.isVisible" nzWidth="850" nzTitle="确认" (nzOnCancel)="noFullOnlineCancel()" (nzOnOk)="noFullOnlinehandleOk()">
+<!--  <div class="mb-2">确认 <span style="color: red">(快递单号为非必填但建议填写，便于查询记录；如有单据未勾选则视为该单据暂未安排发票邮寄)</span></div>-->
+
+  <nz-alert class="mb-2" nzType="warning" nzMessage="快递单号为非必填但建议填写，便于查询记录；如有单据未勾选则视为该单据暂未安排发票邮寄" nzShowIcon></nz-alert>
+  <nz-table #fullOnlineTable
+            [nzFrontPagination]="false"
+            [nzShowPagination]="false"
+            [nzSize]="'small'"
+
+            [nzData]="noFullOnlineProcess.list">
+    <thead>
+
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of fullOnlineTable.data; trackBy: trackByFn" style="padding:0px">
+      <td><label nz-checkbox name="id" [(ngModel)]="data.id"></label></td>
+      <td style="width: 30%">对账单号: {{ data.acceptance_code }}</td>
+      <td style="width: 20%">订单金额: {{ data.thing_sum }}</td>
+      <td>
+          <nz-form-item class="mb-0">
+            <nz-form-label [nzSpan]="6" nzFor="email">快递单号</nz-form-label>
+            <nz-form-control [nzSpan]="14" class="mt-n1" >
+              <textarea nz-input rows="1"
+                    style="width: 100%;
+                    resize:none;
+                    overflow:hidden"
+                    [(ngModel)]="data.mail_address"
+                     id="reason" placeholder=""></textarea>
+            </nz-form-control>
+          </nz-form-item>
+      </td>
+      <!-- <td>
+        <textarea rows="2" nz-input [(ngModel)]="data.remark"></textarea>
+      </td> -->
+
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="msgHint.isShow" [nzTitle]="'CONFIRM' | translate" [nzOkLoading]="msgHint.isSubmitLoading" (nzOnCancel)="msgHint.isShow = false" (nzOnOk)="confirmSubmit(msgHint.flag, false)">
+  <p>{{msgHint.msg}}</p>
+</nz-modal>
+
+
+<!--物件详情-->
+<app-modal-thing-detail></app-modal-thing-detail>

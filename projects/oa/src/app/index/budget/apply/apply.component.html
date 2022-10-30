@@ -1,0 +1,37 @@
+<div class="search-results bg-white m-3">
+  <div class="result-head">
+  </div>
+  <div class="result-body">
+    <nz-table>
+      <thead>
+      <tr>
+        <th *ngFor="let column of columns;trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+          <ng-container [ngSwitch]="column.type">
+            <ng-container *ngSwitchCase="'index'">#</ng-container>
+            <ng-container *ngSwitchCase="'operate'"></ng-container>
+            <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+          </ng-container>
+        </th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of data;index as i;trackBy: trackByFn">
+        <td *ngFor="let column of columns;trackBy: trackByFn">
+          <ng-container [ngSwitch]="column.type">
+            <ng-container *ngSwitchCase="'index'">{{i+1}}</ng-container>
+            <ng-container *ngSwitchCase="'operate'">
+              <a (click)="openApplyBudgeModal(item)" style="margin-right: 8px;">预算申请</a>
+              <a (click)="openAdjustBudgeModal(item)" >预算调整</a>
+            </ng-container>
+            <ng-container *ngSwitchDefault>{{item[column.key]}}</ng-container>
+          </ng-container>
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<app-modal-apply-budge></app-modal-apply-budge>
+
+<app-modal-adjust-budge></app-modal-adjust-budge>

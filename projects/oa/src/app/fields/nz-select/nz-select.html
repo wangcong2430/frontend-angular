@@ -1,0 +1,12 @@
+<div [ngClass]="{'is-invalid': showError}">
+    <nz-select
+            nzShowSearch
+            nzAllowClear
+            [nzMode]="mode"
+            [nzPlaceHolder]="to.placeholder"
+            [formControl]="formControl"
+            [(ngModel)]="model[key]">
+        <nz-option [nzLabel]="option[labelProp]" [nzValue]="option[valueProp]"
+                   *ngFor="let option of to.options;trackBy: trackByFn"></nz-option>
+    </nz-select>
+</div>

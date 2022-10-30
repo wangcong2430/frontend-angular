@@ -1,0 +1,37 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-04-25 14:17:09
+ * @LastEditTime: 2022-04-25 14:17:10
+ * @LastEditors: your name
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: /csp/cpm/frontend/src/app/containers/modal/bulletlin/bulletlin.component.html
+-->
+<nz-modal
+  [(nzVisible)]="isVisible"
+  [nzTitle]="'公告内容'"
+  [nzContent]="bulletlinContent"
+  [nzWidth]="800"
+  [nzFooter]="null"
+  [nzClosable]="false"
+  [nzMaskClosable]="isClose"
+  (nzOnCancel)="onOk()"
+  >
+</nz-modal>
+
+<ng-template #bulletlinContent>
+  <div *ngIf="bulletlin">
+    <h4 class="text-center text-title">{{bulletlin['title']}}</h4>
+    <div class="ql-editor text-body" [innerHTML]="bulletlin['content'] | bypassSecurityTrustHtml"></div>
+    <div class="text-body"><video *ngIf="bulletlin.uploadVideo && bulletlin.uploadVideo.file_path"  [src]="bulletlin.uploadVideo && bulletlin.uploadVideo.file_path ? bulletlin.uploadVideo && bulletlin.uploadVideo.file_path : '/web/file/100590'" controls="controls" style="height: 337px;;"></video></div>
+
+    <p *ngIf="bulletlin['attachment_id']">{{ 'FILE' | translate }}:
+      <a class="timeline-content-file text-primary mx-1"  target="_blank" href="{{bulletlin['download_url']}}">{{'DOWNLOAD' | translate}}
+        <span *ngIf="bulletlin['uploadFile'] && (bulletlin['uploadFile']['file_type'] === '.jpg' || bulletlin['uploadFile']['file_type'] === '.png' || bulletlin['uploadFile']['file_type'] === '.bmp' )" (click)="preview($event, bulletlin)">({{'PREVIEW' | translate}})</span>
+      </a>
+    </p>
+    <div class="text-center mt-3">
+        <button nz-button nzType="primary" [disabled]="!isClose" (click)="onOk()">{{'OK' | translate}} {{ timer ?  timer + 's' : '' }} </button>
+        <button *ngIf="bulletlin['is_sign_up']" style="margin-left: 20px"  nz-button nzType="primary" [disabled]="!isClose" (click)="onSignup(bulletlin['id'],bulletlin['is_external_link'],bulletlin['external_link'])">{{bulletlin['button_name']}}</button>
+      </div>
+  </div>
+</ng-template>

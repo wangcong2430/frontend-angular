@@ -1,0 +1,7 @@
+<div [class.has-error]="showError">
+<nz-radio-group [(ngModel)]="model[key]" nzName="{{field[key]}}">
+  <ng-template ngFor let-option [ngForOf]="to.options">
+    <label  nz-radio [class.ant-radio-checked]="option.value==model[key]" nzValue="{{option.value}}">{{option.label}}</label>
+  </ng-template>
+</nz-radio-group>
+</div>

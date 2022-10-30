@@ -1,0 +1,88 @@
+<app-component-crumb [(list)]="list" [isChildren]="true" (changeDisabledButton)="changeDisabledButton($event)">
+  <button nzSize="small" nz-button (click)="selectOrder(1)" [disabled]="disabledButton">结束制作</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white  m-3">
+    <app-container-table-group-new
+      [(loading)]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(childrenColumns)]="childrenColumns"
+      [(pagination)]="pagination"
+      (clickEvent)="clickEvent($event)"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      [(disabledButton)]="disabledButton"
+      [isChildrenDisabled]="false"
+      [(queryFields)]="queryFields"
+    >
+    </app-container-table-group-new>
+  </div>
+</ng-container>
+
+
+
+<!--结束原因-->
+<nz-modal
+  [nzWidth]="580"
+  [(nzVisible)]="msgHint.isShow"
+  nzTitle="结束原因"
+  [nzOkLoading]="msgHint.isSubmitLoading"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+>
+  <div nz-row [nzGutter]="24">
+    <div nz-col [nzSpan]="24" [ngStyle]="{height: '48px'}">
+      <nz-form-item [nzFlex]="true">
+        <nz-form-label>结束制作后物件流转的状态</nz-form-label>
+        <nz-form-control>
+          <nz-select [(ngModel)]="msgHint.data['step_type']">
+            <nz-option [nzValue]="'1'" [nzLabel]="'待采购经理确认'"></nz-option>
+            <nz-option [nzValue]="'2'" [nzLabel]="'待需求人验收'"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="24" [ngStyle]="{height: '48px'}">
+      <nz-form-item [nzFlex]="true">
+        <nz-form-label>是否需要复制物件到询价状态</nz-form-label>
+        <nz-form-control>
+          <nz-radio-group [(ngModel)]="msgHint.data['is_copy']">
+            <label nz-radio nzValue="0">否</label>
+            <label nz-radio nzValue="1">是</label>
+          </nz-radio-group>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="24" [ngStyle]="{height: '48px'}">
+      <nz-form-item [nzFlex]="true">
+        <nz-form-control>{{msgHint.data['step_type'] == '1' ? '需求方原因终止制作，不需要进行供应商评分。' : '无法满足需求，需要进行供应商评分。'}}</nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="24">
+      <nz-form-item [nzFlex]="true">
+        <nz-form-control [ngStyle]="{width: '100%'}">
+          <textarea nz-input [nzAutosize]="{ minRows: 3, maxRows: 6 }" placeholder="输入结束原因..." [(ngModel)]="msgHint.data['remark']"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+</nz-modal>

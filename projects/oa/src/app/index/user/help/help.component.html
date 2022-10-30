@@ -1,0 +1,147 @@
+<app-component-crumb [isCheckAll]="false" [isCheckReverse]="false" ></app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="mx-3">
+    <nz-input-group nzSearch nzSize="large" [nzAddOnAfter]="suffixButton">
+      <input type="text" [(ngModel)]="searchKey" nz-input placeholder="请搜索..." (keyup)="($event.which === 13)?searchQuestion($event):0"/>
+    </nz-input-group>
+    <ng-template #suffixButton>
+      <button nz-button nzType="primary" style="width: 100px;" nzSize="large" nzSearch  (click)="searchQuestion($event)">搜索</button>
+    </ng-template>
+  </div>
+</ng-container>
+
+<div class="d-flex p-3" *ngIf="!loading">
+  <div class="mr-3" style="width: 300px; min-width: 300px;">
+    <div class="bg-primary text-white px-2" style="height: 46px; line-height: 46px;">常见问题分类
+      <i class="mx-1 hover-show float-right" style="margin-top: 15px;" nz-icon nzType="plus" nzTheme="outline"  (click)="newQuestion()"></i>
+    </div>
+    <nz-collapse>
+      <nz-collapse-panel *ngFor="let list of lists, let index = index" [nzHeader]="headerTpl"  [(nzActive)]="list.active" [nzExtra]="extraTpl" (nzActiveChange)="activeChange($event, list)">
+        <div *ngIf="list.children && list.children.length > 0">
+          <ul class="mb-0 bg-white">
+            <li class="d-flex p-2 hover" *ngFor="let question of list.children; let i = index" (click)="edit($event, question)">
+              <p class="flex-fill ml-2 mb-0 text-overflow-2" style="line-height: 22px;">
+                <img width="16px" style="vertical-align: top; margin-top: 3px;" *ngIf="question.status === '1'" src="/assets/images/kefu.png">
+                {{i + 1}}. {{question.question}}
+                <!-- <ng-container *ngIf="question.status === '1'">[<span class="text-primary">wbp助手</span>]</ng-container> -->
+              </p>
+              <span style="width: 80px; text-align: right; min-width: 80px; line-height: 22px;" >
+                <ng-container  *ngIf="list.children.length > 1">
+                  <i class="mx-1" nz-icon nzType="arrow-up"    nzTheme="outline" (click)="up($event, list.children, i)"></i>
+                  <i class="mx-1" nz-icon nzType="arrow-down" nzTheme="outline" (click)="down($event, list.children, i)"></i>
+                </ng-container>
+                <i class="mx-1" nz-icon nzType="delete"  nzTheme="outline" (click)="delQuestion(question.id)"></i>
+              </span>
+
+            </li>
+          </ul>
+        </div>
+
+        <nz-empty *ngIf="!list.children || list.children.length === 0" style="height: 60px;" class="ant-empty-small"></nz-empty>
+
+        <!-- + (list.status == 1 ? 'wbp助手''') -->
+        <ng-template #headerTpl>
+          <img *ngIf="list.status === '1'" width="16px"  style="vertical-align: top; margin-top: 3px;" src="/assets/images/kefu.png">
+          {{ list.question }} 
+        </ng-template>
+        <ng-template #extraTpl >
+          <ng-container *ngIf="lists.length > 1">
+            <i class="mx-1 hover-show" nz-icon nzType="arrow-up" nzTheme="outline"  (click)="up($event, lists, index)"></i>
+            <i class="mx-1 hover-show" nz-icon nzType="arrow-down" nzTheme="outline"  (click)="down($event, lists, index)"></i>
+          </ng-container>
+          <i class="mx-1 hover-show" nz-icon nzType="plus" nzTheme="outline"  (click)="newChildrenEdit($event, list)"></i>
+          <i class="mx-1" nz-icon nzType="delete"
+              nz-popconfirm
+              nzTitle="确定删除吗?" 
+              nzTheme="outline" 
+              (nzOnConfirm)="delQuestion(list.id)"
+              (click)="$event.stopPropagation();"
+            ></i>
+        </ng-template>
+      </nz-collapse-panel>
+    </nz-collapse>
+  </div>
+
+  <ng-container *ngIf="!isSearch" >
+    <div class="answer flex-fill bg-white p-3" style="border: 1px solid #d9d9d9;">
+      <nz-breadcrumb class="mb-3">
+        <nz-breadcrumb-item>
+          {{parentTitle}}
+        </nz-breadcrumb-item>
+        <nz-breadcrumb-item *ngIf="title">
+          <a>{{title}}</a>
+        </nz-breadcrumb-item>
+      </nz-breadcrumb>
+
+      <nz-form-item>
+        <!-- <nz-form-label [nzSpan]="24" nzRequired>父问题</nz-form-label>
+        <nz-form-control [nzSpan]="24">
+          <input nz-input [(ngModel)]="model.question" placeholder="async validate try to write JasonWood" />
+        </nz-form-control> -->
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSpan]="24" nzRequired>问题</nz-form-label>
+        <nz-form-control [nzSpan]="24">
+          <input nz-input [(ngModel)]="model.question" placeholder="请输入问题..." />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSpan]="24" nzRequired>是否显示在wbp助手</nz-form-label>
+        <nz-form-control [nzSpan]="24">
+          <nz-select style="width: 120px;" [(ngModel)]="model.status" nzAllowClear nzPlaceHolder="请选择...">
+            <nz-option nzValue="1" nzLabel="显示"></nz-option>
+            <nz-option nzValue="0" nzLabel="不显示"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- 是否显示在wbp助手 -->
+      <nz-form-item>
+        <nz-form-label [nzSpan]="24">回复</nz-form-label>
+        <nz-form-control [nzSpan]="24">
+          <textarea rows="10" class="mb-3" nz-input [(ngModel)]="model.answer" placeholder="请输入回复..."></textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <button nz-button nzType="primary" (click)="save()"> 保存 </button>
+    </div>
+  </ng-container>
+
+
+  <ng-container *ngIf="isSearch" >
+    <div class="answer flex-fill bg-white"  style="border: 1px solid #d9d9d9;">
+      <p class="px-2 mb-0" style="background-color: #eaeaea; height: 46px; line-height: 46px;">
+        关于"<a class="red">{{this.searchKey}}</a>", 共找到{{searchResult.length}}相关问题
+      </p>
+      <div class="search-result p-4">
+        <ul  *ngFor="let item of searchResult">
+          <li class="border-bottom">
+            <h6 style="color: #0052D9;">
+              <img *ngIf="item.status === '1'" width="16px"  style="vertical-align: top; margin-top: 3px;" src="/assets/images/kefu.png">
+              <a (click)="edit($event, item)">{{item.question}}</a>
+              <!-- <ng-container *ngIf="item.status === '1' && item.question">
+                [<span class="text-primary">wbp助手</span>]
+              </ng-container> -->
+            </h6>
+            <p style="font-size: 14px;">回复: {{item.answer}}
+              
+            </p>
+          </li>
+        </ul>
+        <nz-empty *ngIf="!searchResult || searchResult.length === 0"></nz-empty>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+
+

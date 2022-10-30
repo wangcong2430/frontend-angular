@@ -1,0 +1,28 @@
+<table class="table table-condensed">
+    <thead>
+    <tr>
+        <th *ngFor="let th of ths" [width]="th.width">{{th.label}}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let item of list;let i = index;">
+        <td *ngFor="let th of ths;">
+            <ng-container *ngIf="isType(item[th['value']], 'object', true)">
+                {{item[th['value']]}}
+            </ng-container>
+            <ng-container *ngIf="isType(item[th['value']], 'object') && item[th['value']]['type'] && item[th['value']]['type'] === 'html'">
+                <span [innerHTML]="item[th['value']]['html']"></span>
+            </ng-container>
+            <ng-container *ngIf="isType(item[th['value']], 'object') && item[th['value']]['type'] && item[th['value']]['type'] === 'radio'">
+                <div class="custom-control custom-radio custom-control-inline" *ngFor="let r of item[th['value']]['options'];let j = index;">
+                    <input type="radio" [id]="th['value'] + '_' + i + j" [name]="th['value'] + '_' + i" class="custom-control-input" [value]="r.value" [(ngModel)]="item[th['value']]['value']" (change)="setModel()">
+                    <label class="custom-control-label" [for]="th['value'] + '_' + i + j" [innerHTML]="r.label"></label>
+                </div>
+            </ng-container>
+            <ng-container *ngIf="isType(item[th['value']], 'object') && item[th['value']]['type'] && item[th['value']]['type'] === 'textarea'">
+                <textarea class="form-control" [rows]="item[th['value']]['rows']" [placeholder]="item[th['value']]['placeholder']" [(ngModel)]="item[th['value']]['value']" (input)="setModel($event, i, th['value'])"></textarea>
+            </ng-container>
+        </td>
+    </tr>
+    </tbody>
+</table>

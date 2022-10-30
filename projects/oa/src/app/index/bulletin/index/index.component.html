@@ -1,0 +1,149 @@
+<app-component-crumb>
+  <button *ngIf="can" nzSize="small" nz-button nzType="primary" (click)="addBulletin()">新建通知</button>
+</app-component-crumb>
+
+<div *ngIf="queryFields && queryFields.length > 0">
+  <app-container-search-form
+    class="d-block m-3"
+    [(data)]="queryFields"
+    (submit)="submitSearchForm($event)"
+  >
+  </app-container-search-form>
+</div>
+
+<nz-card class="mt-0 mx-3">
+  <nz-list
+    class="demo-loadmore-list"
+    [nzItemLayout]="'horizontal'"
+    [nzLoading]="initLoading"
+    [nzLoadMore]="loadMore"
+    >
+    <div style="padding-left: 80px;">
+      <nz-timeline nzMode="left" >
+          <ng-container *ngIf="topList && topList.length > 0">
+              <nz-timeline-item>
+                  <div class="timeline-top">置顶</div>
+              </nz-timeline-item>
+              <ng-container *ngFor="let data of topList;let index=index; trackBy: trackByFn">
+                <nz-timeline-item>
+                  <div class="timeline-time text-body">{{data.publish_time | dateFormat: 'yyyy/MM/dd'}}</div>
+                  <div class="timeline-content bg-white p-2">
+                      <div class="title">
+                        <ng-container *ngIf="data.is_top == '1'">
+                          <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">置顶</span>
+                        </ng-container>
+                        <ng-container *ngIf="data.is_invalid == '1'">
+                          <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">已过期</span>
+                        </ng-container>
+                        <ng-container *ngIf="data.is_new == '1'">
+                          <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">最新</span>
+                        </ng-container>
+                        <ng-container *ngIf="data.is_read == '2'">
+                          <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">新</span>
+                        </ng-container>
+                        <ng-container *ngIf="data.is_publish == '2'">
+                          <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">未发布</span>
+                        </ng-container>
+                        <ng-container *ngIf="data.limit_must == '1'">
+                          <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">必读</span>
+                        </ng-container>
+                        <span class="text-body mx-1 font-weight-bold" style="font-size: 16px">{{data.title}}</span>
+                        <time class="text-primary  mx-1">[ {{data.publish_time | dateFormat: 'HH:mm:ss'}} ]</time>
+                        <a class="timeline-content-file  mx-1"  target="_blank" *ngIf="data.attachment_id" href="{{data['uploadFile']['file_path']}}">附件<span *ngIf="data['uploadFile']['file_path'] && (data.uploadFile.file_type === '.jpg' || data.uploadFile.file_type === '.png' || data.uploadFile.file_type === '.bmp' )" (click)="lookPicture($event, data)">(预览)</span></a>
+                        <a class="mx-1 text-danger" *ngIf="can" (click)="editBulletin(data)" >[编辑]</a>
+                        <button *ngIf="data['is_sign_up_button']" style="margin-left: 20px"  nz-button nzType="primary" (click)="onSignup(data['id'],data['is_external_link'],data['external_link'],index)">{{data['button_name']}}</button>
+                        <a class="mx-1 text-danger summary" *ngIf="can && isBefore(data.publish_time) " (click)="delBulletin(data.id)">[删除]</a>
+                      </div>
+                      <div class="content-body text-secondary" >
+                        <ng-container *ngIf="data.showMore">
+                            <div class="ql-editor" [innerHTML]="data.content | bypassSecurityTrustHtml"></div>
+                            <div class="px-3"><video  *ngIf="data.uploadVideo && data.uploadVideo.file_path"  [src]="data.uploadVideo && data.uploadVideo.file_path ? data.uploadVideo && data.uploadVideo.file_path : '/web/file/100590'"
+                                                      controls="controls" [controlsList]="'nodownload'" style="height: 337px;;" (contextmenu)="videoMenu()"></video></div>
+                            <div class="px-3"><a class="text-danger" (click)="viewMore(data, false)">[收起]</a></div>
+                        </ng-container>
+                        <ng-container *ngIf="!data.showMore && data.content">
+                            <div>{{simplify(data.content)}}<a class="text-danger ml-2" (click)="viewMore(data, true)">[查看更多]</a></div>
+                        </ng-container>
+
+                      </div>
+                  </div>
+                </nz-timeline-item>
+              </ng-container>
+          </ng-container>
+
+          <ng-container *ngFor="let item of bulletinList; trackBy: trackByFn">
+            <nz-timeline-item>
+                <div class="timeline-year">{{item.year}}</div>
+            </nz-timeline-item>
+            <ng-container *ngFor="let data of item.children; trackBy: trackByFn">
+              <nz-timeline-item>
+                <div class="timeline-time text-body ">{{data.publish_time | dateFormat: 'MM/dd'}}</div>
+                <div class="timeline-content bg-white p-2">
+                    <div class="title">
+
+                      <ng-container *ngIf="data.is_top == '1'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">置顶</span>
+                      </ng-container>
+                      <ng-container *ngIf="data.is_invalid == '1'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">已过期</span>
+                      </ng-container>
+                      <ng-container *ngIf="data.is_new == '1'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">最新</span>
+                      </ng-container>
+                      <ng-container *ngIf="data.is_read == '2'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">新</span>
+                      </ng-container>
+                      <ng-container *ngIf="data.is_publish == '2'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">未发布</span>
+                      </ng-container>
+                      <ng-container *ngIf="data.is_must == '1'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">必读</span>
+                      </ng-container>
+
+                      <span class="text-body mx-1 font-weight-bold" style="font-size: 16px">{{data.title}}</span>
+                      <time class="text-primary  mx-1">[ {{data.publish_time | dateFormat: 'HH:mm:ss'}} ]</time>
+                      <a class="timeline-content-file  mx-1"  target="_blank" *ngIf="data.attachment_id" href="{{data['uploadFile']['file_path']}}">附件<span *ngIf="data.uploadFile.file_type === '.jpg' || data.uploadFile.file_type === '.png' || data.uploadFile.file_type === '.bmp' " (click)="lookPicture($event, data)">(预览)</span></a>
+                      <a class="mx-1 text-danger" *ngIf="can" (click)="editBulletin(data)" >[编辑]</a>
+                      <a class="mx-1 text-danger summary" *ngIf="can && isBefore(data.publish_time) " (click)="delBulletin(data.id)">[删除]</a>
+                    </div>
+                    <div class="content-body text-secondary" >
+                      <ng-container *ngIf="data.showMore">
+                          <div class="ql-editor" [innerHTML]="data.content | bypassSecurityTrustHtml"></div>
+                          <div class="px-3"><video  *ngIf="data.uploadVideo && data.uploadVideo.file_path" [src]="data.uploadVideo && data.uploadVideo.file_path ? data.uploadVideo && data.uploadVideo.file_path : '/web/file/100590'" controls="controls" style="height: 337px;;"></video></div>
+                          <div class="px-3"><a class="text-danger" (click)="viewMore(data, false)">[收起]</a></div>
+                      </ng-container>
+                      <ng-container *ngIf="!data.showMore && data.content">
+                          <div>{{simplify(data.content)}}<a class="text-danger ml-2" (click)="viewMore(data, true)">[查看更多]</a></div>
+                      </ng-container>
+                    </div>
+                </div>
+              </nz-timeline-item>
+            </ng-container>
+          </ng-container>
+
+      </nz-timeline>
+    </div>
+  </nz-list>
+
+  <p class="text-center text-muted pt-4" *ngIf="loadAll && !isData">-- 暂无公告 --</p>
+</nz-card>
+
+<ng-template #loadMore>
+  <div class="loadmore text-center">
+    <button nz-button *ngIf="!loadAll && !loading" (click)="onLoadMore()">加载更多</button>
+    <nz-divider class="mx-5 px-5" *ngIf="loadAll && isData" nzText="加载完毕"></nz-divider>
+  </div>
+</ng-template>
+
+<ng-template #dotTemplate>
+    <i nz-icon type="clock-circle-o" style="font-size: 16px;"></i>
+</ng-template>
+
+<!-- 创建通知 -->
+<nz-modal [(nzVisible)]="isBulletinVisible" [nzWidth]="800" [nzMaskClosable]="false" nzTitle="新建通知" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+  <ng-container *ngIf="isBulletinVisible">
+    <form [formGroup]="form">
+      <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
+    </form>
+  </ng-container>
+</nz-modal>

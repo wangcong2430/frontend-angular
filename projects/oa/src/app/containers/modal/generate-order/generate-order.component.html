@@ -1,0 +1,33 @@
+<nz-modal
+  #generateOrderRef
+  nzWidth="1600px"
+  [(nzVisible)]="isVisible"
+  [nzTitle]="modalTitle"
+  [nzOkLoading]="isOkLoading"
+  nzMaskClosable="false"
+  [nzZIndex]="nzZIndex"
+  (nzOnOk)="checkSubmit()"
+  (nzOnCancel)="close()">
+
+  <ng-template #modalTitle>
+    <div       
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content">  生成订单
+    </div>
+  </ng-template>
+
+  <ng-container *ngIf="isLoading">
+    <div class="example">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container >
+
+  <ng-container *ngIf="isVisible">
+    <form >
+      <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
+    </form>
+  </ng-container>
+</nz-modal>
+
+

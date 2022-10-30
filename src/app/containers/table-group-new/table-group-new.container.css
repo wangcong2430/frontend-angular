@@ -1,0 +1,148 @@
+:host ::ng-deep .body-pagination {
+  height: 42px;
+}
+
+:host ::ng-deep .ant-table-expanded-row th {
+  background: none !important;
+}
+
+:host ::ng-deep .children-tr {
+  background: #fff;
+}
+
+:host ::ng-deep .parent-tr .parent-title {
+  margin-right: 16px;
+  float: left;
+}
+
+:host ::ng-deep .parent-tr {
+  background: #E8EFFB;
+  font-family: PingFangSC-Regular;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.90);
+  line-height: 22px;
+}
+
+:host ::ng-deep .children-th {
+  background: #dedede;
+  background: #fff;
+  color: #000;
+}
+
+:host ::ng-deep .body-border {
+  border: 1px solid #e7e7f0;
+  margin-left: -6px;
+  margin-right: -6px;
+}
+
+:host ::ng-deep tbody>tr:hover>td {
+  background: none;
+}
+
+
+
+:host ::ng-deep .ant-table-tbody .checked {
+  background-color: #F9FBFF;
+}
+
+:host ::ng-deep .ant-table-tbody .children-tr:hover>td {
+  background-color: rgba(96, 171, 114, 0.15);
+}
+
+:host ::ng-deep .ant-table-middle tr.ant-table-expanded-row td>.ant-table-wrapper {
+  padding: 0;
+  margin: 0;
+}
+
+
+
+
+:host ::ng-deep .ant-card-body {
+  padding: 16px;
+}
+
+:host ::ng-deep .ant-spin-nested-loading {
+  min-height: 80px;
+}
+
+::ng-deep .cdk-overlay-pane {
+  width: auto !important;
+  min-width: 170px;
+}
+
+:host ::ng-deep .ant-table-tbody>tr>td {
+  padding: 8px 4px;
+  font-size: 13px;
+  word-wrap: break-word;
+}
+
+
+:host ::ng-deep .children-tr .ant-table-tbody>tr>td {
+  height: 116px;
+}
+
+
+:host ::ng-deep .children-tr .ant-table-header tr th,
+:host ::ng-deep .children-tr .ant-table-tbody>tr>td {
+  max-width: 120px;
+  min-width: 120px;
+  padding: 8px 4px;
+  font-size: 13px;
+  width: 120px;
+  word-wrap: break-word;
+}
+
+:host ::ng-deep .ant-table-tbody tr td img {
+  max-width: 80px;
+}
+
+
+
+
+:host ::ng-deep .ant-upload-list-picture-card .ant-upload-list-item {
+  width: 80px;
+  height: 80px;
+  padding: 0;
+  margin: 0;
+}
+
+
+:host ::ng-deep .ant-upload.ant-upload-select-picture-card {
+  width: 80px;
+  height: 80px;
+  padding: 0;
+}
+
+:host ::ng-deep .ant-upload-list-picture-card .ant-upload-list-item-uploading-text {
+  font-size: 12px;
+  padding: 4px;
+}
+
+:host ::ng-deep .ant-upload-list-picture-card .ant-upload-list-item-progress {
+  bottom: 16px;
+  width: 100%;
+}
+
+
+:host ::ng-deep .ant-table-fixed-header .ant-table-scroll .ant-table-header {
+  margin-bottom: 0 !important;
+}
+
+
+
+:host ::ng-deep tr.ant-table-expanded-row td>.ant-table-wrapper {
+  margin: 0;
+}
+
+:host ::ng-deep .cdk-virtual-scroll-viewport.ant-table-body {
+  min-height: 174px;
+}
+
+:host ::ng-deep .ant-table-expanded-row .ant-table-row:last-child td {
+  border: none;
+}
+
+::ng-deep .preview-image .ant-popover-inner-content {
+  padding: 0;
+}

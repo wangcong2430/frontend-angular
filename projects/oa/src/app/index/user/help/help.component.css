@@ -1,0 +1,19 @@
+:host ::ng-deep .ant-collapse {
+    border-radius: 0;
+}
+
+:host ::ng-deep .ant-collapse-content > .ant-collapse-content-box {
+    padding: 0;
+}
+
+:host ::ng-deep .ant-collapse > .ant-collapse-item:last-child, .ant-collapse > .ant-collapse-item:last-child > .ant-collapse-header {
+    border-radius: 0;
+}
+
+.hover:hover{
+    background-color: rgba(0,0,0,0.075);
+}
+
+:host ::ng-deep .ant-collapse > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+    margin-top: -2px;
+}

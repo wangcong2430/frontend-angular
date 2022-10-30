@@ -1,0 +1,11 @@
+
+.panel .panel-heading {
+  font-size: 18px;
+  line-height: 40px;
+  background: #f1f9fe;
+  padding: 0 15px;
+}
+.panel .panel-body {
+  padding: 15px;
+}
+

@@ -1,0 +1,20 @@
+<label nz-checkbox [(ngModel)]="pushEpoModel.is_push_epo" (ngModelChange)="modelChange($event)"></label>
+<a nz-button nzSize="small" nzType="link" *ngIf="pushEpoModel.is_push_epo && pushEpoModel.statement_id" class="mr-3 text-primary" (click)="modelChange()">修改</a>
+
+<nz-descriptions *ngIf="pushEpoModel.is_push_epo && pushEpoModel.statement_id" nzTitle="推送EPO订单" class="bg-light p-3 mb-3 border" [nzColumn]="4">
+  <nz-descriptions-item nzTitle="合同类别">{{pushEpoModel['contract_category_name']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="税率类型">{{pushEpoModel['tax_type']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="自定义税率值">{{pushEpoModel['tax_value']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="我方主体">{{pushEpoModel['org_id']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="供应商服务品类">{{pushEpoModel['category_name']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="供应商银行账号">{{pushEpoModel['account_number'] + pushEpoModel['account_name'] + pushEpoModel['account_bank']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="产品">{{pushEpoModel['product_name']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="经办部门">{{pushEpoModel['handle_department']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="经办中心">{{pushEpoModel['handle_center']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="供应商选择方法">{{pushEpoModel['select_supplier_reason']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="验收人">{{pushEpoModel['receiver_ids']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="知会人">{{pushEpoModel['notice_crowd_ids']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="其他知会人">{{pushEpoModel['notice_crowd_ids']}}</nz-descriptions-item>
+  <nz-descriptions-item nzTitle="合同/订单说明">{{pushEpoModel['memo']}}</nz-descriptions-item>
+</nz-descriptions>
+

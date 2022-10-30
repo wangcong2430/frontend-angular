@@ -1,0 +1,318 @@
+<nz-modal
+  #createSupplier
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  nzMaskClosable="false"
+  nzClassName="create-supplier"
+  [nzFooter]="modalFooter"
+  [nzFooter]="null"
+  [nzWidth]="1250"
+  [nzZIndex]="nzZIndex"
+  (nzOnCancel)="modalCancel()"
+>
+
+  <ng-template #modalTitle>
+    <div
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content">  {{ dataModal['id'] ? '编辑' : '新建' }}供应商
+    </div>
+  </ng-template>
+
+
+  <ng-template #modalContent>
+    <ng-container *ngIf="loading">
+      <div class="example">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading">
+      <h6 class="title px-3 mt-0">
+        基本信息 <span class="red mx-2 f13">供应商基本信息来源于腾讯供应商门户(supplier.tencent.com)</span>
+      </h6>
+
+      <div nz-row [nzGutter]="24">
+        <ng-container *ngFor="let item of formConfig; trackBy: trackByFn">
+
+          <div style="height: 60px" nz-col [nzSpan]="item.span" *ngIf="!item['showWhere'] || (item['showWhere'] && where[item['showWhere']])">
+
+            <nz-form-item [nzFlex]="true">
+              <nz-form-label class="item-label" [nzFor]="item.key" [nzRequired]="item.required || false">{{ item.label }}</nz-form-label>
+              <nz-form-control class="item-control" style="flex: 1">
+                <ng-container [ngSwitch]="item.type">
+                  <ng-container *ngSwitchCase="'search-select'">
+                    <nz-select
+                      [ngStyle]="{width: '100%'}"
+                      nzAllowClear
+                      nzShowSearch
+                      [nzServerSearch]="true"
+                      (nzOnSearch)="onSearchChange($event, item.key, item.searchUrl)"
+                      (ngModelChange)="onSelectChange($event, item.key)"
+                      [(ngModel)]="dataModal[item.key]">
+                      <nz-option *ngIf="isSearchSelect[item.key]" nzDisabled nzCustomContent>
+                        <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                      </nz-option>
+                      <ng-container *ngFor="let option of optionSearchs[item.key]; trackBy: trackByFn">
+                        <nz-option *ngIf="!isSearchSelect[item.key]" [nzLabel]="option['label']" [nzValue]="option['value']"></nz-option>
+                      </ng-container>
+                    </nz-select>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'select'">
+                    <nz-select
+                      [ngStyle]="{width: '100%'}"
+                      nzShowSearch
+                      (ngModelChange)="onSelectChange($event, item.key)"
+                      [(ngModel)]="dataModal[item.key]">
+                      <ng-container *ngFor="let option of item.options; trackBy: trackByFn">
+                        <nz-option [nzLabel]="option['label']" [nzValue]="option['value']"></nz-option>
+                      </ng-container>
+                    </nz-select>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'radio'">
+                    <nz-radio-group [(ngModel)]="dataModal[item.key]">
+                      <label nz-radio nzValue="1">是</label>
+                      <label nz-radio nzValue="0">否</label>
+                    </nz-radio-group>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'select-status'">
+                    <nz-select
+                      [ngStyle]="{width: '100%'}"
+                      nzShowSearch
+                      (ngModelChange)="onSelectChange($event, item.key)"
+                      [(ngModel)]="dataModal[item.key]">
+                      <ng-container *ngIf="dataModal[item.key] == ''">
+                        <ng-container *ngFor="let option of item.options; trackBy: trackByFn">
+                          <nz-option [nzLabel]="option['label']" [nzValue]="option['value']"></nz-option>
+                        </ng-container>
+                      </ng-container>
+                      <ng-container *ngIf="dataModal[item.key] != ''">
+                        <ng-container *ngFor="let option of statusOptions[dataModal[item.key]] ; trackBy: trackByFn">
+                          <nz-option [nzLabel]="option['label']" [nzValue]="option['value']"></nz-option>
+                        </ng-container>
+                      </ng-container>
+                    </nz-select>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'date-picker'">
+                    <nz-date-picker
+                      [nzFormat] = "'yyyy-MM-dd'"
+                      [(ngModel)]="dataModal[item.key]"
+                      (ngModelChange)="onSelectChange($event, item.key)"
+                    ></nz-date-picker>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'textarea'">
+                    <textarea
+                      nz-input
+                      [(ngModel)]="dataModal[item.key]"
+                      [nzAutosize]="{ minRows: 2, maxRows: 6 }"
+                    ></textarea>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'input'">
+                    <input nz-input [(ngModel)]="dataModal[item.key]" [attr.id]="item.key" [disabled]="item['disabled']">
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'text'">
+                    <!-- <input nz-input [(ngModel)]="dataModal[item.key]" [attr.id]="item.key" [disabled]="item['disabled']"> -->
+
+                    {{ dataModal[item.key] || 'NA' }}
+                  </ng-container>
+
+
+                </ng-container>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </ng-container>
+      </div>
+
+      <h6 class="modal-section-title px-3">人员信息<button nz-button nzSize="small" nzType="primary" class="float-right mt-3" (click)="addSupplierUser()">新增用户</button></h6>
+
+      <p class="mx-3 red mb-1 f12"> 供应商人员信息来源于腾讯供应商门户(supplier.tencent.com) </p>
+      <p class="mx-3 mb-1 f12"><span class="font-weight-bold ">腾讯供应商门户的管理员权限：</span>可维护贵公司在腾讯互娱服务外包平台的权限</p>
+      <p class="mx-3 mb-1 f12"><span class="font-weight-bold mb-1">腾讯互娱服务外包平台商务权限：</span>负责议价、接收订单、发起订单变更、确认验收价格等工作，可查看贵公司所有的单据</p>
+      <p class="mx-3 mb-3 f12"><span class="font-weight-bold mb-1">腾讯互娱服务外包平台制作权限：</span>负责交付作品、发起验收工作，仅可查看自己参与过的单据，如希望看到其他制作人员的单据，需管理员安排工作交接</p>
+      <nz-table
+        #qqUserTable
+        [nzSize]="'small'"
+        [nzShowPagination]="false"
+        [nzBordered]="true"
+        [nzData]="qqUserList"
+      >
+        <thead>
+        <tr>
+          <th style="min-width: 100px;">昵称</th>
+          <th style="min-width: 100px;">姓名</th>
+          <th style="min-width: 100px;">邮箱</th>
+          <th style="min-width: 100px;">手机号</th>
+          <th style="min-width: 100px;">QQ</th>
+          <th style="min-width: 100px;">腾讯供应商用户角色</th>
+          <th *ngIf="edit">腾讯互娱服务外包平台角色</th>
+          <th *ngIf="edit" style="width: 200px;">制作人员工作交接</th>
+
+
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let item of qqUserList; let i= index; trackBy: trackByFn">
+          <tr>
+            <td>{{ item['nickname'] || 'NA' }}</td>
+            <td>{{ item['name'] || 'NA' }}</td>
+            <td>{{ item['email'] || 'NA' }}</td>
+            <td><input nz-input [(ngModel)]="item['tel']"></td>
+            <td><input nz-input [(ngModel)]="item['qq']"></td>
+            <!-- <td>{{ item['role'] || 'NA' }}</td>
+            <td *ngIf="edit">
+              <input nz-input [(ngModel)]="item['qq']">
+            </td>
+            <td *ngIf="edit">
+              <input nz-input [(ngModel)]="item['qq']">
+            </td> -->
+            <td style="min-width: 90px;">{{item['sms_role'] || 'NA'}}</td>
+            <td style="min-width: 90px;">
+              <nz-checkbox-group nz-Size="small" [(ngModel)]="item.checkOptions" (ngModelChange)="checkboxChange($event, item)"></nz-checkbox-group>
+            </td>
+            <td>
+              <ng-container  *ngIf="((item.wbp_role | some:'CP制作') && item.is_sms_user)"> 
+                <nz-select nzMode="multiple" nz-Size="small" style="width: 200px;" [(ngModel)]="item.relation_user_id" nzShowSearch >
+                  <nz-option nzCustomContent  *ngFor="let option of item.listOptions" [nzLabel]="option.label" [nzValue]="option.value">
+                    <img *ngIf="option.url" [src]="option.url" width="24px" /> {{option.label}}
+                  </nz-option>
+                </nz-select>
+              </ng-container>
+              <ng-container  *ngIf="!((item.wbp_role | some:'CP制作') && item.is_sms_user)">NA</ng-container>
+            </td>
+          </tr>
+        </ng-container>
+        </tbody>
+      </nz-table>
+
+      <h6 class="modal-section-title px-3">供应商标签</h6>
+      <nz-table
+        #styleTable
+        [nzSize]="'small'"
+        [nzShowPagination]="false"
+        [nzBordered]="true"
+        [nzData]="labelList"
+      >
+        <thead>
+        <tr>
+          <th>分类名称</th>
+          <th>风格标签</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let item of labelList; let i= index; trackBy: trackByFn">
+          <tr>
+            <td [ngStyle]="{width: '85px'}">{{ item['label'] }}</td>
+            <td>
+              <nz-checkbox-group [ngStyle]="{marginLeft: '16px'}" [(ngModel)]="item['children']"></nz-checkbox-group>
+            </td>
+          </tr>
+        </ng-container>
+        </tbody>
+      </nz-table>
+
+      <h6 class="modal-section-title px-3">风格标签</h6>
+
+      <nz-table
+        #styleTable
+        [nzSize]="'small'"
+        [nzShowPagination]="false"
+        [nzBordered]="true"
+        [nzData]="styleList"
+      >
+        <thead>
+        <tr>
+          <th>一级类别</th>
+          <th>风格标签</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let item of styleList; let i= index; trackBy: trackByFn">
+          <tr>
+            <td class="font-weight-bold" style="width: 85px">{{ item['label'] }}</td>
+            <td>
+              <ng-container *ngFor="let item2 of item['styleList']; trackBy: trackByFn">
+                {{ item2['label'] }}: <nz-checkbox-group class="mx-2" [(ngModel)]="item2['children']"></nz-checkbox-group>
+              </ng-container>
+            </td>
+          </tr>
+        </ng-container>
+        </tbody>
+      </nz-table>
+    </ng-container>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="modalCancel()">取消</button>
+    <button nz-button nzType="primary" type="submit" [nzLoading]="isSubmitLoading" (click)="modalSubmit()">提交</button>
+  </ng-template>
+</nz-modal>
+
+<!-- 修改用户信息的弹窗 -->
+<nz-modal [(nzVisible)]="supplierUserModal.isVisible" nzTitle="人员信息" nzWidth="800" (nzOnCancel)="supplierUserModalCancel()" (nzOnOk)="supplierUserModalOk()">
+  <ng-container *ngIf="supplierUserModal.list && supplierUserModal.list.length > 0">
+    <nz-table
+      #qqUserTable
+      [nzSize]="'small'"
+      [nzShowPagination]="true"
+      [nzPageSize]="100"
+      [nzBordered]="true"
+      [nzHideOnSinglePage]="true"
+      [nzData]="supplierUserModal.list"
+    >
+      <thead>
+        <tr>
+          <th>
+            <span class="red">*</span>QQ
+            <ng-container *ngIf="dataModal['area_type'] && dataModal['area_type'] != 1">
+              (海外可填写邮箱)
+            </ng-container>
+          </th>
+          <th><span class="red">*</span>姓名</th>
+          <th>联系电话</th>
+          <th><span class="red">*</span>邮箱</th>
+          <th><span class="red">*</span>角色</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let item of qqUserTable.data; let i= index; trackBy: trackByFn">
+          <tr>
+            <td style="width: 150px;">
+              <ng-container *ngIf="item['id']">
+                {{item['qq']}}
+              </ng-container>
+              <ng-container *ngIf="!item['id']">
+                <input nz-input [(ngModel)]="item['qq']">
+              </ng-container>
+            </td>
+            <td><input nz-input [(ngModel)]="item['name']"></td>
+            <td><input nz-input [(ngModel)]="item['tel']"></td>
+            <td><input nz-input [(ngModel)]="item['email']"></td>
+            <td [ngStyle]="{width: '139px'}">
+              <nz-checkbox-wrapper style="width: 100%;">
+                <div nz-row>
+                  <div nz-col nzSpan="12"><label nz-checkbox nzValue="1" [(ngModel)]="item['role_1']">商务</label></div>
+                  <div nz-col nzSpan="12"><label nz-checkbox nzValue="2" [(ngModel)]="item['role_2']">制作</label></div>
+                </div>
+              </nz-checkbox-wrapper>
+            </td>
+            <td style="width: 120px;">
+              <a class="text-primary mx-1" (click)="addSupplierTableRow()">添加一行</a>
+              <a class="text-primary" (click)="delSupplierRow(1, i)">删除</a>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </nz-table>
+  </ng-container>
+</nz-modal>
+

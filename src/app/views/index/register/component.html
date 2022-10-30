@@ -1,0 +1,20 @@
+<div class="container">
+    <div class="row register-container">
+        <div class="side-bar">
+            <h2 i18n>Supplier Register</h2>
+            <ul>
+                <li [class]="router.url=='/register/base-info'?'active':''"
+                    i18n>base info</li>
+                <li [class]="router.url=='/register/category'?'active':''"
+                    i18n>category</li>
+                <li [class]="router.url=='/register/style'?'active':''"
+                    i18n>style</li>
+                <li [class]="router.url=='/register/work'?'active':''"
+                    i18n>work</li>
+            </ul>
+        </div>
+        <div class="form-container">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>

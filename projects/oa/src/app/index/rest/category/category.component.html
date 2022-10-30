@@ -1,0 +1,275 @@
+<style>
+  .table-thead-th{
+    background: #f0f5f9;
+  }
+  [nz-button] {
+    margin-right: 8px;
+    margin-bottom: 12px;
+  }
+  .form-item {
+    margin-bottom: 8px;
+  }
+  .result-head{
+    height: 50px;
+  }
+  .result-body{
+    width: 100%;
+  }
+</style>
+<div class="search-filters m-3">
+  <!--<form [formGroup]="form" (ngSubmit)="search()" autocomplete="off">-->
+    <!--<formly-form [model]="query" [fields]="queryFields" [options]="options" [form]="form">-->
+      <!--<button (click)="syncList()" type="button" [disabled]="syncing" class="btn btn-success" *ngIf="is_sync">-->
+        <!--<span i18n>sync</span>-->
+      <!--</button>-->
+      <!--<button type="submit" class="btn btn-info  pull-right" i18n>search</button>-->
+    <!--</formly-form>-->
+  <!--</form>-->
+</div>
+<div class="search-results bg-white m-3">
+  <div class="result-head">
+    <span i18n></span>
+    <button class="fr" nz-button nzType="primary" (click)="openModal({},template)">新建</button>
+    <nz-dropdown class="fr">
+      <button nz-button nz-dropdown>展开/收起<i class="anticon anticon-down"></i></button>
+      <ul nz-menu>
+        <li nz-menu-item>
+          <a>全部展开</a>
+        </li>
+        <li nz-menu-item>
+          <a>全部收起</a>
+        </li>
+      </ul>
+    </nz-dropdown>
+  </div>
+  <div class="result-body">
+    <nz-table class="table-striped"
+              #nzTable
+              nzBordered
+              nzHideOnSinglePage
+              [nzData]="data"
+              [nzShowPagination]="false"
+              [nzFrontPagination]="false"
+              [nzLoading]="loading"
+              [nzSize]="'middle'">
+      <thead (nzSortChange)="sort($event)">
+        <tr>
+          <th [nzShowSort]="(column.key != 'operate' && column.type != 'index') ? true : false" [nzSortKey]="column.key" class="table-thead-th" *ngFor="let column of columns">
+            <ng-container [ngSwitch]="column.type">
+              <ng-container *ngSwitchCase="'index'">#</ng-container>
+              <ng-container *ngSwitchCase="'operate'">operate</ng-container>
+              <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+            </ng-container>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+      <ng-template ngFor let-data [ngForOf]="nzTable.data" [ngForTrackBy]="trackByFn">
+        <ng-template ngFor let-item [ngForOf]="expandDataCache[data.id]">
+          <tr *ngIf="(item.parent&&item.parent.expand)||!(item.parent)">
+            <ng-template ngFor let-column [ngForOf]="columns">
+              <ng-container [ngSwitch]="column.type">
+                <ng-container *ngSwitchCase="'index'">
+                  <td [nzIndentSize]="item.level*20" [nzShowExpand]="!!item.children" [(nzExpand)]="item.expand" (nzExpandChange)="collapse(expandDataCache[data.id],item,$event)">
+                    {{item['id']}}
+                  </td>
+                </ng-container>
+                <ng-container *ngSwitchCase="'operate'">
+                  <td>
+                    <a *ngIf="item['parent_id'] == 0" (click)="openModal(item,template)" i18n>update</a>
+                    <a *ngIf="item['parent_id'] != 0" (click)="openModal(item,template, false)" i18n>update</a>
+                  </td>
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                  <td *ngIf="column.key == 'title'">{{item['key']}}</td>
+                  <td *ngIf="column.key != 'title'">{{item[column.key]}}</td>
+                </ng-container>
+              </ng-container>
+            </ng-template>
+          </tr>
+        </ng-template>
+      </ng-template>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<ng-template #template>
+  <div class="modal-header">
+    <h4 class="modal-title">{{title}}</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="validateForm" (ngSubmit)="save()" autocomplete="off">
+      <ng-template ngFor let-field [ngForOf]="formFields">
+        <ng-container [ngSwitch]="field.key">
+
+          <ng-container *ngSwitchCase="'title'">
+            <nz-form-item class="form-item">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzRequired nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <input type="text" nz-input [(ngModel)]="formData[field.key]" formControlName="{{field.key}}">
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'type'">
+            <nz-form-item class="form-item" *ngIf="formData['id'] || (formData['parent_id'] === '0' || formData['parent_id'] === '')">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzRequired nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <nz-select [(ngModel)]="formData[field.key]" [nzDisabled]="formData['id']" formControlName="{{field.key}}">
+                  <nz-option *ngFor="let option of field.templateOptions.options" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'parent_id'">
+            <nz-form-item class="form-item">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzRequired nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <nz-tree-select
+                  [nzNodes]="treeSelect"
+                  [nzDisabled]="formData['id']"
+                  nzShowSearch
+                  nzPlaceHolder="Please select"
+                  [(ngModel)]="formData[field.key]"
+                  formControlName="{{field.key}}">
+                </nz-tree-select>
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'description'">
+            <nz-form-item class="form-item">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <input type="text" nz-input [(ngModel)]="formData[field.key]" formControlName="{{field.key}}">
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <!-- 获取顶级类别ID对应制作等级列表 -->
+          <ng-container *ngSwitchCase="'produce_grades'">
+            <nz-form-item class="form-item" *ngIf="formData['parent_id'] !== '0'">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <nz-select nzMode="multiple" [(ngModel)]="formData[field.key]" formControlName="{{field.key}}">
+                  <nz-option *ngFor="let option of produceGradeList" [nzLabel]="option.title" [nzValue]="option.id"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <!-- 获取顶级类别ID对应制作明细列表 -->
+          <ng-container *ngSwitchCase="'produce_breakdowns'">
+            <nz-form-item class="form-item" *ngIf="formData['parent_id'] !== '0'">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <nz-select nzMode="multiple" [(ngModel)]="formData[field.key]" formControlName="{{field.key}}">
+                  <nz-option *ngFor="let option of produceBreakdownList" [nzLabel]="option.title" [nzValue]="option.id"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'workload_unit_id'">
+            <nz-form-item class="form-item" *ngIf="formData['parent_id'] !== '0'">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <nz-select [(ngModel)]="formData[field.key]" formControlName="{{field.key}}">
+                  <nz-option *ngFor="let option of field.templateOptions.options" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'sort'">
+            <nz-form-item class="form-item">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzRequired nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <nz-input-number [(ngModel)]="formData[field.key]" [nzMin]="0" [nzMax]="999" [nzStep]="1" formControlName="{{field.key}}"></nz-input-number>
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'is_recruitment'">
+            <nz-form-item class="form-item">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzRequired nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <nz-radio-group [(ngModel)]="formData[field.key]" nzName="{{field.key}}" formControlName="{{field.key}}">
+                  <ng-template ngFor let-option [ngForOf]="field.templateOptions.options">
+                    <label nz-radio nzValue="{{option.value}}">{{option.label}}</label>
+                  </ng-template>
+                </nz-radio-group>
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'is_project_category'">
+            <nz-form-item class="form-item" *ngIf="formData['parent_id'] === '0'">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzRequired nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <nz-radio-group [(ngModel)]="formData[field.key]" nzName="{{field.key}}" formControlName="{{field.key}}">
+                  <ng-template ngFor let-option [ngForOf]="field.templateOptions.options">
+                    <label nz-radio nzValue="{{option.value}}">{{option.label}}</label>
+                  </ng-template>
+                </nz-radio-group>
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'is_exhibition'">
+            <nz-form-item class="form-item" *ngIf="formData['parent_id'] === '0'">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzRequired nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <nz-radio-group [(ngModel)]="formData[field.key]" nzName="{{field.key}}" formControlName="{{field.key}}">
+                  <ng-template ngFor let-option [ngForOf]="field.templateOptions.options">
+                    <label nz-radio nzValue="{{option.value}}">{{option.label}}</label>
+                  </ng-template>
+                </nz-radio-group>
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+          <ng-container *ngSwitchCase="'is_breakdown'">
+            <nz-form-item class="form-item" *ngIf="formData['parent_id'] === '0'">
+              <nz-form-label style="padding: 0;" [nzSpan]="24" nzRequired nzFor="{{field.key}}">{{field.templateOptions.label}}</nz-form-label>
+              <nz-form-control [nzSpan]="24">
+                <nz-radio-group [(ngModel)]="formData[field.key]" nzName="{{field.key}}" formControlName="{{field.key}}">
+                  <ng-template ngFor let-option [ngForOf]="field.templateOptions.options">
+                    <label nz-radio nzValue="{{option.value}}">{{option.label}}</label>
+                  </ng-template>
+                </nz-radio-group>
+              </nz-form-control>
+            </nz-form-item>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'languages'">
+            <nz-tabset>
+              <ng-template ngFor let-group [ngForOf]="field.defaultValue" let-i="index">
+                <nz-tab nzTitle="{{ group['language_text'] }}">
+
+                  <ng-template ngFor let-val [ngForOf]="field.fieldArray.fieldGroup">
+                    <nz-form-item class="form-item">
+                      <nz-form-label style="padding: 0;" [nzSpan]="24" nzFor="{{val.key}}">{{val.templateOptions.label}}</nz-form-label>
+                      <nz-form-control [nzSpan]="24">
+                        <input type="text" nz-input [(ngModel)]="formData[field.key][ i ][val.key]" formControlName="language_{{val.key}}">
+                      </nz-form-control>
+                    </nz-form-item>
+                  </ng-template>
+                </nz-tab>
+              </ng-template>
+            </nz-tabset>
+          </ng-container>
+        </ng-container>
+      </ng-template>
+      <div class="clear text-right">
+        <button type="submit" class="btn btn-info" i18n>submit</button>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+

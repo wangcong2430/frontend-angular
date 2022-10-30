@@ -1,0 +1,64 @@
+.register-container {
+  border: 1px solid #dbdbdb;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.side-bar {
+  width: 15%;
+  float: left;
+  background: #e3e9eb;
+  border-right: 1px solid #dbdbdb;
+  padding: 20px 0;
+  h2 {
+    font-size: 24px;
+    text-align: center;
+  }
+  ul {
+    text-align: center;
+    padding: 20px;
+  }
+  ul > li {
+    position: relative;
+    height: 70px;
+  }
+  ul > li.active {
+    color: #439758;
+    font-weight: bold;
+  }
+  ul > li:before {
+    content: ' ';
+    position: absolute;
+    height: 64px;
+    right: -2px;
+    border-right: 2px solid #dbdbdb;
+    top: 12px;
+  }
+  ul > li:last-child:before {
+    display: none;
+  }
+  ul > li:after {
+    content: ' ';
+    display: inline-block;
+    margin-left: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: #bdbdbd;
+    border-radius: 5px;
+    position: absolute;
+    right: -6px;
+    top: 6px;
+  }
+  ul > li.active:after {
+    width: 14px;
+    height: 14px;
+    background-color: #5cc576;
+    border-radius: 7px;
+    right: -8px;
+  }
+}
+
+.form-container {
+  width: 85%;
+  padding: 24px 28px;
+}

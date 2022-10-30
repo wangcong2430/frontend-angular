@@ -1,0 +1,27 @@
+::ng-deep button:focus {
+    outline: unset;
+}
+
+::ng-deep .parent-th {
+  background: #f5f8ff;
+  color: #000;
+  cursor: pointer;
+}
+ 
+::ng-deep .parent-th .link  {
+  color: #fff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+::ng-deep .preview-image .ant-popover-inner-content {
+  padding: 0;
+}
+
+::ng-deep .cdk-overlay-pane {
+  max-height: 500px;
+  width: auto !important;
+  min-width: 170px;
+}
+
+

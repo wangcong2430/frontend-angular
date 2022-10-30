@@ -1,0 +1,238 @@
+<app-component-crumb></app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example mt-4">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<nz-card *ngIf="!loading" class="card mx-3 rounded-0" style="background-color: white;" [nzBodyStyle]="{padding: 0}">
+  <ng-container *ngIf="isVisible">
+    <div class="thing-modal">
+
+      <div class="border-bottom px-3 py-3" style="background-color: #f9fafb;">
+        <span class="font-weight-bold">{{'BASIC_INFO' | translate}}</span>
+        <button class="fr" nz-button (click)="updateSupplier({})" *ngIf="isEditSupplier" [ngStyle]="{marginTop: '9px'}">{{'EDIT' | translate}}</button>
+        <span class="red mx-2" style="font-size: 12px;">供应商基本信息来源于腾讯供应商门户(supplier.tencent.com)</span>
+      </div>
+
+      <div nz-row class="p-3">
+        <ng-container *ngFor="let item of formConfig; trackBy: trackByFn">
+          <div nz-col [nzSpan]="item.span">
+            <nz-form-item [nzFlex]="true">
+              <nz-form-label [nzSpan]="8" style="width: 100px; min-width: 100px;" [nzFor]="item.key">{{ item.label | translate }}</nz-form-label>
+               <nz-form-control [nzSpan]="12" class="pr-3" [title]="dataModal[item.key]">
+                {{dataModal[item.key] || 'NA'}}
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="border-bottom border-top px-3 py-3" style="background-color: #f9fafb;">
+        <span class="font-weight-bold">{{'PERSONNEL_INFO' | translate}}</span>
+        <ng-container *ngIf="this.dataModal['has_supplier_edit']">
+          <button nzSize="small" class="ml-3" nz-button (click)="updateSupplier({})" nzType="primary">{{'EDIT' | translate}}</button>
+        </ng-container>
+        <ng-container *ngIf="this.dataModal['supplier_admin']">
+<!--          <button nzSize="small" class="mx-3" nz-button (click)="invitationSupplier()" [nzLoading]="inviteLoading" nzType="primary">获取邀请码</button>-->
+        </ng-container>
+      </div>
+
+      <p class="red mx-3 mt-3 mb-1" style="font-size: 12px;">供应商基本信息来源于腾讯供应商门户(supplier.tencent.com)</p>
+      <p class="mx-3 mb-1" style="font-size: 12px;"><span class="font-weight-bold">腾讯供应商门户的管理员权限：</span>可维护贵公司在腾讯互娱服务外包平台的权限</p>
+      <p class="mx-3 mb-1" style="font-size: 12px;"><span class="font-weight-bold">腾讯互娱服务外包平台商务权限：</span>负责议价、接收订单、发起订单变更、确认验收价格等工作，可查看贵公司所有的单据</p>
+      <p class="mx-3 mb-1" style="font-size: 12px;"><span class="font-weight-bold">腾讯互娱服务外包平台制作权限：</span>负责交付作品、发起验收工作，仅可查看自己参与过的单据，如希望看到其他制作人员的单据，需管理员安排工作交接</p>
+      <nz-table
+        class="p-3"
+        #qqUserTable
+        [nzSize]="'small'"
+        [nzBordered]="true"
+        [nzShowPagination]="false"
+        [nzData]="qqUserList"
+      >
+        <thead>
+        <tr>
+          <th>{{ 'NiCKNAME' | translate }}</th>
+          <th>{{ 'NAME' | translate }}</th>
+          <th>{{ "EMAIL" | translate }}</th>
+          <th>{{ 'PHONE' | translate }}</th>
+          <th>QQ</th>
+          <th>腾讯供应商门户角色</th>
+          <th>腾讯互娱服务外包平台角色</th>
+          <th>制作人员工作交接</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let item of qqUserList; let i= index; trackBy: trackByFn">
+          <tr>
+            <td>{{item['nickname']}}</td>
+            <td>{{item['name']}}</td>
+            <td>{{item['email']}}</td>
+            <td>{{item['tel']}}</td>
+            <td>{{item['qq']}}</td>
+            <td>
+              {{item['sms_role']}}
+            </td>
+            <td>{{item['wbp_role']}}</td>
+            <td>{{item['relation_user']}}</td>
+          </tr>
+        </ng-container>
+        </tbody>
+      </nz-table>
+
+      <div class="border-bottom border-top px-3 py-3" style="background-color: #f9fafb;">
+        <span class="font-weight-bold">{{'CONTRACT_LIST' | translate}}</span>
+      </div>
+
+      <nz-table #nestedTable [nzData]="contractList"  [nzNoResult]="'NO_MORE' | translate" [nzShowPagination]="false">
+        <tbody>
+        <ng-template ngFor let-data [ngForOf]="nestedTable.data" [ngForTrackBy]="trackByFn">
+          <tr class="parent-th"  [class.failure-bg]="data.is_effective == 0">
+            <td (click)="onContractChildren(data)">
+              <div nz-row [nzGutter]="24" class="mb-1">
+                <div nz-col [nzSpan]="6">
+                  {{'CONTRACT_NUMBER' | translate}}：<span [innerHTML]="data.contract_number"></span>
+                </div>
+                <div nz-col [nzSpan]="6">{{'EPO_INFO' | translate}}：<span [innerHTML]="data.contract_number"></span></div>
+                <div nz-col [nzSpan]="6">{{'TENCENT_ENTITY' | translate}}：{{data.org_name}}</div>
+                <div nz-col [nzSpan]="6">{{'EXPIRE_DATE' | translate}}：{{data.valid_time}}</div>
+              </div>
+              <div nz-row [nzGutter]="24" class="mb-1">
+                <div nz-col [nzSpan]="6">{{ 'CONTRACT_TYPE'| translate}}：{{data.contract_type_text}}</div>
+                <div nz-col [nzSpan]="6" *ngIf="data.contract_type == 2">{{'CONTRACT_AMOUNT' | translate}}：{{data.contract_price == '0.00' || data.contract_price == '' ? 'NA' : data.contract_price}}</div>
+                <div nz-col [nzSpan]="6">{{'CONTRACT_CURRENCY' | translate}}：{{data.currency_name}}</div>
+                <div nz-col [nzSpan]="6">{{'TAX_INCLUSIVE' | translate}}：{{data.tax_type_text}}</div>
+              </div>
+              <div nz-row [nzGutter]="24" class="mb-1">
+                <div nz-col [nzSpan]="6"> {{'CONTRACT_ATTACHMENT' | translate}}：
+                  <ng-container *ngIf="data.upload_file_url && data.upload_file_url != ''">
+                    <a [href]="data.upload_file_url" target="_blank" style="color: rgba(0,0,0,0.90) !important;" (click)="$event.stopPropagation();">{{data.upload_file_name}}</a>
+                  </ng-container>
+                  <ng-container *ngIf="!data.upload_file_url || data.upload_file_url == ''">
+                    NA
+                  </ng-container>
+                </div>
+                <div nz-col [nzSpan]="18">
+                  {{'CONTRACT_CONSTRAINTS' | translate}}：{{data.limit_name ? data.limit_name : 'NA'}}
+                </div>
+                <!-- <div nz-col [nzSpan]="12" >
+                  <div [title]="data.remark" class="text-overflow-2">{{'REMARK' | translate}}： {{data.remark ? data.remark : ' NA'}}</div>
+                </div> -->
+              </div>
+            </td>
+          </tr>
+          <tr [nzExpand]="!data.expand">
+            <td>
+              <nz-table
+                #innerTable
+                class="innerTable"
+                nzSize="middle"
+                [nzData]="data.price_librarys"
+                [nzBordered]="true"
+                [nzNoResult]="'NO_MORE' | translate"
+                [nzFrontPagination]="false"
+                [nzShowPagination]="false"
+
+              >
+        <thead>
+        <tr>
+          <th>{{ 'CATEGORY' | translate }}</th>
+          <th>{{ 'PRODDUCTION_DETAILS' | translate }}</th>
+          <th>{{ 'PRODDUCTION_GRADE' | translate }}</th>
+          <th>{{ 'Low' | translate }}</th>
+          <th>{{ 'UPPER' | translate }}</th>
+          <th>{{ 'UNIT' | translate }}</th>
+          <th>{{ 'CATEGORY_LIMITS' | translate }}</th>
+          <!-- <th style="width: 500px;" >{{'REMARK' | translate }}</th> -->
+          <th>{{ 'COOPERATION_STATUS' | translate }}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of innerTable.data;trackBy: trackByFn">
+          <td>
+            <span [innerHTML]="data.category_names"></span>
+            <ng-container *ngIf="data.category && data.category.description">
+              <i class="mx-1 f12" nz-icon nzType="question-circle" nz-tooltip [nzTitle]="data.category.description" nzTheme="outline"></i>
+            </ng-container>
+          </td>
+          <td>
+            <span [innerHTML]="data.produce_breakdown_text"></span>
+            <ng-container *ngIf="data.produceBreakdown && data.produceBreakdown.description">
+              <i class="mx-1 f12" nz-icon nzType="question-circle" nz-tooltip [nzTitle]="data.produceBreakdown.description" nzTheme="outline"></i>
+            </ng-container>
+          </td>
+          <td [innerHTML]="data.produce_grade_text"></td>
+          <td>{{data.price_lower|mycurrency}}</td>
+          <td>{{data.price_upper|mycurrency}}</td>
+          <td>{{data.workload_unit_text}}</td>
+          <td>{{data.limit_text ? data.limit_text : 'NA'}}</td>
+          <!-- <td style="width: 400px;" ><p [title]="data.remark" class="text-overflow-2 mb-0" >{{data.remark}}</p></td> -->
+          <td>{{data.cooperation_status_text}}</td>
+        </tr>
+        </tbody>
+      </nz-table>
+      </td>
+      </tr>
+      </ng-template>
+      </tbody>
+      </nz-table>
+
+    </div>
+  </ng-container>
+</nz-card>
+
+<!-- 编辑人员信息 -->
+<nz-modal [(nzVisible)]="userModal.isVisible" nzTitle="编辑人员信息" nzWidth="1320px" (nzOnCancel)="closeUserModal()" [nzOkLoading]="userModal.okLoading" (nzOnOk)="handleOk()">
+  <p class="red mb-0" style="font-size: 12px;">供应商人员信息来源于腾讯供应商门户(supplier.tencent.com)</p>
+  <p class="mb-0" style="font-size: 12px;"><span class="font-weight-bold">腾讯供应商门户的管理员权限：</span>可维护贵公司在腾讯互娱服务外包平台的权限</p>
+  <p class="mb-0" style="font-size: 12px;"><span class="font-weight-bold">腾讯互娱服务外包平台商务权限：</span>负责议价、接收订单、发起订单变更、确认验收价格等工作，可查看贵公司所有的单据</p>
+  <p class="mb-0" style="font-size: 12px;"><span class="font-weight-bold">腾讯互娱服务外包平台制作权限：</span>负责交付作品、发起验收工作，仅可查看自己参与过的单据，如希望看到其他制作人员的单据，需管理员安排工作交接</p>
+  <p class="mb-0" style="font-size: 12px;"><span class="font-weight-bold">制作人员工作交接：</span>负责接替选中的制作人员未完成的作品交付及发起验收工作  </p>
+
+  <nz-table #basicTable [nzData]="userModal.list" class="mt-3" nzSize="small">
+    <thead>
+    <tr>
+      <th style="min-width: 90px;">昵称</th>
+      <th style="min-width: 90px;">姓名</th>
+      <th style="min-width: 90px;">邮箱</th>
+      <th style="min-width: 90px;">手机号</th>
+      <th style="min-width: 90px;">QQ</th>
+      <th style="min-width: 120px;">腾讯供应商门户角色</th>
+      <th style="min-width: 120px;">腾讯互娱外包平台角色</th>
+      <th style="min-width: 200px; max-width: 200px;">制作人员工作交接</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let data of basicTable.data">
+      <td style="min-width: 90px;">{{data.nickname || 'NA'}}</td>
+      <td style="min-width: 90px;">{{data.name || 'NA'}}</td>
+      <td style="min-width: 90px;">{{data.email || 'NA'}}</td>
+      <td style="min-width: 90px;">
+        <input nz-input nz-Size="small" placeholder="请输入手机号" [(ngModel)]="data.tel" />
+      </td>
+      <td style="min-width: 120px;">
+        <input nz-input nz-Size="small" placeholder="请输入qq号" [(ngModel)]="data.qq" />
+      </td>
+      <td style="min-width: 120px;">{{data.sms_role || 'NA'}}</td>
+      <td style="min-width: 120px">
+        <nz-checkbox-group nz-Size="small" [(ngModel)]="data.checkOptions" (ngModelChange)="checkboxChange($event, data)"></nz-checkbox-group>
+      </td>
+      <td *ngIf="data.is_sms_user" style="min-width: 200px; max-width: 200px; width: 200px;">
+        <ng-container  *ngIf="some(data.wbp_role, 'CP制作')">
+          <nz-select nzMode="multiple" nz-Size="small" style="width: 180px;" [(ngModel)]="data.relation_user_id" nzShowSearch >
+            <nz-option nzCustomContent  *ngFor="let option of data.listOptions" [nzLabel]="option.label" [nzValue]="option.value">
+              <img *ngIf="option.url" [src]="option.url" width="24px" /> {{option.label}}
+            </nz-option>
+          </nz-select>
+          <p style="color: red">请选择接替之前哪位制作人的工作</p>
+        </ng-container>
+        <ng-container  *ngIf="!some(data.wbp_role, 'CP制作')">NA</ng-container>
+      </td>
+      <td *ngIf="!data.is_sms_user">
+        <ng-container>NA</ng-container>
+      </td>
+    </tr>
+    </tbody>
+  </nz-table>
+</nz-modal>

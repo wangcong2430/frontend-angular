@@ -1,0 +1,73 @@
+
+<div class="w-100 h-100 " style="overflow: hidden; background-color: #20222e;">
+  <div style="width: 700px;" class="mx-auto mt-5 pt-5">
+    <img src="assets/images/logo_white.png" class="mx-auto mb-3" width="350" height="51"/>
+    <div class="bg-white p-3 pt-5 rounded" style="width: 100%; background-color: #fff;" >
+      <div class="mb-4 flex-wrap justify-content-around">
+        <a style="color: #222; width: 240px; background-color: #00BBFF;" class="d-block mx-auto mb-3
+        text-white rounded text-center p-3 text-underline" [href]="'sms-auth/login/index?return_url=' + return_url">
+        {{language.language == 'en-Us' ?  'SMS Account Login' : '腾讯供应商门户账号登录'}}
+        </a>
+        <a style="color: #222; width: 280px; color: #00BBFF;" class="d-block mx-auto text-center text-underline" [href]="'qq-auth/login?return_url=' + return_url">
+
+        {{language.language == 'en-Us' ?  'no SMS Account, use QQ to login' : '没有腾讯供应商门户账号, 用原QQ登录'}}
+
+        </a>
+
+      </div>
+      <div>
+
+        {{language.language == 'en-Us' ?  'As required by Tencent Group Procurement Management, all Tencent vendors need to login using account created by SMS (Supplier Management System) portal by using Invation' : '根据腾讯集团供应商管理的规范要求，所有供应商都需使用邀请码注册的腾讯供应商门户（简称“门户网站”）账号登录系统。'}}
+
+        <!-- <span class="red font-weight-bold">
+          {{language.language == 'en-Us' ?  'old QQ account will be expired after Dec. 31, 2021.' : '考虑到部分供应商未完成门户网站注册，原QQ账号1月13日18点起不再可用，请务必于此时间前完成注册。'}}
+        </span> -->
+
+        <ul class="my-2">
+
+          <li class="px-3">
+            {{language.language == 'en-Us' ?  '- if you already have SMS Account:' : ' - 已有门户网站账号：请直接使用门户网站账号登录，点击'}}
+
+
+            <a target="_blank" class="text-underline" style="color: #00BBFF !important;text-decoration: underline "
+                href="http://idea.waibao.qq.com/sms-auth/login/index">
+                {{language.language == 'en-Us' ?  'Please login here' : '这里'}}
+              </a>
+            </li>
+
+            <li class="px-3">
+<!--              {{language.language == 'en-Us' ?  '- To obtain Invitation Code：Please login using QQ before expiring date to obtain guidelines.' : ' - 没有门户网站账号：请贵公司商务用原QQ号登录，根据指引获取邀请码注册，点击' }}-->
+              {{language.language == 'en-Us' ?  '- To obtain Invitation Code：Please login using QQ before expiring date to obtain guidelines.' : ' - 没有门户网站账号：请联系采购经理发起门户网站邀请注册，完成邀请注册后，请等待采购经理确认，确认后的账号状态为有效，请使用新注册的门户网站账号登录。' }}
+<!--              <a target="_blank" -->
+<!--                style="color: #00BBFF !important;text-decoration: underline "-->
+<!--                [href]="'qq-auth/login?return_url=' + return_url">-->
+<!--                {{language.language == 'en-Us' ?  'Please login here' : '这里'}}-->
+<!--              </a>-->
+            </li>
+        </ul>
+
+<!--        <div>-->
+<!--          {{language.language == 'en-Us' ?  'For more info, please download the' : '更多帮助信息，请下载'}}-->
+<!--          <a style="text-decoration: underline;color: #00BBFF !important;"-->
+<!--            class="text-underline"-->
+<!--              href="https://wbp-1258344700.cos.ap-guangzhou.myqcloud.com/public/static/%E4%BA%92%E5%A8%B1%E5%A4%96%E5%8C%85%E5%B9%B3%E5%8F%B0%E4%BE%9B%E5%BA%94%E5%95%86%E5%8F%91%E9%80%81%E9%82%80%E8%AF%B7%E7%A0%81%E6%93%8D%E4%BD%9C%E6%96%87%E6%A1%A3.pdf"-->
+<!--            target="_blank">-->
+<!--            {{language.language == 'en-Us' ?  'guide' : '操作文档'}}-->
+<!--          </a>-->
+<!--        </div>-->
+      </div>
+    </div>
+    <img src="assets/images/login_box.png" class="mx-auto mb-3 w-100" />
+    <p class="text-white text-center" style="margin-top: -150px;">
+      {{language.language == 'en-Us' ?  '碰到问题？可联系管理员( QQ:' : '碰到问题？可联系管理员( QQ:' }}
+
+      <a target="_blank"
+         class="d-inline-block text-underline"
+         style="white-space: nowrap; color: #00BBFF !important;text-decoration: underline"
+         href="http://wpa.qq.com/msgrd?v=3&amp;uin=3283004664&amp;site=qq&amp;menu=yes">3283004664</a>
+      )
+    </p>
+  </div>
+</div>
+
+

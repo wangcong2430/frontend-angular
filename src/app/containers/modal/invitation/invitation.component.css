@@ -1,0 +1,20 @@
+::ng-deep .invitation-info-modal .ant-input[disabled] {
+  color: unset;
+  /* background-color: unset; */
+}
+
+::ng-deep .invitation-info-modal .ant-card-head-title {
+  padding: 12px 0;
+}
+
+::ng-deep .invitation-info-modal .ant-card-head-title::before {
+  content: '';
+  height: 22px;
+  display: inline-block;
+  width: 2px;
+  background-color: #0052D9;
+  width: 4px;
+  margin-top: -3px;
+  margin-right: 8px;
+  vertical-align: middle;
+}

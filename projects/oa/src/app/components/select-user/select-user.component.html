@@ -1,0 +1,26 @@
+<div  >
+    <div class="search-user-body">
+    <textarea
+        [nzSize]="nzSize"
+        style="font-size: 12px; width: 100%;"
+        nz-input
+        placeholder="{{oaUserAllLoading[key] || ''}}"
+        [(ngModel)]="value"
+        (change)="onSelectChange.emit($event)"
+        [attr.id]="key"
+        [disabled]="disabled"
+        (input)="userChange($event, key)"
+        (focus)="userfocus(key)"
+        (blur)="userblur($event, key)"
+        autocomplete="off"
+        [nzAutosize]="{ minRows: 3, maxRows: 3 }"></textarea>
+    <div class="search-user-hint">
+        <ul class="search-user-ul" *ngIf="oaUserSelectList[key] && oaUserSelectList[key].length > 0">
+            <li *ngFor="let option of oaUserSelectList[key]; trackBy: trackByFn" (click)="userclick(option, key);">
+                <nz-avatar nzSize="small" nzIcon="anticon anticon-user" nzSrc="{{'http://dayu.oa.com/avatars/' + option[0] + '/profile.jpg'}}" style="margin-right: 5px;"></nz-avatar>
+                {{ option[1] }}
+            </li>
+        </ul>
+    </div>
+    </div>
+</div>

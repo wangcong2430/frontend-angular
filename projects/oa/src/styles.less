@@ -1,0 +1,477 @@
+/* You can add global styles to this file, and also import other style files */
+@import "~bootstrap/dist/css/bootstrap.css";
+@import "~quill/dist/quill.core.css";
+
+form {
+    width: 100%;
+}
+
+.red,
+.text-red {
+  color: red !important;
+}
+
+formly-field {
+    display: block;
+}
+
+formly-field-captcha img {
+  height: 34px;
+  position: absolute;
+  top: 8px;
+  right: 2px;
+}
+.fl{
+  float: left;
+}
+.fr{
+  float: right;
+}
+ul{
+  list-style: none;
+  padding: 0;
+}
+
+.clear {
+    clear: both;
+}
+
+.ant-badge-status.release .ant-badge-status-default {
+    background-color: #0c66ff;
+}
+
+.ant-badge-status.fault .ant-badge-status-default {
+    background-color: #22c993;
+}
+
+.ant-badge-status.change .ant-badge-status-default {
+    background-color: #ffad0d;
+}
+
+.username formly-field-input:after {
+    content: ' ';
+    width: 1.25rem;
+    height: 1.25rem;
+    display: block;
+    position: absolute;
+    left: .75rem;
+    top: 1rem;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M50.4 51C40.5 49.1 40 46 40 44v-1.2a18.9 18.9 0 0 0 5.7-8.8h.1c3 0 3.8-6.3 3.8-7.3s.1-4.7-3-4.7C53 4 35.5-3.2 22.3 6c-5.4 0-5.9 8-3.9 16-3.1 0-3 3.8-3 4.7s.7 7.3 3.8 7.3c1 3.6 2.3 6.9 4.7 9v1.2c0 2 .5 5-9.5 6.8S2 62 2 62h60a14.6 14.6 0 0 0-11.6-11z" fill="none" stroke="#94a2b0" stroke-miterlimit="10" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path></svg>');
+}
+
+.password formly-field-input:after {
+    content: ' ';
+    width: 1.25rem;
+    height: 1.25rem;
+    display: block;
+    position: absolute;
+    left: .75rem;
+    top: 1rem;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M19 30V15A13 13 0 0 1 32 2a13 13 0 0 1 13 13v15" fill="none" stroke="#94a2b0" stroke-miterlimit="10" stroke-width="2"></path><path fill="none" stroke="#94a2b0" stroke-miterlimit="10" stroke-width="2" d="M10 30h44v32H10zm22 11v10"></path></svg>');
+}
+
+.captcha formly-field-captcha:before {
+    content: ' ';
+    width: 1.25rem;
+    height: 1.25rem;
+    display: block;
+    position: absolute;
+    left: .75rem;
+    top: 1rem;
+    z-index: 1;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect data-name="layer1" x="2" y="14" width="60" height="36" rx="2" ry="2" fill="none" stroke="#94a2b0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></rect><path fill="none" stroke="#94a2b0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20h4v4h-4z"></path><path data-name="layer1" fill="none" stroke="#94a2b0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 20h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zM10 30h4v4h-4zm0 10h4v4h-4z"></path><path fill="none" stroke="#94a2b0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 40h34v4H20z"></path><path data-name="layer1" fill="none" stroke="#94a2b0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 30h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4zm10 0h4v4h-4z"></path></svg>');
+}
+
+.form-control {
+    height: auto;
+}
+
+.btn-success {
+.ant-progress-circle .ant-progress-text {
+    color: #fff;
+}
+}
+
+.oops-header .topbar-nav .action a {
+    display: inline-block;
+    vertical-align: top;
+    font-size: .875rem;
+    line-height: 1.25rem;
+    color: #6d91c1;
+    border: 1px solid rgba(109, 145, 193, .5);
+    padding: .3125rem 1rem;
+    border-radius: 2px;
+    margin: 1.25rem 1rem;
+}
+
+.oops-main .sidenav .one-link .text {
+    white-space: nowrap;
+}
+
+.i18n-word {
+    white-space: nowrap;
+}
+
+.cdk-overlay-container {
+    z-index: 1099;
+}
+.head-ul{
+  margin-left: 10px;
+}
+.head-title {
+  font-weight: bold;
+  list-style-type:disc;
+  color:#ff911f;
+}
+.head-title h5{
+  color: #000;
+  font-weight: bold;
+}
+
+// 移除bootstrap默认的外边框
+button.ant-modal-close:focus {
+    outline: none;
+}
+
+// 修改图片向下偏移
+.anticon {
+    vertical-align: 0.125em;
+}
+
+
+.cu-p {
+  cursor: pointer;
+}
+
+.example {
+  text-align: center;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  padding: 30px 50px;
+  margin: 20px 0;
+}
+
+.search-user-body {
+  position: relative;
+  width: 100%;
+}
+.search-user-hint {
+  position: relative;
+  width: 100%;
+  height: 2px;
+}
+.search-user-body .search-user-ul {
+  position: relative;
+  border: 1px #ccc solid;
+  width: 100%;
+  box-shadow: 0px 3px 10px #ccc;
+  z-index: 999999;
+}
+.search-user-body .search-user-ul li{
+  padding: 0 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.search-user-body .search-user-ul li:hover{
+  background: #0052D9;
+  color: #fff;
+}
+
+.summary {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.ant-message-notice-content {
+  max-width: 1000px;
+  word-break: break-all;
+}
+
+.one-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+
+a,
+a:hover,
+a:focus,
+a:not([href]):not([class]),
+a:not([href]):not([class]):hover,
+a:not([href]):not([class]):focus,
+.link,
+.link:hover,
+.link:focus{
+  color: #0052D9;
+  cursor: pointer;
+}
+
+.text-primary,
+.text-primary:hover,
+.text-primary:focus
+a.text-primary,
+a.text-primary:hover,
+a.text-primary:focus{
+  color: #0052D9 !important;
+}
+
+.bg-primary {
+  background-color: #F5F8FF !important;
+  color: #000000 !important;
+}
+
+a:hover,
+a:focus,
+.link:hover,
+.link:focus,
+.text-primary:hover,
+.text-primary:focus
+a.text-primary:hover,
+a.text-primary:focus,
+a.text-underline,
+a.text-underline:hover
+a.text-underline:focus {
+  text-decoration: underline;
+}
+
+.ant-table {
+  font-size: 14px;
+  color: rgba(0,0,0,0.90);
+}
+
+.ant-form label {
+  font-size: 14px;
+}
+
+.ant-select {
+  font-size: 12px;
+}
+.ant-cascader-picker{
+  font-size: 12px;
+}
+
+.ant-input {
+  font-size: 12px;
+}
+
+.quill-editor .ql-editor {
+  min-height: 200px;
+}
+.f12 {
+  font-size: 12px !important;
+}
+
+.f13 {
+  font-size: 13px !important;
+}
+
+.f14 {
+  font-size: 14px !important;
+}
+
+
+.f15 {
+  font-size: 15px !important;
+}
+
+
+.f16 {
+  font-size: 16px !important;
+}
+
+.f17 {
+  font-size: 17px !important;
+}
+
+.f18 {
+  font-size: 18px !important;
+}
+
+.f20 {
+  font-size: 20px !important;
+}
+
+.f21 {
+  font-size: 21px !important;
+}
+
+.text-overflow {
+  text-overflow: -o-ellipsis-lastline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+  /*! autoprefixer: off */
+  display: -webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp: 1;
+  /*! autoprefixer: on */
+}
+
+.text-overflow-2 {
+  text-overflow: -o-ellipsis-lastline;
+  overflow: hidden;
+  box-orient: vertical;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+
+  /*! autoprefixer: off */
+  display: -webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp: 2;
+  /*! autoprefixer: on */
+}
+
+
+.text-overflow-5 {
+  text-overflow: -o-ellipsis-lastline;
+  overflow: hidden;
+  box-orient: vertical;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+
+  /*! autoprefixer: off */
+  display: -webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp: 5;
+  /*! autoprefixer: on */
+}
+
+.text-overflow-10 {
+  text-overflow: -o-ellipsis-lastline;
+  overflow: hidden;
+  box-orient: vertical;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+
+  /*! autoprefixer: off */
+  display: -webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp: 10;
+  /*! autoprefixer: on */
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+}
+
+.hide {
+  display: none;
+}
+
+.ant-table-fixed-header .ant-table-scroll .ant-table-header {
+  overflow: auto;
+  margin-bottom: 0 !important;
+}
+
+.purchase-acceptance-table .cdk-virtual-scroll-viewport.ant-table-body::-webkit-scrollbar,
+app-container-table-group-new .cdk-virtual-scroll-viewport.ant-table-body::-webkit-scrollbar{
+  display: none;
+}
+
+.cdk-virtual-scroll-viewport.ant-table-body {
+  min-height: 174px;
+}
+
+// .children-tr .ant-table-tbody tr td {
+//   height: 174px;
+// }
+
+.ant-form-item-children {
+  display: inline-block;
+  line-height: 24px;
+  word-break: break-all;
+  width: 100%;
+}
+
+.ant-btn-danger:focus,
+.ant-btn-danger {
+  color: #fff;
+  background-color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+
+.ant-btn-danger:hover {
+  color: #fff;
+  background-color: #cf1322!important;
+  border-color: #cf1322;
+}
+
+div.image_hover_title span {
+  font-size: 14px;
+  background: #FFF;
+  color: #0052D9;
+  text-align: center;
+  padding: 6px;
+  border: 1px solid;
+  border-radius: 2px;
+  display:none;
+  z-index: 9999;
+}
+div.image_hover_title:hover span{display:block; position:absolute;}
+
+.ant-btn-primary {
+  background-image: linear-gradient(-37deg, #2575e6 0%, #2575e6 100%);
+  color: #fff!important;
+  border-color:rgb(217, 217, 217) ;
+
+}
+.ant-btn{
+  color: rgb(0, 0, 0,0.25);
+  background-color: #D3D3D3 ;
+}
+
+
+.ant-btn:focus{
+  color: #fff;
+  background-color: #2575e6 ;
+}
+.ant-btn-default:focus{
+  color: rgb(0, 0, 0,0.25);
+  background-color: #D3D3D3 ;
+  border: none;
+}
+.ant-btn-default:hover {
+  color: #2575e6;
+  border-color: #2575e6;
+}
+
+
+
+.ant-btn-primary[disabled] {
+  background-image: none;
+}
+
+
+.ant-btn-danger {
+  background-image: linear-gradient(-31deg, #FF837C 0%, #F05852 96%);
+}
+.ant-btn-danger:focus {
+  background-image: linear-gradient(-31deg, #FF837C 0%, #F05852 96%)!important;
+}
+
+
+.parent-th {
+  background-color: #f5f8ff !important;
+  color: #000000 !important;
+}
+
+.ant-menu-item-selected {
+  background-color: #33496a !important;
+}
+
+.ng-trigger-slideMotion > .ant-menu-vertical {
+  background-color: #33496a !important;
+}
+
+.children-th {
+  background-color: #fff !important;
+  color: #000 !important;
+}

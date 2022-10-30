@@ -1,0 +1,42 @@
+<div class="time-range-default mr-3 mb-2">
+    <div class="input-group time-range-input" (click)="show()">
+        <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-calendar-o"></i></span>
+        </div>
+        <input type="text" class="form-control" [value]="text" readonly>
+        <div class="input-group-append">
+            <span class="input-group-text"><i class="fa fa-caret-down"></i></span>
+        </div>
+    </div>
+    <div class="month-range-bg" [hidden]="hiddenSelect" (click)="this.hiddenSelect = true"></div>
+    <div class="time-range-menu" [hidden]="hiddenSelect">
+        <i></i>
+        <div class="menu-body">
+            <div class="time-label">开始日期</div>
+            <div class="mb-2">
+                <select class="form-control" [(ngModel)]="query.begin_year" (change)="showError=false;">
+                    <option value="">年</option>
+                    <option *ngFor="let item of yearList" [value]="item">{{item}}</option>
+                </select>
+                <select class="form-control" [(ngModel)]="query.begin_month" (change)="showError=false;">
+                    <option value="">月</option>
+                    <option *ngFor="let item of monthList" [value]="item">{{item}}</option>
+                </select>
+            </div>
+            <div class="time-label">结束日期</div>
+            <div class="mb-3">
+                <select class="form-control" [(ngModel)]="query.end_year" (change)="showError=false;">
+                    <option value="">年</option>
+                    <option *ngFor="let item of yearList" [value]="item">{{item}}</option>
+                </select>
+                <select class="form-control" [(ngModel)]="query.end_month" (change)="showError=false;">
+                    <option value="">月</option>
+                    <option *ngFor="let item of monthList" [value]="item">{{item}}</option>
+                </select>
+            </div>
+            <p *ngIf="showError" class="text-danger">结束日期应晚于开始日期</p>
+            <button class="btn btn-primary" (click)="apply()">应用</button>
+            <button class="btn btn-default" (click)="cancel()">取消</button>
+        </div>
+    </div>
+</div>

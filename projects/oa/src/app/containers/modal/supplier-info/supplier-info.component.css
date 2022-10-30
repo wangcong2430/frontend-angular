@@ -1,0 +1,15 @@
+
+.modal-section .item-label {
+  width: 95px;
+  text-align: right;
+}
+.modal-section .item-control {
+  width: calc(100% - 95px);
+}
+
+::ng-deep .ant-checkbox-wrapper + .ant-checkbox-wrapper {
+  margin-left: 0px;
+}
+.parent-th > ::ng-deep .ant-table-tbody > tr:hover:not(.ant-table-expanded-row) > td {
+  background: #0052D9;
+}

@@ -1,0 +1,56 @@
+<!-- 页头 -->
+<app-component-crumb></app-component-crumb>
+
+<ng-container *ngIf="initLoading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!initLoading ">
+  <div id="infinite-scroller" #divTarget appInfiniteScroller scrollPerecnt="40" [immediateCallback]="true" [scrollCallback]="scrollCallback">
+
+    <div class="search-filters mx-2 py-2" >
+      <app-container-search-form
+        style="width: 100%"
+        [(data)]="queryFields"
+        (submit)="submitSearchForm($event)"
+      >
+      </app-container-search-form>
+    </div>
+
+    <ng-container *ngIf="loading">
+      <div class="example m-3">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+
+    <ul *ngIf="!loading" class="box" style="margin-bottom: 300px;">
+      <li class="imgBox m-2" *ngFor="let item of list; let i = index">
+        <!-- <nz-skeleton  [nzParagraph]="false" [nzParagraph]="{ rows: 1 }" nzActive="true" ></nz-skeleton> -->
+        <div *ngIf="item.loading" style="min-width: 300px; height: 100%;" [class]="i % 2 == 0 ? 'gray' :  'Pale'"></div>
+        <ng-container *ngIf="!item.loading">
+          <img (click)="preview(item)" [src]="item.thumb" />
+          <div class="description align-items-end" >
+            <p class="title mx-2 text-overflow" [title]="item.thing_name">{{item.thing_name}}</p>
+          </div>
+          <div class="operate mx-1">
+            <a nz-button nzShape="circle" class="mr-2" *ngIf="item.file" [href]="item.file" target="_blank">
+              <i nz-icon class="mx-1" nzType="download" nzTheme="outline"></i>
+            </a>
+            <a nz-button nzShape="circle" nzType="primary" (click)="seachThing(item)">
+              <i nz-icon class="mx-1" nzType="search" nzTheme="outline"></i>
+            </a>
+          </div>
+        </ng-container>
+      </li>
+    </ul>
+
+    <nz-back-top [nzTarget]="divTarget"></nz-back-top>
+
+    <ng-container *ngIf="!loading && (!list || list.length == 0)">
+      <nz-empty style="width: 100%;"></nz-empty>
+    </ng-container>
+  </div>
+</ng-container>
+

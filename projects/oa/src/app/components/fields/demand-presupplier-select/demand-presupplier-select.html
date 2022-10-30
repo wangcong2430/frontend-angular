@@ -1,0 +1,16 @@
+<nz-select
+    class="flex-fill"
+    nzShowSearch
+    nzAllowClear
+    nzPlaceHolder="可选供应商"
+    name="pre_supplier_id"
+    [(ngModel)]="supplier_id"
+    nzSize="small"
+    style="width: 100px"
+    (nzOnSearch)="search($event)"
+    (ngModelChange)="preSupplierValueChange()"
+    >
+    <ng-container *ngFor="let item of pre_supplier_options_filters ; trackBy: trackByFn">
+      <nz-option [nzLabel]="item.label" [nzValue]="item.value" ></nz-option>
+    </ng-container>
+  </nz-select>

@@ -1,0 +1,38 @@
+<nz-modal
+  #supplierInfo
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  [nzFooter]="modalFooter"
+  nzMaskClosable="false"
+  [nzFooter]="null"
+  [nzWidth]="1250"
+  [nzZIndex]="nzZIndex"
+  (nzOnCancel)="modalCancel()"
+>
+  <ng-template #modalTitle>
+    <div
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content"
+    >
+    供应商信息
+  </div>
+  </ng-template>
+
+  <ng-template #modalContent>
+    <ng-container *ngIf="loading">
+      <div class="example">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading">
+      <app-supplier-info-detail [dataModal]="dataModal"></app-supplier-info-detail>
+    </ng-container>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="modalCancel()">关闭</button>
+  </ng-template>
+</nz-modal>

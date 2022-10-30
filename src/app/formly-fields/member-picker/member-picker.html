@@ -1,0 +1,4 @@
+<div>
+  <app-member-picker *ngIf="!to.disabled" [value]="value" (valueChange)="valueChange($event)" [ngClass]="{'is-invalid': showError && to.required}" [maxMemberCount]="maxMemberCount"></app-member-picker>
+  <div class="formly-field-text" *ngIf="to.disabled">{{text}}</div>
+</div>

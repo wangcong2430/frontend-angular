@@ -1,0 +1,97 @@
+<!--
+ * @Author: your name
+ * @Date: 2022-04-02 09:40:53
+ * @LastEditTime: 2022-05-07 16:58:19
+ * @LastEditors: v_hhlihuang 1724690469@qq.com
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: /csp/cpm/frontend/projects/oa/src/app/index/perf/demand-score/demandScore.component.html
+-->
+<app-component-crumb [(list)]="list" (changeDisabledButton)="changeDisabledButton($event)">
+  <button nzSize="small" nz-button nzType="primary" [disabled]="disabledButton" (click)="createForward()">转交</button>
+  <button nzSize="small" nz-button nzType="primary" (click)="submitSaveForm()">提交</button>
+</app-component-crumb>
+  
+  <ng-container *ngIf="loading">
+    <div class="example m-3">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+  
+  <ng-container *ngIf="!loading">
+    <!--筛选-->
+    <div class="search-filters m-3">
+      <app-container-search-form
+        style="width: 100%"
+        [(data)]="queryFields"
+        [searchFormData]="searchFormData"
+        (submit)="submitSearchForm($event)"
+      >
+      </app-container-search-form>
+    </div>
+  
+    <!--列表-->
+    <div class="search-results bg-white m-3">
+      <app-container-table
+        [loading]="listLoading"
+        (getList)="getList($event)"
+        [(list)]="list"
+        [showCheckbox]="true"
+        [serialNumber]="false"
+        [(columns)]="columns"
+        [(pagination)]="pagination"
+        (changeDisabledButton)="changeDisabledButton($event)"
+        (clickEvent)="clickEvent($event)"
+        [(disabledButton)]="disabledButton"
+      >
+      </app-container-table>
+    </div>
+  </ng-container>
+  
+  <!--编辑弹窗-->
+  <app-modal-save
+    (submit)="submitSaveForm($event)">
+  </app-modal-save>
+  <nz-modal 
+  #demandScore
+  [(nzVisible)]="isVisible"
+  nzIndex="100"
+  nzWidth="1200"
+   [nzTitle]="popTitle" (nzOnCancel)="handleCancel()" [nzOkText]="null" (nzOnOk)="handleOk()">
+    <app-container-table-group-new
+    [loading]="popLoading"
+    (getList)="getPopConfig($event)"
+    [(list)]="popList"
+    [(columns)]="popColumns"
+    [(childrenColumns)]="popChildrenColumns"
+    [(pagination)]="popPagination"
+    (changeDisabledButton)="changeDisabledButton($event)"
+    [isChildrenDisabled]="false"
+    [(disabledButton)]="disabledButton"
+  >
+  </app-container-table-group-new>
+  </nz-modal>
+
+
+  <nz-modal [(nzVisible)]="forward.isVisible" nzTitle="转交" (nzOnCancel)="cancelForward()" (nzOnOk)="submitForward()">
+    <form nz-form>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>转交人</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-select
+            [(ngModel)]="forward.userId"
+            nzPlaceHolder="Select users"
+            nzAllowClear
+            [ngModelOptions]="{standalone: true}"
+          >
+            <nz-option *ngFor="let o of forward.optionList" [nzValue]="o.value" [nzLabel]="o.label"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>备注</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <textarea rows="4" nz-input [(ngModel)]="forward.remark" [ngModelOptions]="{standalone: true}"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </nz-modal>

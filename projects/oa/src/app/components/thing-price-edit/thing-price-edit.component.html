@@ -1,0 +1,109 @@
+
+<div class="quote-td"
+    (click)="$event.stopPropagation();"
+    [ngStyle]="{ 'min-width': data['price_type'] =='3' || data['price_type'] =='4' ? '320px' : '80px' }">
+
+
+  <ng-container *ngIf="data['price_type'] == 1">
+    <a class="text-underline " (click)="selctPriceModal(data);">{{ data['quote_total_price'] }} {{ data['currency_symbol'] }}</a>
+  </ng-container>
+
+
+  <ng-container *ngIf="data['price_type'] == 2">
+    <a class="text-underline " (click)="breakdownPriceModal(data); ">
+      <ng-container *ngIf="!data['quote_total_price']">
+          0.00 {{ data['currency_symbol'] }}
+      </ng-container>
+      <ng-container *ngIf="data['quote_total_price']">
+        <span [ngClass]="{'color-red' : (data['quote_total_price'] != data['thing_quote_total_price'])}">{{data['quote_total_price']}} {{ data['currency_symbol'] }}</span>
+      </ng-container>
+    </a>
+  </ng-container>
+
+
+  <ng-container *ngIf="data['price_type'] == 3">
+    <div>
+      <div>
+        <label>单位</label>
+        <nz-select
+          nzSize="small"
+          style="width: 78px;"
+          [ngClass]="{'hint-red' : (data['quote_workload_unit_id'] != data['workload_unit_id'])}"
+          [(ngModel)]="data['quote_workload_unit_id']"
+          *ngIf="data['contract_price_groups']">
+          <nz-option [nzValue]="option.value"
+                     [nzLabel]="option.label"
+                    *ngFor="let option of data['contract_price_groups']['workload_unit_list']; trackBy: trackByFn">
+          </nz-option>
+        </nz-select>
+      </div>
+      <div>
+        <label>单价</label>
+        <nz-input-number
+          nzSize="small"
+          [ngClass]="{'hint-red' : (data['quote_unit_price'] != data['thing_quote_unit_price'])}"
+          [(ngModel)]="data['quote_unit_price']"
+          [nzMin]="0"
+          [nzMax]="9999999999"
+          [nzPrecision]="2"
+          (ngModelChange)="getPrice(data, 'quote_unit_price', data['is_disabled'])"
+          style="width: 78px;">
+        </nz-input-number>
+      </div>
+      <div nz-col nzSpan="3" class="td-col">
+        <a href="javascript:;" style="color: rgba(0, 0, 0, 0.65)">{{ data['currency_symbol'] }}</a>
+      </div>
+      <div nz-col nzSpan="6" class="td-col"></div>
+      <div nz-col nzSpan="9" class="td-col">
+        <nz-form-label [nzSpan]="8">数量</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-input-number  nzSize="small" [ngClass]="{'hint-red' : (data['quote_workload'] != data['thing_quote_workload'])}" [(ngModel)]="data['quote_workload']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="3" (ngModelChange)="getPrice(data, 'quote_workload', data['is_disabled'])" style="width: 78px;"></nz-input-number>
+        </nz-form-control>
+      </div>
+      <div nz-col nzSpan="9" class="td-col">
+        <nz-form-label [nzSpan]="8">总价</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-input-number  nzSize="small" [ngClass]="{'hint-red' : (data['quote_total_price'] != data['thing_quote_total_price'])}" [nzDisabled]="data['is_disabled']" [(ngModel)]="data['quote_total_price']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="2" (ngModelChange)="getPrice(data, 'quote_total_price', data['is_disabled'])" style="width: 78px;"></nz-input-number>
+        </nz-form-control>
+      </div>
+      <div nz-col nzSpan="6" class="td-col">
+        <a class="text-underline " (click)="breakdownPriceModal(data, true, data['is_disabled']); $event.stopPropagation();">明细报价</a>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="data['price_type'] == 4">
+    <div nz-row [nzGutter]="24">
+      <div nz-col nzSpan="9" class="td-col">
+        <nz-form-label [nzSpan]="8" nzFor="workload_unit_id">单位</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-select  nzSize="small" style="width: 78px;" [ngClass]="{'hint-red' : (data['quote_workload_unit_id'] != data['workload_unit_id'])}" [(ngModel)]="data['quote_workload_unit_id']" *ngIf="data['contract_price_groups']">
+            <nz-option nzValue="{{option.value}}" nzLabel="{{option.label}}" *ngFor="let option of data['contract_price_groups']['workload_unit_list'];trackBy: trackByFn"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </div>
+      <div nz-col nzSpan="9" class="td-col">
+        <nz-form-label [nzSpan]="8">单价</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-input-number  nzSize="small" [ngClass]="{'hint-red' : (data['quote_unit_price'] != data['thing_quote_unit_price'])}" [(ngModel)]="data['quote_unit_price']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="2" (ngModelChange)="getPrice(data, 'quote_unit_price')" style="width: 78px;"></nz-input-number>
+        </nz-form-control>
+      </div>
+      <div nz-col nzSpan="3" class="td-col"></div>
+      <div nz-col nzSpan="9" class="td-col">
+        <nz-form-label [nzSpan]="8">数量</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-input-number  nzSize="small" [ngClass]="{'hint-red' : (data['quote_workload'] != data['thing_quote_workload'])}" [(ngModel)]="data['quote_workload']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="3" (ngModelChange)="getPrice(data, 'quote_workload')" style="width: 78px;"></nz-input-number>
+        </nz-form-control>
+      </div>
+      <div nz-col nzSpan="9" class="td-col">
+        <nz-form-label [nzSpan]="8">总价</nz-form-label>
+        <nz-form-control [nzSpan]="16">
+          <nz-input-number  nzSize="small" [ngClass]="{'hint-red' : (data['quote_total_price'] != data['thing_quote_total_price'])}" [(ngModel)]="data['quote_total_price']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="2" (ngModelChange)="getPrice(data, 'quote_total_price')" style="width: 78px;"></nz-input-number>
+        </nz-form-control>
+      </div>
+      <div nz-col nzSpan="3" class="td-col">
+        <a href="javascript:;" style="color: rgba(0, 0, 0, 0.65)">{{ data['currency_symbol'] }}</a>
+      </div>
+    </div>
+  </ng-container>
+</div>

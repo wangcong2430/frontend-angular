@@ -1,0 +1,22 @@
+<div [ngClass]="{'is-invalid': showError}"  >
+  <nz-form-control nzValidateStatus="{{validating}}" nzHasFeedback>
+    <nz-select
+      nzShowSearch
+      nzAllowClear
+      [nzMode]="mode"
+      [nzPlaceHolder]="'...输入关键字搜索'"
+      [formControl]="formControl"
+      [nzServerSearch]="true"
+      (nzOnSearch)="onSearchChange($event)"
+      (ngModelChange)="onSelectChange($event)"
+      [(ngModel)]="model[key]">
+      <nz-option *ngIf="isSearchSelect" nzDisabled nzCustomContent>
+        <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+      </nz-option>
+      <ng-container *ngFor="let option of optionSearchs; trackBy: trackByFn">
+        <nz-option *ngIf="!isSearchSelect" [nzLabel]="option[labelProp]" [nzValue]="option[valueProp]"></nz-option>
+      </ng-container>
+    </nz-select>
+  </nz-form-control>
+  <!--<input *ngIf="is_input" nz-input placeholder="{{to.placeholder}}" (click)="onSearchInput()" [ngModel]="model[key+'_text'] ? model[key+'_text'] : ''">-->
+</div>

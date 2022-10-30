@@ -1,0 +1,18 @@
+<div [ngClass]="{'is-invalid': showError}">
+  <nz-select
+    [nzMode]="mode"
+    nzAllowClear
+    nzShowSearch
+    [formControl]="formControl"
+    [nzServerSearch]="true"
+    (nzOnSearch)="onSearchChange($event)"
+    (ngModelChange)="onSelectChange($event)"
+    [(ngModel)]="model[key]">
+    <nz-option *ngIf="isSearchSelect" nzDisabled nzCustomContent>
+      <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+    </nz-option>
+    <ng-container *ngFor="let option of optionSearchs; trackBy: trackByFn">
+      <nz-option *ngIf="!isSearchSelect" [nzLabel]="option[labelProp]" [nzValue]="option[valueProp]"></nz-option>
+    </ng-container>
+  </nz-select>
+</div>

@@ -1,0 +1,306 @@
+<app-component-crumb [isSetSecrecy]="true" [isDownloadCheckFile]="true" [isDownloadCheckImage]="true" [disabled]="disabledButton" [(list)]="list" [isChildren]="true">
+  <button nzSize="small" *ngIf="is_not_only_needrole" nz-button (click)="exportOrder()" >导出</button>
+  <button nzSize="small" *ngIf="admin" nz-button (click)="exportOrderNew()" >导出物件耗时</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<!--驳回提示-->
+<nz-modal [(nzVisible)]="isVisible" nzTitle="撤回原因" (nzOnCancel)="isVisible = false" (nzOnOk)="confirmationSubmit('reject')">
+
+  <nz-form-item>
+    <nz-form-control>
+      <textarea nz-input placeholder="填写撤回原因" [(ngModel)]="reason" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+<ng-container *ngIf="!loading">
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      (submit)="submitSearchForm($event)"
+      [loading]="searchLoading"
+    >
+    </app-container-search-form>
+  </div>
+
+  <div class="search-results m-3">
+    <app-container-table-group-new
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(childrenColumns)]="childrenColumns"
+      [(pagination)]="pagination"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [isChildrenDisabled]="false"
+      [(disabledButton)]="disabledButton"
+      [(list)]="list"
+      [(queryFields)]="queryFields"
+      [(columns)]="columns"
+    >
+    </app-container-table-group-new>
+  </div>
+</ng-container>
+
+<nz-modal [nzWidth]="640"
+          [(nzVisible)]="isModelVisible"
+          [nzTitle]="'同步生成EPO订单确认信息2'"
+          [nzOkLoading]="isOkLoading"
+          [nzCancelLoading]="isOkLoading"
+          [nzContent]="modalContent"
+          [nzClosable]="false"
+          [nzMaskClosable]="false"
+          (nzOnCancel)="closeModel()"
+          (nzOnOk)="submit()">
+  <ng-template #modalContent>
+    <ng-container *ngIf="dialogLoading">
+      <div class="example">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!dialogLoading">
+      <div class="ant-alert-success p-2">
+        <p>已选择{{dialogDataModel.thing_num}}个物件，将生成{{dialogDataModel.pr_number_count}}个验收对账单</p>
+        <ng-container *ngFor="let pr_number of dialogDataModel.pr_number; trackBy: trackByFn">
+          <p>成本中心：{{pr_number['cost_center_name']}},对应含税金额{{dialogDataModel['thing_tax_total_price']}} {{dialogDataModel['currency_symbol']}}</p>
+        </ng-container>
+      </div>
+
+      <div nz-row [nzGutter]="12">
+        <div nz-col [nzSpan]="24">
+          <nz-form-item class="mb-0">
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >合同类别</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              {{dialogDataModel.contract_category_name}}
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <!--不含税合同-->
+        <ng-container *ngIf="dialogDataModel.contract_tax_type && dialogDataModel.contract_tax_type == 2">
+          <div nz-col [nzSpan]="24">
+            <nz-form-item class="mb-0">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >税率类型</nz-form-label>
+              <nz-form-control [nzSm]="18" [nzXs]="24">
+                <ng-container>
+                  <nz-select [(ngModel)]="dialogDataModel.tax_type" (ngModelChange)="changeServerTax($event)" [nzShowSearch]="true">
+                    <nz-option *ngFor="let item of dialogDataModel.tax_type_options;trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                  </nz-select>
+                </ng-container>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col [nzSpan]="24" *ngIf="dialogDataModel.tax_type && (dialogDataModel.tax_type == 1)">
+            <nz-form-item class="mb-0">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >固定税率值</nz-form-label>
+              <nz-form-control [nzSm]="18" [nzXs]="24">
+                <ng-container>
+                  <nz-select [(ngModel)]="dialogDataModel.tax_value" [nzShowSearch]="true" (ngModelChange)="changeServerTaxValue($event)">
+                    <nz-option *ngFor="let item of dialogDataModel.tax_list_options;trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                  </nz-select>
+                </ng-container>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col [nzSpan]="24" *ngIf="dialogDataModel.tax_type && (dialogDataModel.tax_type == 2)">
+            <nz-form-item class="mb-0">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >自定义税率值</nz-form-label>
+              <nz-form-control [nzSm]="18" [nzXs]="24">
+                <input type="text" nz-input [(ngModel)]="dialogDataModel.tax_value" (blur)="changeServerTaxValue($event)">
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col [nzSpan]="24" *ngIf="dialogDataModel.tax_type && (dialogDataModel.tax_type == 3)">
+            <nz-form-item class="mb-0">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >税金（{{dialogDataModel['currency_symbol']}}）</nz-form-label>
+              <nz-form-control [nzSm]="18" [nzXs]="24">
+                <ng-container>
+                  <input type="text" nz-input [(ngModel)]="dialogDataModel.tax_value" (blur)="changeServerTaxValue($event)">
+                </ng-container>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </ng-container>
+        <div nz-col [nzSpan]="24">
+          <nz-form-item class="mb-0">
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >我方主体</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <ng-container>
+                <nz-select style="width: 80%" [(ngModel)]="dialogDataModel.org_id" [nzShowSearch]="true" (ngModelChange)="changeOrg($event)">
+                  <nz-option *ngFor="let item of orgList;trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+                </nz-select>
+
+              </ng-container>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="24">
+          <nz-form-item class="mb-0">
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >供应商服务品类</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <ng-container *ngIf="dialogDataModel.contract_type == 1">
+                <nz-select style="width: 80%" [(ngModel)]="dialogDataModel.vendor_category_id" (ngModelChange)="changeServerCategory($event)" [nzShowSearch]="true">
+                  <nz-option *ngFor="let item of vendor_category_list;trackBy: trackByFn" nzValue="{{item.category_id}}" nzLabel="{{item.category_name}}"></nz-option>
+                </nz-select>
+                <button nz-button [nzLoading]="isPullLoading" nzType="default" (click)="pullSupplierSite()">拉取</button>
+              </ng-container>
+              <ng-container *ngIf="dialogDataModel.contract_type == 2">
+                <span>{{vendor_site.category_name}}</span>
+              </ng-container>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="24">
+          <nz-form-item class="mb-0">
+
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >供应商银行账号</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <ng-container *ngIf="dialogDataModel.contract_type == 1">
+                <nz-select style="width: 80%" [(ngModel)]="dialogDataModel.vendor_site_id" [nzShowSearch]="true">
+                  <nz-option *ngFor="let item of vendor_site_item;trackBy: trackByFn" nzValue="{{item.vendor_site_id}}" nzLabel="{{item.label}}"></nz-option>
+                </nz-select>
+              </ng-container>
+              <ng-container *ngIf="dialogDataModel.contract_type == 2">
+                <span>{{vendor_site.account_number + vendor_site.account_name + vendor_site.account_bank}}</span>
+              </ng-container>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <ng-container *ngIf="mba_has_resources">
+          <div nz-col [nzSpan]="24">
+            <nz-form-item class="mb-0">
+              <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >物料选择</nz-form-label>
+              <nz-form-control [nzSm]="18" [nzXs]="24">
+                <nz-select style="width: 100%" [(ngModel)]="dialogDataModel.mba_item_id" [nzShowSearch]="true">
+                  <nz-option *ngFor="let item of mba_resources;trackBy: trackByFn" nzValue="{{item.itemId}}" nzLabel="{{item.itemName}}"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </ng-container>
+
+        <div nz-col [nzSpan]="24">
+          <nz-form-item class="mb-0">
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >产品</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              {{dialogDataModel.product_name}}
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="24">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >经办部门</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <nz-select style="width: 100%" [(ngModel)]="dialogDataModel.handle_department" (ngModelChange)="changeDepartment()" [nzShowSearch]="true">
+                <nz-option *ngFor="let item of handleDepartmentList;trackBy: trackByFn" nzValue="{{item.id}}" nzLabel="{{item.name}}"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="24">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >经办中心</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <nz-select style="width: 100%" [(ngModel)]="dialogDataModel.handle_center" [nzShowSearch]="true">
+                <nz-option *ngFor="let item of handleCenterList[dialogDataModel.handle_department];trackBy: trackByFn" nzValue="{{item.id}}" nzLabel="{{item.name}}"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="24">
+          <nz-form-item class="mb-0">
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >成本中心</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <nz-select [(ngModel)]="dialogDataModel.cost_center_code" [nzShowSearch]="true">
+                <nz-option *ngFor="let item of costCenterOptions;trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="24">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >供应商选择方法</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <nz-select style="width: 100%" [(ngModel)]="dialogDataModel.select_supplier_reason">
+                <nz-option *ngFor="let item of newChooseReason;trackBy: trackByFn" nzValue="{{item.value}}" nzLabel="{{item.label}}"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="24">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >验收人</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <nz-select
+                [ngStyle]="{width: '100%'}"
+                nzShowSearch
+                nzAllowClear
+                [nzMode]="'multiple'"
+                [nzPlaceHolder]="'...输入关键字搜索'"
+                [(ngModel)]="dialogDataModel.receiver_ids"
+                [nzServerSearch]="true"
+                (nzOnSearch)="onOaSearch($event)">
+                <nz-option *ngIf="isSearchSelect" nzDisabled nzCustomContent>
+                  <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                </nz-option>
+                <ng-container *ngFor="let option of optionSearchs; trackBy: trackByFn">
+                  <nz-option *ngIf="!isSearchSelect" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+                </ng-container>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="24">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24">知会人</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <label nz-checkbox [(ngModel)]="dialogDataModel.is_notice_cp">供应商商务</label>
+              <label nz-checkbox [(ngModel)]="dialogDataModel.is_notice_spm">采购经理</label>
+              <label nz-checkbox [(ngModel)]="dialogDataModel.is_notice_spma">采购助理</label>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="24">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24">其他知会人</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <nz-select
+                [ngStyle]="{width: '100%'}"
+                nzShowSearch
+                nzAllowClear
+                [nzMode]="'multiple'"
+                [nzPlaceHolder]="'...输入关键字搜索'"
+                [(ngModel)]="dialogDataModel.notice_crowd_ids"
+                [nzServerSearch]="true"
+                (nzOnSearch)="onOaSearch($event)">
+                <nz-option *ngIf="isSearchSelect" nzDisabled nzCustomContent>
+                  <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                </nz-option>
+                <ng-container *ngFor="let option of optionSearchs; trackBy: trackByFn">
+                  <nz-option *ngIf="!isSearchSelect" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+                </ng-container>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="24">
+          <nz-form-item>
+            <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired >合同/订单说明</nz-form-label>
+            <nz-form-control [nzSm]="18" [nzXs]="24">
+              <textarea rows="4" placeholder="请输入不超过200字的订单说明，将只有采购经理和订单审批人可见" nz-input [(ngModel)]="dialogDataModel.memo"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </ng-container>
+  </ng-template>
+</nz-modal>

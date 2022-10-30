@@ -1,0 +1,77 @@
+<app-component-crumb>
+  <button nzSize="small" *ngIf="isAdd == 1" nz-button nzType="primary" (click)="openModel({})">新建</button>
+  <button nzSize="small" *ngIf="isAdd == 1" nz-button nzType="primary" (click)="openBatchModel({})">批量编辑</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      (blurEvent)="blurEvent($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+<!--编辑弹窗-->
+<nz-modal
+  nzClassName="design-modal"
+  [nzWidth]="'1060px'"
+  [(nzVisible)]="saveModal.isVisible"
+  [nzTitle]="saveModal.title"
+  [nzFooter]="modalFooter"
+  [nzContent]="modalContent"
+  (nzOnCancel)="closeModel()"
+  (nzOnOk)="submit()"
+  [nzOkLoading]="saveModal.isOkLoading">
+</nz-modal>
+
+<ng-template #modalContent>
+  <ng-container *ngIf="isRenderForm && saveModal.isVisible">
+    <form [formGroup]="form" >
+      <formly-form
+        [form]="form"
+        [fields]="formlyField"
+        [model]="saveModal.model"
+        [options]="options">
+      </formly-form>
+    </form>
+  </ng-container>
+</ng-template>
+
+<ng-template #modalFooter>
+  <button nz-button nzType="default" (click)="closeModel()">取消</button>
+  <button nz-button nzType="primary" (click)="submit()" type="submit" [nzLoading]="saveModal.isOkLoading">确定</button>
+</ng-template>
+
+<!--编辑弹窗-->
+<app-modal-save
+  (submit)="submitSaveForm($event)">
+</app-modal-save>
+
+<app-modal-product-budget-adjust></app-modal-product-budget-adjust>
+

@@ -1,0 +1,230 @@
+<app-component-crumb [(list)]="list" [isChildren]="isChildren" [isCheckAll]="false" [isCheckReverse]="false">
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters mx-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      (submit)="submitSearchForm($event)"
+      [loading]="searchLoading"
+      [is_disabled]="searchFormIsDisabled"
+      >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results mx-3" style="margin-top: 20px;padding: 20px;background: #fff;">
+    <ng-container *ngIf="searchLoading">
+      <div class="example">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!searchLoading">
+      <div style="margin: -10px 0 20px 0;text-align: left;">
+        <nz-dropdown *ngIf="queryFields && queryFields.length > 0 && list && list.length > 0" [nzPlacement]="'bottomCenter'" [nzTrigger]="'click'" [nzClickHide]="false" [(nzVisible)]="isSearchDropdown" (nzVisibleChange)="dropdownChange($event, 'search')">
+          <button nz-button nz-dropdown >
+            <i nz-icon nzType="menu" nzTheme="outline"></i>
+            显示查询选择
+            <i nz-icon nzType="caret-down" nzTheme="outline"></i>
+          </button>
+          <ul nz-menu style="max-height:220px; overflow-y: auto;">
+            <li  style="text-align: right;padding-right: 10px;">
+              <i nz-icon nzType="close" nzTheme="outline" (click)="closeDropdown('search')" style="cursor: pointer;"></i>
+            </li>
+            <li nz-menu-item *ngFor="let filed of queryFields;trackBy: trackByFn">
+              <label nz-checkbox [(ngModel)]="filed.show">{{filed.templateOptions.label}}</label>
+            </li>
+          </ul>
+        </nz-dropdown>
+        <nz-dropdown *ngIf="list && list.length > 0" style="margin: 0 10px;" [nzPlacement]="'bottomCenter'" [nzTrigger]="'click'" [nzClickHide]="false" [(nzVisible)]="isColumnDropdown" (nzVisibleChange)="dropdownChange($event, 'column')">
+          <button nz-button nz-dropdown>
+            <i nz-icon nzType="menu" nzTheme="outline"></i>
+            显示列选择
+            <i nz-icon nzType="caret-down" nzTheme="outline"></i>
+          </button>
+          <ul nz-menu style="max-height:220px; overflow-y: auto;">
+            <li style="text-align: right;padding-right: 10px;">
+              <i nz-icon nzType="close" nzTheme="outline" (click)="closeDropdown('column')" style="cursor: pointer;"></i>
+            </li>
+            <li nz-menu-item *ngFor="let column2 of childrenColumns;trackBy: trackByFn">
+              <label nz-checkbox [(ngModel)]="column2.show">{{column2.label}}</label>
+            </li>
+          </ul>
+        </nz-dropdown>
+        <ng-container *ngIf="list && list.length > 0">
+          <span>在页面中过滤:</span>
+          <input nz-input [(ngModel)]="filterValue" style="display: inline-block; width: 200px;margin-right: 15px;"/>
+          <button nz-button nzType="primary" style="vertical-align: top;" (click)="searchData()">查询</button>
+        </ng-container>
+        <div class="float-right d-inline-block ">Total {{ total }} item</div>
+      </div>
+      <nz-collapse [nzBordered]="false">
+        <ng-container *ngFor="let panel of list;trackBy: trackByFn" >
+          <ng-container *ngIf="panel.children.length > 0">
+            <nz-collapse-panel
+              [nzHeader]="panel.title"
+              [nzActive]="!panel.expand"
+              [nzDisabled]="false"
+              [nzShowArrow]="false"
+              [ngStyle]="{ background: '#E8EFFB', 'margin-bottom': '18px'}"
+            >
+              <nz-table
+              #basicTable
+              nzVirtualScroll
+              [nzVirtualItemSize]="10"
+              [nzScroll]="{ y: '600px' }"
+              [nzVirtualMinBufferPx]="100"
+              [nzVirtualMaxBufferPx]="200"
+              [nzData]="panel.children"
+              [nzShowPagination]="false"
+              [nzFrontPagination]="false"
+              style="background: #ffffff;"
+              [nzLoading]="panel.tbloading"
+            >
+                <thead>
+                  <tr style="background: #f3f3f3;" >
+                    <ng-container *ngFor="let column of childrenColumns; trackBy: trackByFn" >
+                      <th  nzWidth="180px" *ngIf="column.show">{{column['label']}}</th>
+                    </ng-container>
+                  </tr>
+                </thead>
+                <tbody>
+                    <ng-template nz-virtual-scroll let-data>
+                      <tr>
+                        <ng-container *ngFor="let column of childrenColumns; trackBy: trackByFn" >
+                          <ng-container *ngIf="column.show" [ngSwitch]="column.type">
+
+                            <ng-container *ngSwitchCase="'user'">
+                              <td ><div [innerHtml]="data[column.key] | user"></div></td>
+                            </ng-container>
+
+                            <ng-container  *ngSwitchCase="'attribute'">
+                              <td><app-label-edit [data]="data[column.key]"></app-label-edit></td>
+                            </ng-container>
+
+                            <ng-container  *ngSwitchCase="'attribute-edit'">
+                              <td><app-label-edit [(data)]="data[column.key]" edit="true" (click)="$event.stopPropagation();"></app-label-edit></td>
+                            </ng-container>
+
+                            <ng-container *ngSwitchDefault>
+                              <ng-container [ngSwitch]="column.key">
+                                <ng-container *ngSwitchCase="'thing_code'">
+                                  <td>
+                                    <ng-container *ngIf="data['is_rejected'] == 1">
+                                      <ng-container *ngIf="data['auto_record_data'] && data['auto_record_data'] != ''">
+                                        <span class="text-red cu-p" nz-popover [nzContent]="contentRejected1">[被驳回]</span>
+                                        <!-- 引用模板，可输出html -->
+                                        <ng-template #contentRejected1><a [innerHTML]="data['auto_record_data'] || 'NA'"></a></ng-template>
+                                      </ng-container>
+                                      <ng-container *ngIf="!data['auto_record_data'] || data['auto_record_data'] == ''">
+                                        <span class="text-red cu-p">[被驳回]</span>
+                                      </ng-container>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data['is_rejected'] == 2">
+                                      <ng-container *ngIf="data['auto_record_data'] && data['auto_record_data'] != ''">
+                                        <span class="text-red cu-p" nz-popover [nzContent]="contentRejected2">[放弃报价]</span>
+                                        <!-- 引用模板，可输出html -->
+                                        <ng-template #contentRejected2><a [innerHTML]="data['auto_record_data'] || 'NA'"></a></ng-template>
+                                      </ng-container>
+                                      <ng-container *ngIf="!data['auto_record_data'] || data['auto_record_data'] == ''">
+                                        <span class="text-red cu-p">[放弃报价]</span>
+                                      </ng-container>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data['is_rejected'] == 3">
+                                      <span class="text-red">[超时未接收]</span>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data['thing_tag'] && data['thing_tag'].length">
+                                      <ng-container *ngFor="let item of data['thing_tag']">
+                                        <ng-container *ngIf="!item.tip">
+                                          <span class="text-red d-inline-block mx-1">[{{item.title}}]</span>
+                                        </ng-container>
+                                        <ng-container *ngIf="item.tip">
+                                          <span class="text-red d-inline-block mx-1" nz-tooltip [nzTitle]="item.tip" >[{{item.title}}]</span>
+                                        </ng-container>
+                                      </ng-container>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data['demand_type'] === '基地'">
+                                      <img  style="width: 40px;" src="/assets/images/base.png" />
+                                    </ng-container>
+                                    <ng-container *ngIf="data['demand_type'] === '画师'">
+                                      <span class="text-red">[画师]</span>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data['is_rejected'] == 31">
+                                        <ng-container *ngIf="data['auto_record_data'] && data['auto_record_data'] != ''">
+                                          <span class="text-red cu-p" nz-popover [nzContent]="contentRejected3">[放弃接收]</span>
+                                          <!-- 引用模板，可输出html -->
+                                          <ng-template #contentRejected3><a [innerHTML]="data['auto_record_data'] || 'NA'"></a></ng-template>
+                                        </ng-container>
+                                        <ng-container *ngIf="!data['auto_record_data'] || data['auto_record_data'] == ''">
+                                          <span class="text-red cu-p">[放弃接收]</span>
+                                        </ng-container>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data['is_withdraw'] == 1">
+                                      <ng-container *ngIf="data['auto_record_data'] && data['auto_record_data'] != ''">
+                                        <span class="text-red cu-p" nz-popover [nzContent]="contentRejected3">[撤回]</span>
+                                        <!-- 引用模板，可输出html -->
+                                        <ng-template #contentRejected3><a [innerHTML]="data['auto_record_data'] || 'NA'"></a></ng-template>
+                                      </ng-container>
+                                      <ng-container *ngIf="!data['auto_record_data'] || data['auto_record_data'] == ''">
+                                        <span class="text-red cu-p">[撤回]</span>
+                                      </ng-container>
+                                  </ng-container>
+
+                                    <ng-container *ngIf="data['is_rejected'] == 4">
+                                      <span class="text-red">[超时未报价]</span>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data['is_rejected'] == 5">
+                                      <span class="text-red">[结束报价]</span>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data['is_test'] == '1'">
+                                      <span class="text-red">[测试单]</span>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data['is_price_error'] == 10">
+                                      <span class="text-primary">[价格已修正]</span>
+                                    </ng-container>
+
+                                    <ng-container *ngIf="data['is_price_error'] == 12">
+                                      <span class="text-primary">[价格未变更]</span>
+                                    </ng-container>
+
+                                    <a (click)="getClickEvent($event, data)" style="color: #0052D9 !important">{{data[column['key']] ? data[column['key']] : 'NA'}}</a>
+                                  </td>
+                                </ng-container>
+                                <ng-container *ngSwitchDefault>
+                                  <td>{{data[column['key']] ? data[column['key']] : 'NA'}}</td>
+                                </ng-container>
+                              </ng-container>
+                            </ng-container>
+                          </ng-container>
+                        </ng-container>
+                      </tr>
+                    </ng-template>
+                </tbody>
+              </nz-table>
+
+          </nz-collapse-panel>
+          </ng-container>
+
+        </ng-container>
+
+      </nz-collapse>
+    </ng-container>
+  </div>
+
+</ng-container>

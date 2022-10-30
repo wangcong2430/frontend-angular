@@ -1,0 +1,76 @@
+<!--
+ * @Author: v_swwu v_swwu@tencent.com
+ * @Date: 2022-07-01 14:45:23
+ * @LastEditors: v_swwu v_swwu@tencent.com
+ * @LastEditTime: 2022-07-22 14:55:58
+ * @FilePath: \cpm\frontend\src\app\components\layout\layout.component.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<nz-layout>
+  <nz-sider class="main-layout-sider fl" [nzWidth]="240" nzCollapsible [(nzCollapsed)]="isCollapsed" [nzTrigger]="triggerTemplate" style="overflow: auto; height: 100vh; left: 0;">
+    <div class="logo">
+      <div class="logo-icon fl"><img src="assets/images/header-logo-new2.png"></div>
+      <div class="system-title fl">{{ 'Tencent_IEG' | translate }} <br><span style="font-size: 12px;"> {{ 'Service_Procurement_Platform' | translate}}</span></div>
+    </div>
+    <div class="menu-trigger" [class.anticon-menu-fold]="!isCollapsed" [class.anticon-menu-unfold]="isCollapsed" (click)="isCollapsed=!isCollapsed">
+      <i *ngIf="!isCollapsed" class="anticon anticon-left"></i>
+      <i *ngIf="isCollapsed" class="anticon anticon-right"></i>
+    </div>
+
+      <ul nz-menu [nzTheme]="'dark'" [nzMode]="'inline'" [nzInlineCollapsed]="isCollapsed" >
+        <!-- <li nz-menu-item ><a ><i nz-icon type="home" theme="outline"></i><span class="nav-text">首页</span></a></li> -->
+        <ng-template [ngIf]="menus && menus.length">
+          <ng-template ngFor [ngForOf]="menus" let-item>
+            <ng-template [ngIf]="item.children">
+              <li nz-submenu [(nzOpen)]="openMap[item.id]" (nzOpenChange)="openHandler(item.id)">
+              <span title>
+                <i nz-icon [type]="item.icon" theme="outline"></i><span class="nav-text">{{item.name}}</span>
+                <ng-container *ngIf="menuService.parentNumber[item.id]">
+                  <nz-badge
+                    [nzCount]="menuService.parentNumber[item.id]"
+                    [nzStyle]="{ float: 'left', backgroundColor: '#ea5a5a', margin: '-6px 0px 0px 3px', boxShadow: 'none' }">
+                  </nz-badge>
+                </ng-container>
+              </span>
+                <ul style="background-color: #000!important;">
+                  <ng-template [ngIf]="item.children.length">
+                    <li nz-menu-item *ngFor="let itemChildren of item.children" [class.selected]="itemChildren.selected" [class.unSelected]="!itemChildren.selected" [(nzSelected)]="itemChildren.selected">
+                      <a [routerLink]="['/system'+itemChildren.url]" style="float: left" >
+                        {{itemChildren.name}}
+                        <ng-container *ngIf="itemChildren.node_key && itemChildren.node_key != ''">
+                          <nz-badge
+                            [nzCount]="menuService.backlogNumber[itemChildren.node_key] ? menuService.backlogNumber[itemChildren.node_key] : '0'"
+                            [nzStyle]="{ float: 'left', backgroundColor: '#ea5a5a', margin: '-6px 0px 0px 3px', boxShadow: 'none' }">
+                          </nz-badge>
+                        </ng-container>
+                      </a>
+                    </li>
+                  </ng-template>
+                </ul>
+              </li>
+            </ng-template>
+          </ng-template>
+        </ng-template>
+      </ul>
+  </nz-sider>
+  <nz-layout class="main-layout-body" style="background-color: #f7f7f7; min-width: 1040px;">
+    <nz-header class="px-0 bg-white">
+      <app-layout-header [user]="user"></app-layout-header>
+    </nz-header>
+
+    <nz-content style="min-width: 1140px; min-height: auto;" class="layout-content bg-light pb-3">
+      <ng-content select="router-outlet"></ng-content>
+      <div *ngIf="messageService.isAllLoading" class="ant-modal-mask" style="text-align: center; padding-top: 200px;background-color: rgba(0, 0, 0, 0.15);" [ngStyle]="{zIndex: '10100'}">
+        <nz-spin style="width: 520px;transform-origin: -268px 127px 0px; " nzTip='处理中，请稍等。。。' [nzSize]="'large'" [nzSpinning]="messageService.isAllLoading" [nzSpinning]="true"></nz-spin>
+      </div>
+    </nz-content>
+
+    <nz-footer style="text-align: center;" class="border-top py-3" style="padding-left: 120px; padding-right: 120px; ">
+      <app-component-layout-footer></app-component-layout-footer>
+    </nz-footer>
+  </nz-layout>
+</nz-layout>
+
+<ng-template #trigger>
+  <i class="anticon anticon-up"></i>
+</ng-template>

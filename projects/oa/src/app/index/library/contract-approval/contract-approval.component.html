@@ -1,0 +1,56 @@
+<app-component-crumb [(list)]="list" (changeDisabledButton)="changeDisabledButton($event)">
+  <button nzSize="small" nz-button nzType="primary" (click)="submitStep('pass')">通过</button>
+  <button nzSize="small" nz-button nzType="danger" (click)="submitStepDialog()">驳回</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+<!--编辑弹窗-->
+<app-modal-save
+  (submit)="submitSaveForm($event)">
+</app-modal-save>
+
+<nz-modal [(nzVisible)]="showModal.isOpen" [nzTitle]="'操作确认'" (nzOnCancel)="showModal.isOpen = false" [nzOkLoading]="showModal.loading" (nzOnOk)="submitStep('reject')">
+  <div nz-row [nzGutter]="24" class="mb-2">
+    <div nz-col [nzSpan]="24">
+      {{showModal.title}}
+    </div>
+  </div>
+  <div nz-row [nzGutter]="24">
+    <div nz-col [nzSpan]="24">
+      <input nz-input class="w-100" [(ngModel)]="showModal.reject_remark"/>
+    </div>
+  </div>
+</nz-modal>

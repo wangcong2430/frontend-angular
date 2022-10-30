@@ -1,0 +1,102 @@
+<app-component-crumb>
+  <button nzSize="small" *ngIf="isAdd == 1" nz-button nzType="primary" (click)="openModel()">新建</button>
+  <nz-dropdown *ngIf="isAdd == 1">
+    <button nz-button nzSize="small" nzType="primary" nz-dropdown><span>导入EPO已用预算</span> <i nz-icon type="down"></i></button>
+    <ul nz-menu>
+      <li nz-menu-item>
+        <a href="assets/file/epo_use-202006.xlsx" target="_blank">下载导入模板</a>
+      </li>
+      <li nz-menu-item style="overflow: hidden;">
+        <nz-upload
+          class="fl"
+          nzAction="/web/cos/upload?type=1600"
+          [nzShowUploadList]="false"
+          [nzCustomRequest]="cos.customReqs"
+          [nzBeforeUpload]="cos.beforeUploadExcel"
+          (nzChange)="uploadChange($event)">
+          导入数据
+        </nz-upload>
+      </li>
+    </ul>
+  </nz-dropdown>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example  m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters  m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table
+      [loading]="listLoading"
+      [showCheckbox]="false"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      (blurEvent)="blurEvent($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+
+<!--编辑弹窗-->
+<app-modal-save
+  (submit)="submitSaveForm($event)">
+</app-modal-save>
+
+<app-modal-product-budget-adjust></app-modal-product-budget-adjust>
+
+<!--创建/编辑内容类-->
+
+<nz-modal nzClassName="content-modal"
+          [(nzVisible)]="isVisible"
+          nzWidth="1060px"
+          [nzTitle]="Title"
+          (nzOnCancel)="handleCancel()"
+          nzMaskClosable="false"
+          [nzOkLoading]="isOkLoading"
+          (nzOnOk)="handleOk()">
+  <ng-container *ngIf="isVisible">
+    <formly-form [model]="model" [fields]="fields" [options]="options" [form]="form"></formly-form>
+  </ng-container>
+</nz-modal>
+
+<!-- 需求审核人配置 -->
+<nz-modal class="need-modal" [(nzVisible)]="isNeedVisible" nzTitle="需求审核人配置" nzClassName="need-approver-modal" [nzCancelText]="null" (nzOnCancel)="handleNeedCancel()" (nzOnOk)="handleNeedOk()">
+  <ng-container *ngIf="isNeedVisible">
+      <nz-table #tableData [nzData]="listNeedData" [nzHideOnSinglePage]="true" nzFrontPagination="false" nzShowPagination="false">
+          <thead>
+              <tr>
+                  <th>服务品类</th>
+                  <th>需求审核人</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr *ngFor="let data of tableData.data">
+                  <td>{{ data.label }}</td>
+                  <td>{{ data.need_approver }}</td>
+              </tr>
+          </tbody>
+      </nz-table>
+  </ng-container>
+</nz-modal>
+
+

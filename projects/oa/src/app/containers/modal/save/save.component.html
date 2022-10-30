@@ -1,0 +1,185 @@
+<nz-modal
+  [(nzVisible)]="modalData.isShow"
+  [nzTitle]="modalTitle"
+  nzMaskClosable="false"
+  [nzWidth]="base.width"
+  (nzOnCancel)="cancelModal()"
+  (nzOnOk)="handleOk()">
+
+  
+  <ng-template #modalTitle>
+    <div       
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content">编辑
+    </div>
+  </ng-template>
+
+  <ng-container v-if="modalData.isShow">
+      <div nz-row [nzGutter]="24">
+          <ng-container *ngFor="let item of modalData.formBase; trackBy: trackByFn">
+            <div nz-col [nzSpan]="base.laCol" *ngIf="!item.hideExpression || item.hideExpression == 'false'">
+              <nz-form-item>
+                <nz-form-label [nzSm]="8" [nzXs]="24" [nzFor]="item.key" [nzRequired]="item.required || false">{{item.templateOptions.label}}</nz-form-label>
+                <nz-form-control [nzSm]="16" [nzXs]="24">
+                  <ng-container [ngSwitch]="item.type">
+
+                    <ng-container *ngSwitchCase="'select'">
+                      <nz-select  [(ngModel)]="modalData.data[item.key]" [nzMode]="!item.mode ? 'default' : item.mode"  [nzDisabled]="item.disabled" [attr.id]="item.key" (ngModelChange)="modelChange($event, item.key)" [nzShowSearch]="true" [ngStyle]="{width: '100%'}" >
+                        <nz-option *ngFor="let option of item.templateOptions.options;trackBy: trackByFn" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                      </nz-select>
+                    </ng-container>              
+                  
+
+                    <ng-container *ngSwitchCase="'radio'">
+                      <nz-radio-group  [(ngModel)]="modalData.data[item.key]" nzName="{{item.key}}">
+                        <label nz-radio *ngFor="let option of item.templateOptions.options;trackBy: trackByFn" [nzValue]="option.value">{{option.label}}</label>
+                      </nz-radio-group>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'number'">
+                      <nz-input-number [(ngModel)]="modalData.data[item.key]" [nzMin]="0" [nzMax]="999999999" [nzStep]="1" [ngStyle]="{width: '100%'}"></nz-input-number>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'date-picker'">
+                      <nz-date-picker [nzFormat]="item.format" [(ngModel)]="modalData.data[item.key]" [nzDisabled]="item.disabled" [ngStyle]="{width: '100%'}"></nz-date-picker>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'search-user'">
+                      <nz-select
+                        style="width: 100%;"
+                        nzMode="multiple"
+                        [(ngModel)]="selectedUser"
+                        nzPlaceHolder="Select users"
+                        nzAllowClear
+                        nzShowSearch
+                        [nzServerSearch]="true"
+                        (nzOnSearch)="onSearch($event)"
+                      >
+                        <ng-container *ngFor="let o of optionList">
+                          <nz-option *ngIf="!isLoading" [nzValue]="o" [nzLabel]="o"></nz-option>
+                        </ng-container>
+                        <nz-option *ngIf="isLoading" nzDisabled nzCustomContent>
+                          <i nz-icon type="loading" class="loading-icon"></i> Loading Data...
+                        </nz-option>
+                      </nz-select>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'select-qq-user'">
+                      <nz-select
+                        [ngStyle]="{width: '100%'}"
+                        nzShowSearch
+                        nzAllowClear
+                        [nzMode]="!item.mode ? 'default' : item.mode"
+                        [nzPlaceHolder]="'...输入关键字搜索'"
+                        [(ngModel)]="modalData.data[item.key]"
+                        [nzServerSearch]="true"
+                        (nzOnSearch)="onQqSearch($event, item.key)">
+                        <nz-option *ngIf="isSearchQqSelect" nzDisabled nzCustomContent>
+                          <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                        </nz-option>
+                        <ng-container *ngIf="!optionQqSearchs[item.key]">
+                          <ng-container *ngFor="let option of optionQqSearchs['0']; trackBy: trackByFn">
+                            <nz-option *ngIf="!isSearchQqSelect" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                          </ng-container>
+                        </ng-container>
+                        <ng-container *ngIf="optionQqSearchs[item.key]">
+                          <ng-container *ngFor="let option of optionQqSearchs[item.key]; trackBy: trackByFn">
+                            <nz-option *ngIf="!isSearchQqSelect" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                          </ng-container>
+                        </ng-container>
+                      </nz-select>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'select-oa-user'">
+                      <nz-select
+                        [ngStyle]="{width: '100%'}"
+                        nzShowSearch
+                        nzAllowClear
+                        [nzMode]="!item.mode ? 'default' : item.mode"
+                        [nzPlaceHolder]="'...输入关键字搜索'"
+                        [(ngModel)]="modalData.data[item.key]"
+                        [nzServerSearch]="true"
+                        (nzOnSearch)="onOaSearch($event, item.key)">
+                        <nz-option *ngIf="isSearchOaSelect" nzDisabled nzCustomContent>
+                          <i class="anticon anticon-loading anticon-spin loading-icon"></i> Loading Data...
+                        </nz-option>
+                        <ng-container *ngIf="!optionOaSearchs[item.key]">
+                          <ng-container *ngFor="let option of optionOaSearchs['0']; trackBy: trackByFn">
+                            <nz-option *ngIf="!isSearchOaSelect" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                          </ng-container>
+                        </ng-container>
+                        <ng-container *ngIf="optionOaSearchs[item.key]">
+                          <ng-container *ngFor="let option of optionOaSearchs[item.key]; trackBy: trackByFn">
+                            <nz-option *ngIf="!isSearchOaSelect" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                          </ng-container>
+                        </ng-container>
+                      </nz-select>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'select-oa-users'">
+                      <app-select-oa-user-component [(ngModel)]="modalData.data[item.key]"></app-select-oa-user-component>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'select-oa-user-new'">
+                      <div class="search-user-body">
+                        <textarea nz-input placeholder="{{oaUserAllLoading[item.key] || ''}}" [(ngModel)]="modalData.data[item.key]" [attr.id]="item.key" [disabled]="item.disabled || oaUserAllLoading[item.key]" (input)="userChange($event, item.key)" (focus)="userfocus(item.key)" (blur)="userblur($event, item.key)" autocomplete="off" [nzAutosize]="{ minRows: 1, maxRows: 6 }"></textarea>
+                        <div class="search-user-hint">
+                          <ul class="search-user-ul" *ngIf="oaUserSelectList[item.key] && oaUserSelectList[item.key].length > 0">
+                            <li *ngFor="let option of oaUserSelectList[item.key];trackBy: trackByFn" (click)="userclick(option, item.key);">
+                              <nz-avatar nzIcon="anticon anticon-user" nzSrc="{{'http://dayu.oa.com/avatars/' + option[0] + '/profile.jpg'}}" style="margin-right: 5px;"></nz-avatar>
+                              {{ option[1] }}
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'tree_select'">
+                      <nz-tree-select
+                        [ngStyle]="{width: '100%'}"
+                        [nzNodes]="item.templateOptions['treeSelect']"
+                        nzShowSearch
+                        [nzCheckable]="false"
+                        [nzShowLine]="true"
+                        [nzMultiple]="false"
+                        nzPlaceHolder="...输入搜索内容"
+                        [nzDisabled]="item.disabled"
+                        (ngModelChange)="modelChange($event, item.key)"
+                        [(ngModel)]="modalData.data[item.key]" [attr.id]="item.key">
+                      </nz-tree-select>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'input'">
+                      <input nz-input [(ngModel)]="modalData.data[item.key]" [placeholder]="item['hint'] ? item['hint'] : ''" [attr.id]="item.key" [disabled]="item.disabled" (blur)="modelChange($event, item.key)">
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'textarea'">
+                      <textarea nz-input [(ngModel)]="modalData.data[item.key]" [attr.id]="item.key" [disabled]="item.disabled" (blur)="modelChange($event, item.key)" [nzAutosize]="{ minRows: 3, maxRows: 6 }"></textarea>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'upload_file'">
+                      <nz-upload
+                        class="upload-list-inline"
+                        [nzAction]="'/web/cos/upload?type=' + item.file_type"
+                        [nzLimit]="item.file_limit || 0"
+                        [nzFileList]="modalData.data[item.key]"
+                        [nzMultiple]="true"
+                        [nzShowUploadList]="true"
+                        [nzBeforeUpload]="cos.beforeUploadFile"
+                        [nzCustomRequest]="cos.customReqs"
+                        [nzShowButton]="!modalData.data[item.key] || modalData.data[item.key].length < (item.file_length ? item.file_length : 100)"
+                        (nzChange)="handleChange($event, item.key)">
+                          <button nz-button title="{{item.templateOptions.tooltip ? item.templateOptions.tooltip : ''}}"><i nz-icon type="upload"></i><span>上传</span></button>
+                      </nz-upload>
+                    </ng-container>
+                  </ng-container>
+                </nz-form-control>
+              </nz-form-item>
+            </div>
+          </ng-container>
+        </div>
+
+  </ng-container>
+</nz-modal>
+

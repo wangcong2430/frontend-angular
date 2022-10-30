@@ -1,0 +1,223 @@
+<app-component-crumb [(list)]="list" [isChildren]="true">
+  <button nzSize="small" nz-button [nzType]="'primary'" (click)="showModal({})">新建价格库</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example  m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters  m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <div class="search-results bg-white m-3">
+    <app-container-table-group-new
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(childrenColumns)]="childrenColumns"
+      [(pagination)]="pagination"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (blurEvent)="blurEvent($event)"
+      [(disabledButton)]="disabledButton"
+      (clickEvent)="showModal($event)"
+    >
+    </app-container-table-group-new>
+  </div>
+</ng-container>
+
+<!-- 新建、编辑价格库modal -->
+<nz-modal
+  [(nzVisible)]="modalData['isVisible']"
+  [nzTitle]="modalData['title']"
+  nzMaskClosable="false"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzOkLoading]="modalData['nzOkLoading']"
+  [nzWidth]="640"
+>
+
+  <div nz-form *ngIf="modalData['isVisible']" >
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <nz-form-label>名称</nz-form-label>
+          <input nz-input placeholder="请输入名称" [(ngModel)]="modalData['data']['title']">
+        </nz-input-group>
+        <nz-form-explain *ngIf="!modalData['data']['title']" style="color: #dc3545">请输入名称!</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <nz-form-label>类别</nz-form-label>
+          <nz-select style="width: 100%" [nzDisabled]="modalData['isEdit']" (ngModelChange)="typeSelect($event)" [(ngModel)]="modalData['data']['category_id']" [nzShowSearch]="true" [nzMaxMultipleCount]="1" nzPlaceHolder="请选择">
+            <nz-option *ngFor="let option of ModalListData.categoryList;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+          </nz-select>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <nz-form-label>有效期</nz-form-label>
+          <nz-range-picker
+            [nzFormat]="dateFormat"
+            [(ngModel)]="modalData['data']['date_range']"
+            (nzOnCalendarChange)="rangPickerModelChange($event, modalData['data']['date_range'])">
+          </nz-range-picker>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <nz-form-label>上传渲染图</nz-form-label>
+          <div class="clearfix" style="display: inline-block;">
+            <nz-upload
+              nzAction="/web/plupload/upload?object_type=1015"
+              nzListType="picture-card"
+              [(nzFileList)]="modalData.img"
+              [nzShowButton]="modalData.img.length < 1"
+              [nzBeforeUpload]="beforeUpload"
+              [nzPreview]="handlePreview"
+              (nzChange)="imgHandleChange($event)">
+              <i nz-icon type="plus"></i>
+              <div class="ant-upload-text">Upload</div>
+            </nz-upload>
+            <nz-modal [nzVisible]="modalData['previewVisible']" [nzContent]="modalContent" [nzFooter]="null" (nzOnCancel)="modalData['previewVisible']=false">
+              <ng-template #modalContent>
+                <img [src]="modalData['previewImage']" [ngStyle]="{ 'width': '100%' }" />
+              </ng-template>
+            </nz-modal>
+          </div>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <nz-form-label>上传模板</nz-form-label>
+          <div class="clearfix" style="display: inline-block;">
+            <nz-upload
+              nzAction="/web/cos/upload?type=1020"
+              [nzFileList]="modalData.file"
+              [nzShowButton]="modalData.file.length < 1"
+              [nzPreview]="handleOpen"
+              (nzChange)="handleChange($event)">
+              <button nz-button>
+                <i nz-icon type="upload"></i><span>Upload</span>
+              </button>
+            </nz-upload>
+
+            <nz-upload
+            class="fl"
+            nzAction="/web/cos/upload?type=1600"
+            [nzCustomRequest]="cos.customReqs"
+            [nzBeforeUpload]="cos.beforeUploadImg"
+            [nzShowUploadList]="false"
+            (click)="$event.stopPropagation();"
+            (nzChange)="uploadChange($event, data)">
+            导入数据
+          </nz-upload>
+          </div>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <nz-input-group>
+          <nz-form-label>限制项目</nz-form-label>
+          <nz-select style="width: 100%" [(ngModel)]="modalData.data['limit_range']" nzMode="tags" [nzShowSearch]="true" nzPlaceHolder="请选择">
+            <nz-option *ngFor="let option of modalData.limitData;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+          </nz-select>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item>
+
+
+    <nz-layout class="layout" *ngIf="modalData.isEdit">
+      <nz-content>
+        <div style="background:#c5c3c340; border-radius: 5px; padding: 10px;">
+
+          <nz-form-item *ngFor="let children of modalData.data.children;trackBy: trackByFn; let i = index;" style="margin-bottom: 10px; border-bottom: 1px solid #1e20215e">
+            <nz-form-control>
+              <label nz-checkbox [(ngModel)]="modalData['data']['children'][i]['isNeed']" (ngModelChange)="isNeed($event, i)"> 是否需要 </label>
+            </nz-form-control>
+
+            <nz-form-control [nzSpan]="8">
+              <nz-form-label style="width: 40%; float: left"> {{ModalListData.produceBreakdownList[children['produce_breakdown_id']]['label']}}</nz-form-label>
+              <nz-input-number style="width: 60%" [nzMin]="0" [(ngModel)]="modalData.data.children[i].value" (ngModelChange)="detailInput($event, i)"></nz-input-number>
+            </nz-form-control>
+
+            <nz-form-control [nzSpan]="8">
+              <nz-form-label>制作等级</nz-form-label>
+              <nz-select [nzShowSearch]="true" [nzMaxMultipleCount]="1" style="width: 100px;"  nzPlaceHolder="请选择" [(ngModel)]="children.produce_grade_id" (ngModelChange)="makeLevelSelect($event, i)">
+                <nz-option *ngFor="let option of ModalListData.produceGradeList;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+            <nz-form-control [nzSpan]="8">
+              <nz-form-label>工作量单位</nz-form-label>
+              <nz-select [nzShowSearch]="true" [nzMaxMultipleCount]="1" style="width: 100px;"  nzPlaceHolder="请选择" [(ngModel)]="children.workload_unit_id" (ngModelChange)="workSelect($event, i)">
+                <nz-option *ngFor="let option of ModalListData.workloadUnitList;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+          </nz-form-item >
+
+        </div>
+      </nz-content>
+    </nz-layout>
+
+    <nz-layout class="layout" *ngIf="!modalData.isEdit">
+      <nz-content>
+        <div style="background:#c5c3c340; border-radius: 5px; padding: 10px;">
+
+          <nz-form-item *ngFor="let children of ModalListData.produceBreakdownList;trackBy: trackByFn; let i = index;" style="margin-bottom: 10px; border-bottom: 1px solid #1e20215e">
+            <nz-input-group *ngIf="children.value != 0">
+            <nz-form-control>
+              <label nz-checkbox [(ngModel)]="modalData['data']['children'][i]['isNeed']" (ngModelChange)="isNeed($event, i)"> 是否需要 </label>
+            </nz-form-control>
+
+
+            <nz-form-control [nzSpan]="8">
+              <nz-form-label style="width: 40%; float: left"> {{children.label}}</nz-form-label>
+              <nz-input-number style="width: 60%" [nzMin]="0" [(ngModel)]="modalData.data.children[i].value" (ngModelChange)="detailInput($event, i)"></nz-input-number>
+            </nz-form-control>
+
+            <nz-form-control [nzSpan]="8">
+              <nz-form-label>制作等级</nz-form-label>
+              <nz-select [nzShowSearch]="true" [nzMaxMultipleCount]="1" style="width: 100px;"  nzPlaceHolder="请选择" [(ngModel)]="children.produce_grade_id" (ngModelChange)="makeLevelSelect($event, i)">
+                <nz-option *ngFor="let option of ModalListData.produceGradeList;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+              </nz-select>
+            </nz-form-control>
+
+            <nz-form-control [nzSpan]="8">
+              <nz-form-label>工作量单位</nz-form-label>
+              <nz-select [nzShowSearch]="true" [nzMaxMultipleCount]="1" style="width: 100px;"  nzPlaceHolder="请选择" [(ngModel)]="children.workload_unit_id" (ngModelChange)="workSelect($event, i)">
+                <nz-option *ngFor="let option of ModalListData.workloadUnitList;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+              </nz-select>
+            </nz-form-control>
+            </nz-input-group>
+          </nz-form-item >
+
+        </div>
+      </nz-content>
+    </nz-layout>
+
+  </div>
+</nz-modal>

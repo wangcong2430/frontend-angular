@@ -1,0 +1,141 @@
+<app-component-crumb></app-component-crumb>
+
+<div class="mx-3" *ngIf="queryFields && queryFields.length > 0">
+  <app-container-search-form
+    style="width: 100%"
+    [(data)]="queryFields"
+    (submit)="submitSearchForm($event)"
+  >
+  </app-container-search-form>
+</div>
+
+<nz-card class="mx-3">
+  <nz-list
+    class="demo-loadmore-list"
+    [nzItemLayout]="'horizontal'"
+    [nzLoading]="initLoading"
+    [nzLoadMore]="loadMore"
+    >
+
+    <div style="padding-left: 80px;">
+      <nz-timeline nzMode="left" >
+        <ng-container *ngIf="topList && topList.length > 0">
+            <nz-timeline-item>
+                <div class="timeline-top">{{ 'TOP' | translate}}</div>
+            </nz-timeline-item>
+            <ng-container *ngFor="let data of topList;let index=index; trackBy: trackByFn">
+              <nz-timeline-item>
+                <div class="timeline-time text-body">{{data.publish_time | dateFormat: 'yyyy/MM/dd'}}</div>
+                <div class="timeline-content bg-white p-2">
+                    <div class="title">
+                        <ng-container *ngIf="data.is_top == '1'">
+                            <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'TOP' | translate }}</span>
+                          </ng-container>
+                          <ng-container *ngIf="data.is_invalid == '1'">
+                            <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'EXPIRED' | translate}}</span>
+                          </ng-container>
+                          <ng-container *ngIf="data.is_new == '1'">
+                            <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'NEWEST' | translate }}</span>
+                          </ng-container>
+                          <ng-container *ngIf="data.is_read == '2'">
+                            <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'NEW' | translate}}</span>
+                          </ng-container>
+                          <ng-container *ngIf="data.is_publish == '2'">
+                            <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'UN_PUBLISH' | translate}}</span>
+                          </ng-container>
+                          <ng-container *ngIf="(supplier_type=='contracted_supplier' && data.contracted_supplier_limit_must_time != null) || (supplier_type=='registered_supplier' && data.registered_supplier_limit_must_time != null)">
+                            <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'MUST' | translate }}</span>
+                          </ng-container>
+
+                      <span class="text-body mx-1 font-weight-bold " style="font-size: 16px">{{data.title}}</span>
+                      <time class="text-primary  mx-1">[ {{data.publish_time | dateFormat: 'HH:mm:ss'}} ]</time>
+                    <a *ngIf="data['attachment_id']" class="timeline-content-file text-primary mx-1"  target="_blank" href="{{data['uploadFile']['file_path']}}">{{ 'FILE' | translate }}
+                      <span *ngIf="data.uploadFile && (data.uploadFile.file_type === '.jpg' || data.uploadFile.file_type === '.png' || data.uploadFile.file_type === '.bmp') " (click)="preview($event, data)">({{'PREVIEW' | translate}})</span>
+                    </a>
+                    <button *ngIf="data['is_sign_up_button']" style="margin-left: 20px"  nz-button nzType="primary" (click)="onSignup(data['id'],data['is_external_link'],data['external_link'],index)">{{data['button_name']}}</button>
+                    </div>
+                    <div class="content-body text-secondary" >
+                      <ng-container *ngIf="data.showMore">
+                          <div [innerHTML]="data.content"></div>
+                          <div class="px-3"><video  *ngIf="data.uploadVideo && data.uploadVideo.file_path"  [src]="data.uploadVideo && data.uploadVideo.file_path ? data.uploadVideo && data.uploadVideo.file_path : '/web/file/100590'" controls="controls" style="height: 337px;;"></video></div>
+                          <div class="px-3"><a class="text-danger" (click)="viewMore(data, false)">[{{ 'CLOSE' |  translate }}]</a></div>
+                      </ng-container>
+                      <ng-container *ngIf="!data.showMore && data.content">
+                          <div>{{simplify(data.content)}}<a class="text-danger ml-2" (click)="viewMore(data, true)">[{{ 'MORE' |  translate }}]</a></div>
+                      </ng-container>
+
+                    </div>
+                </div>
+              </nz-timeline-item>
+            </ng-container>
+        </ng-container>
+
+
+
+        <ng-container *ngFor="let item of bulletinList; trackBy: trackByFn">
+          <nz-timeline-item>
+              <div class="timeline-year">{{item.year}}</div>
+          </nz-timeline-item>
+          <ng-container *ngFor="let data of item.children; trackBy: trackByFn">
+            <nz-timeline-item>
+              <div class="timeline-time text-body">{{data.publish_time | dateFormat: 'MM/dd'}}</div>
+              <div class="timeline-content bg-white p-2">
+                  <div class="title">
+                    <!-- <i nz-icon type="clock-circle-o" style="font-size: 16px;" class="mx-1"></i> -->
+                      <ng-container *ngIf="data.is_top == '1'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'TOP' | translate }}</span>
+
+                      </ng-container>
+                      <ng-container *ngIf="data.is_invalid == '1'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'EXPIRED' | translate}}</span>
+                      </ng-container>
+                      <ng-container *ngIf="data.is_new == '1'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'NEWEST' | translate }}</span>
+                      </ng-container>
+                      <ng-container *ngIf="data.is_read == '2'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'NEW' | translate}}</span>
+                      </ng-container>
+                      <ng-container *ngIf="data.is_publish == '2'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'UN_PUBLISH' | translate}}</span>
+                      </ng-container>
+                      <ng-container *ngIf="data.is_must == '1'">
+                        <span class="badge badge-pill badge-danger"  style="transform: scale(0.8);">{{ 'MUST' | translate }}</span>
+                      </ng-container>
+
+                    <span class="text-body mx-1 font-weight-bold" style="font-size: 16px">{{data.title}}</span>
+                    <time class="text-primary  mx-1">[ {{data.publish_time | dateFormat: 'HH:mm:ss'}} ]</time>
+                    <a *ngIf="data['attachment_id']" class="timeline-content-file text-primary mx-1"  target="_blank" href="{{data['uploadFile']['file_path']}}">{{ 'FILE' | translate }}
+                      <span *ngIf="data.uploadFile && (data.uploadFile.file_type === '.jpg' || data.uploadFile.file_type === '.png' || data.uploadFile.file_type === '.bmp') " (click)="preview($event, data)">({{'PREVIEW' | translate}})</span>
+                    </a>
+                  </div>
+                  <div class="content-body text-secondary" >
+                    <ng-container *ngIf="data.showMore">
+                        <div [innerHTML]="data.content"></div>
+                        <div class="px-3"><video  *ngIf="data.uploadVideo && data.uploadVideo.file_path"  [src]="data.uploadVideo && data.uploadVideo.file_path ? data.uploadVideo && data.uploadVideo.file_path : '/web/file/100590'" controls="controls" style="height: 337px;;"></video></div>
+                        <div class="px-3"><a class="text-danger" (click)="viewMore(data, false)">[{{'CLOSE' | translate}}]</a></div>
+                    </ng-container>
+                    <ng-container *ngIf="!data.showMore && data.content">
+                        <div>{{simplify(data.content)}}<a class="text-danger ml-2" (click)="viewMore(data, true)">[{{'MORE' | translate}}]</a></div>
+                    </ng-container>
+
+                  </div>
+              </div>
+            </nz-timeline-item>
+          </ng-container>
+        </ng-container>
+      </nz-timeline>
+    </div>
+    <p class="text-center text-muted pt-4" *ngIf="!isData && !loading">-- {{ 'NO_MORE' | translate }}  --</p>
+    <ng-template #loadMore>
+      <div class="loadmore text-center">
+        <button nz-button *ngIf="!loadAll && !loading" (click)="onLoadMore()">  {{'LOADMORE' | translate}}</button>
+        <p class="text-center text-muted pt-4" *ngIf="loadAll && isData">-- {{'LOADED' | translate}} --</p>
+      </div>
+    </ng-template>
+
+
+    <ng-template #dotTemplate>
+      <i nz-icon type="clock-circle-o" style="font-size: 16px;"></i>
+      </ng-template>
+  </nz-list>
+</nz-card>

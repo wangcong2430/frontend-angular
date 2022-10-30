@@ -1,0 +1,124 @@
+:host ::ng-deep .body-pagination {
+  height: 42px;
+}
+:host ::ng-deep .ant-table-expanded-row th{
+  background: none !important;
+}
+:host ::ng-deep .body-border {
+  border: 1px solid #e7e7f0;
+  margin-left: -6px;
+  margin-right: -6px;
+}
+
+
+:host ::ng-deep .quote-td .td-col {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+:host ::ng-deep .quote-td .ant-form-item-label label {
+  color: rgba(0, 0, 0, 0.65);
+}
+:host ::ng-deep .quote-td .td-col a {
+  line-height: 38px;
+  text-align: center;
+  float: left;
+  margin-left: 10px;
+}
+
+.hint-red {
+  border-radius: 4px;
+  border: 1px red solid;
+}
+
+:host ::ng-deep .ant-table-thead > tr > th, :host ::ng-deep .ant-table-tbody > tr > td {
+  padding: 8px 4px;
+}
+
+
+.ant-table-tbody .checked {
+  background-color: rgba(96, 171, 114, 0.15);
+}
+
+.ant-table-tbody .children-tr:hover > td {
+  background-color: rgba(96, 171, 114, 0.15);
+}
+
+:host ::ng-deep .ant-table-middle tr.ant-table-expanded-row td > .ant-table-wrapper {
+  margin: -12px -16px -13px;
+  padding: 12px 16px 13px;
+}
+
+:host ::ng-deep .ant-card-body {
+  padding: 12px;
+}
+
+:host ::ng-deep .ant-table-middle {
+  padding: 16px;
+}
+
+:host ::ng-deep .ant-spin-nested-loading {
+  min-height: 100px;
+}
+
+:host ::ng-deep .ant-table-middle > .ant-table-content > .ant-table-body > table > .ant-table-thead > tr > th {
+  padding: 12px 4px;
+  font-size: 12px;
+  min-width: 100px;
+  max-width: 300px;
+}
+
+:host ::ng-deep .ant-table-content > .ant-table-body > table > .ant-table-tbody > tr > td{
+  padding: 8px 4px;
+  font-size: 12px;
+  word-break: break-word;
+}
+
+:host ::ng-deep  .ant-table-fixed-header .ant-table-scroll .ant-table-header  {
+  margin-bottom: 0 !important;
+}
+
+:host ::ng-deep .parent-tr .ant-table-thead > tr > th, 
+:host ::ng-deep .parent-tr .ant-table-tbody > tr > td  {
+  width: 120px;
+  word-wrap: break-word;
+}
+
+:host ::ng-deep .parent-tr .ant-table-tbody > tr > td  {
+  height: 116px;
+}
+
+:host ::ng-deep  .ant-table-tbody  tr  td img  {
+  max-width: 80px;
+}
+
+
+
+
+
+:host ::ng-deep .ant-table-thead > tr > th, .ant-table-tbody > tr > td {
+  padding: 8px;
+}
+
+:host ::ng-deep tr.ant-table-expanded-row td > .ant-table-wrapper {
+  margin: 0;
+}
+
+
+:host ::ng-deep .children-tr .ant-table-tbody > tr > td  {
+  height: 116px;
+}
+
+
+:host ::ng-deep .children-tr .ant-table-header  tr th,
+:host ::ng-deep .children-tr .ant-table-tbody > tr > td  {
+  max-width: 120px;
+  min-width: 120px;
+  padding: 8px 4px;
+  width: 120px;
+  position: relative;
+
+  /* 自动换行 */
+  word-wrap: break-word; 
+  /* 强制换行 */
+  word-break: break-word;
+}

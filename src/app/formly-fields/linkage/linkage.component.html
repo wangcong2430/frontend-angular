@@ -1,0 +1,11 @@
+<div class="formly-linkage">
+    <div class="form-row">
+        <div class="form-group col-md-4" *ngFor="let row of to.data;let i = index;">
+            <!--<label>{{row.label}}</label>-->
+            <select class="form-control" (change)="change(i)" [(ngModel)]="row.value" [ngClass]="{'is-invalid': to.required && showError && !row.value}">
+                <option value="">请选择{{row.label}}</option>
+                <option *ngFor="let item of row.options" [value]="item.value">{{item.label}}</option>
+            </select>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+:host ::ng-deep .children-tr {
+  background: #fff;
+}
+
+:host ::ng-deep .parent-tr .parent-title {
+  margin-right: 16px;
+  float: left;
+}
+
+:host ::ng-deep .parent-tr {
+  background: #E8EFFB;
+  font-family: PingFangSC-Regular;
+  font-weight: 400;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.90);
+  line-height: 22px;
+}
+
+:host ::ng-deep .children-th {
+  background: #dedede;
+  background: #fff;
+  color: #000;
+}
+
+:host ::ng-deep .body-border {
+  border: 1px solid #e7e7f0;
+  margin-left: -6px;
+  margin-right: -6px;
+}
+
+
+
+:host ::ng-deep.bg-white tbody>tr:hover>td {
+  background: none;
+}

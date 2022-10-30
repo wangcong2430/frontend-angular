@@ -1,0 +1,56 @@
+<body>
+  <div class="login">
+    <div class="content">
+      <div class="inner">
+
+        <img src="assets/images/logo_white.png" width="350" height="51">
+
+        <div class="box logined bg-white" id="logined" style="">
+
+          <p class="icon"></p>
+
+          <p>
+            您好<span id="loginQQUser"></span>，您没有平台权限，请<a target="_blank" class="text-underline" href="https://wbp-1258344700.cos.ap-guangzhou.myqcloud.com/public/static/%E4%BE%9B%E5%BA%94%E5%95%86%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E6%A8%A1%E6%9D%BF_V20190827.xls">下载模板</a>，联系采购商务申请权限。
+            <span class="d-block" *ngIf="open_id">您登录的QQ号对应的OpenID为：{{open_id}}</span>
+            <span class="d-block">账号需要提供OpenID，登记好之后使用相应的QQ登录即可</span>
+            <a class="mt-5 text-underline" *ngIf="open_id" id="loginout" href="/qq/logout" title="注销">[注销]</a>
+          </p>
+
+          <!-- <p class="txt">
+            <a href="javascript:;" data-toggle="modal" data-target="#applyModal" title="申请权限">申请权限</a>
+          </p> -->
+
+        </div>
+
+        <!-- <p class="help">
+          碰到问题？可联系管理员(QQ:
+            <a target="_blank" class="mr-2 d-inline-block" style="white-space: nowrap;" href="http://wpa.qq.com/msgrd?v=3&amp;uin=3283004664&amp;site=qq&amp;menu=yes">3283004664;</a>
+          )
+        </p> -->
+
+        <img src="assets/images/login_box.png" class="mx-auto mb-3 w-100" >
+
+        <p class="text-white text-center" style="margin-top: -135px;">碰到问题？可联系管理员(QQ:
+          <a target="_blank" class="mr-2 d-inline-block text-underline" style="white-space: nowrap;" 
+            href="http://wpa.qq.com/msgrd?v=3&amp;uin=3283004664&amp;site=qq&amp;menu=yes">3283004664;</a>
+          ) 
+        </p>
+
+
+      </div>
+      <div class="footer">Copyright©1998-2021 Tencent. All Rights Reserved</div>
+    </div>
+  </div>
+</body>
+
+<script type="text/javascript">
+  $('.contactus-btn').hover(function(){
+
+    $('.help-list').show();
+
+  }, function(){
+
+    $('.help-list').hide();
+
+  })
+</script>

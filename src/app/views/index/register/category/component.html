@@ -1,0 +1,43 @@
+<div class="register-category-selector">
+    <div class="top-level">
+        <ul>
+            <li *ngFor="let category of categories;trackBy: trackByFn" (click)="activeTopCategory(category)"
+                [class.active]="category.active"
+            >
+                <span class="badge badge-light badge-counter">{{category.counter}}</span>
+                {{category.title}}
+            </li>
+        </ul>
+    </div>
+    <div class="children-level">
+        <ng-container *ngFor="let category of categories; trackBy: trackByFn">
+            <ng-container *ngIf="category.active">
+                <nz-tabset>
+                    <ng-container *ngFor="let category_2 of category.children; trackBy: trackByFn">
+                        <ng-container *ngIf="category_2.children">
+                            <nz-tab [nzTitle]="category_2.title+' ( '+category_2.counter+' ) '">
+                                <div class="row" *ngFor="let category_3 of category_2.children;trackBy: trackByFn">
+                                    <div class="col-md-12">
+                                        <h4>{{category_3.title}}</h4>
+                                    </div>
+                                    <ng-container *ngFor="let category_4 of category_3.children; trackBy: trackByFn">
+                                        <div class="col-md-3"
+                                             style="margin: 10px 0;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">
+                                            <label nz-checkbox
+                                                   [attr.title]="category_4.title"
+                                                   (ngModelChange)="change(category_4)"
+                                                   [(ngModel)]="category_4.checked">{{category_4.title}}</label>
+                                        </div>
+                                    </ng-container>
+                                </div>
+                            </nz-tab>
+                        </ng-container>
+                    </ng-container>
+                </nz-tabset>
+            </ng-container>
+        </ng-container>
+    </div>
+</div>
+<div class="clear text-right">
+    <button class="btn btn-success" (click)="submit()" i18n>Next</button>
+</div>

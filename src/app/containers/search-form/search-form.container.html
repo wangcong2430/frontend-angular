@@ -1,0 +1,64 @@
+<nz-card class="pb-0 mb-3" *ngIf="isVisible">
+  <div class="search-filters">
+    <form nz-form [formGroup]="searchForm" class="bg-white" (submit)="submitForm()">
+      <div nz-row [nzGutter]="24">
+        <div nz-col [nzSpan]="6" *ngFor="let item of data;trackBy: trackByFn" [style.display]="item['show']?'block':'none'">
+          <nz-form-item [nzFlex]="true">
+            <nz-form-label style="min-width: 150px" [nzFor]="'field'+item.key">{{item.templateOptions.label}}</nz-form-label>
+            <nz-form-control style="width: 60%">
+              <ng-container [ngSwitch]="item.type">
+
+                <ng-container *ngSwitchCase="'select'">
+                  <nz-select [formControlName]="item.key" [attr.id]="item.key" [nzShowSearch]="true" [nzAllowClear]="true">
+                    <nz-option *ngFor="let option of item.templateOptions.options;trackBy: trackByFn" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+                  </nz-select>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'tree_select'">
+                  <nz-tree-select *ngIf="item['templateOptions'] && item.templateOptions['options']"
+                    [nzNodes]="item.templateOptions['options']"
+                    nzShowSearch
+                    nzCheckable
+                    [nzShowLine]="true"
+                    nzPlaceHolder="输入搜索内容..."
+                    [formControlName]="item.key" [attr.id]="item.key">
+                  </nz-tree-select>
+                </ng-container>
+
+                <ng-container *ngSwitchCase="'input'">
+                  <input nz-input [formControlName]="item.key" [placeholder]="item.templateOptions['placeholder'] || ''" [attr.id]="item.key">
+                </ng-container>
+
+                <ng-container *ngSwitchDefault>
+                  <input nz-input [formControlName]="item.key" [attr.id]="item.key">
+                </ng-container>
+              </ng-container>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzSpan]="6" *ngIf="data.length < 4" style="margin-top: 3px;">
+          <button type="submit" nz-button [nzType]="'primary'" [nzLoading]="loading">{{ 'INQUIRY' | translate }}</button>
+        </div>
+
+        <div nz-col [nzSpan]="6" style="text-align: center;" class="text-right" *ngIf="data.length >= 4 && isCollapse">
+          <button type="submit" nz-button [nzType]="'primary'" [nzLoading]="loading">{{ 'INQUIRY' | translate }}</button>
+          <a style="margin-left:8px; font-size:12px;" *ngIf="isShowCollapse" (click)="toggleCollapse()">
+            {{'MORE_FILTER' | translate}}
+            <i class="anticon" [class.anticon-down]="isCollapse" [class.anticon-up]="!isCollapse"></i>
+          </a>
+        </div>
+      </div>
+
+      <div nz-row *ngIf="data.length >= 4 && !isCollapse">
+        <div nz-col [nzSpan]="24" style="text-align: center;">
+          <button type="submit" nz-button [nzType]="'primary'" [nzLoading]="loading">{{ 'INQUIRY' | translate }}</button>
+          <a style="margin-left:8px;font-size:12px;" *ngIf="isShowCollapse" (click)="toggleCollapse()">
+            {{'MORE_FILTER' | translate}}
+            <i class="anticon" [class.anticon-down]="isCollapse" [class.anticon-up]="!isCollapse"></i>
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+</nz-card>

@@ -1,0 +1,65 @@
+<app-component-crumb  [(list)]="list">
+  <button nzSize="small" nz-button nzType="primary" [disabled]="false" (click)="showModal(1)">通过</button>
+  <button nzSize="small" nz-button nzType="danger" [disabled]="false" (click)="showModal(2)">驳回</button>
+</app-component-crumb>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <div class="search-results bg-white m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      (clickEvent)="clickEvent($event)"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+<nz-modal [(nzVisible)]="isOpen" nzMaskClosable="false" nzMaskClosable="false" [nzTitle]="'信息提示'" (nzOnCancel)="handleCancel()" (nzOnOk)="handleOk()">
+  <p>{{approve.title}}</p>
+</nz-modal>
+
+<!--操作提示-->
+<nz-modal [(nzVisible)]="msgHint.isShow" nzTitle="详情内容" (nzOnCancel)="msgHintModalCancel()" [nzOkText]="null">
+  <ng-container *ngIf="msgHint.data.length === 0">
+    <p>未有审批详情</p>
+  </ng-container>
+  <ng-container *ngIf="msgHint.data.length > 0">
+    <nz-timeline>
+      <nz-timeline-item *ngFor="let value of msgHint.data;trackBy: trackByFn">
+        <p style="min-height: 39px">
+          <span class="fl"><nz-avatar nzIcon="anticon anticon-user" nzSrc="{{value['face_url']}}" style="margin-right: 8px;"></nz-avatar> {{value['username']}}</span>
+          <span class="fl" style="margin: 5px 0 0 12px;"><i nz-icon type="clock-circle" theme="outline"></i> {{value['approve_time']}}</span>
+        </p>
+        <p>操作流程：{{value['step_name']}}</p>
+        <p *ngIf="value['approve_memo']">备注：{{ value['approve_memo'] }}</p>
+      </nz-timeline-item>
+    </nz-timeline>
+  </ng-container>
+</nz-modal>
+
+<!--操作提示-->
+<nz-modal [(nzVisible)]="mshShow.isShow" nzTitle="MSH信息" (nzOnCancel)="mshShowModalCancel()" [nzOkText]="null" [nzWidth]="'68%'">
+  <p>MSH单号：{{mshShow.code}}</p>
+  <p>MSH截图：</p>
+  <div [ngStyle]="{width: '100%', minHeight: '200px'}">
+    <nz-spin [nzSpinning]="mshShow.loading">
+      <img [src]="mshShow.url" [ngStyle]="{width: '100%'}" (load)="changeLoad()">
+    </nz-spin>
+  </div>
+</nz-modal>

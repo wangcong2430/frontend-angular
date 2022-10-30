@@ -1,0 +1,48 @@
+<nz-modal
+  #table
+  [nzZIndex]="nzZIndex"
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzFooter]="null"
+  nzMaskClosable="false"
+  [nzWidth]="1200"
+  (nzOnCancel)="modalCancel()"
+>
+<ng-template #modalTitle>
+  <div
+    cdkDrag
+    cdkDragHandle
+    cdkDragRootElement=".ant-modal-content"
+  >
+  {{title}}
+</div>
+
+</ng-template>
+  <ng-container *ngIf="loading">
+    <div class="example">
+      <nz-spin></nz-spin>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="!loading">
+    <nz-table #basicTable [nzData]="list">
+      <thead>
+        <tr>
+          <th *ngFor="let column of columns" >{{ column.label }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of basicTable.data">
+          <td *ngFor="let column of columns" style="max-width: 300px" >
+            <ng-container *ngIf="column.type == 'attachment' &&  item[column.key]">
+              <a target="_blank"  [href]="'/web/file/' + item[column.key]"> 下载 </a>
+            </ng-container>
+            <ng-container *ngIf="column.type != 'attachment'">
+              <p [innerHtml]=" item[column.key] ? item[column.key] : '' "></p>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+</nz-modal>
+

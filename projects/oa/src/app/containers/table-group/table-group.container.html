@@ -1,0 +1,133 @@
+<div class="table-content">
+
+  <div class="body-border">
+    <div class="body-pagination">
+      <nz-pagination
+        style="float: right;"
+        nzShowSizeChanger
+        [nzShowTotal]="totalTemplate"
+        [nzTotal]="pagination.total_count"
+        [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+        [(nzPageIndex)]="pagination.page_index"
+        [(nzPageSize)]="pagination.page_size"
+        (nzPageIndexChange)="pageIndexChange($event)"
+        (nzPageSizeChange)="pageSizeChange($event)"
+        [nzHideOnSinglePage]="false"
+      >
+      </nz-pagination>
+    </div>
+    <nz-table
+      #nestedTable
+      nzSize="middle"
+      [nzData]="list"
+      [nzFrontPagination]="false"
+      [nzShowPagination]="false"
+      [(nzLoading)]="loading"
+      [nzPageSize]="10"
+      [nzHideOnSinglePage]="true"
+    >
+
+      <thead>
+      <tr>
+        <th nzShowCheckbox [(nzChecked)]="allChecked" [nzIndeterminate]="indeterminate" (nzCheckedChange)="checkAll($event)"></th>
+        <th nzShowExpand></th>
+        <th *ngFor="let column of columns;trackBy: trackByFn">
+          <ng-container [ngSwitch]="column.type">
+            <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+          </ng-container>
+        </th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <ng-template ngFor let-data [ngForOf]="nestedTable.data" [ngForTrackBy]="trackByFn">
+        <tr>
+          <td nzShowCheckbox [(nzChecked)]="data.checked" [nzIndeterminate]="data.indeterminate" (nzCheckedChange)="refreshStatus(true)"></td>
+          <td nzShowExpand [(nzExpand)]="expand[data.id]"></td>
+          <td *ngFor="let column of columns;trackBy: trackByFn">
+            <ng-container [ngSwitch]="column.type">
+              <ng-container *ngSwitchDefault>{{data[column.key] && data[column.key] !== '0.00' ? data[column.key] : 'NA'}}</ng-container>
+            </ng-container>
+          </td>
+        </tr>
+        <!--子表格-->
+        <tr [nzExpand]="expand[data.id]" class="children-tr">
+          <td></td>
+          <td [attr.colspan]="columns.length + 1">
+            <nz-table
+              #innerTable
+              [nzData]="data.children"
+              nzSize="middle"
+              [nzFrontPagination]="false"
+              [nzShowPagination]="false"
+            >
+          <thead>
+          <tr>
+            <th></th>
+            <th *ngFor="let column2 of childrenColumns;trackBy: trackByFn">
+              <ng-container [ngSwitch]="column2.type">
+                <ng-container *ngSwitchDefault>{{column2.label}}</ng-container>
+              </ng-container>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let data2 of innerTable.data;trackBy: trackByFn">
+            <td nzShowCheckbox [(nzChecked)]="data2.checked" [nzDisabled]="isChildrenDisabled" (nzCheckedChange)="refreshChildrenStatus()"></td>
+            <td *ngFor="let column2 of childrenColumns;trackBy: trackByFn">
+              <ng-container [ngSwitch]="column2.type">
+                <ng-container *ngSwitchCase="'input'">
+                  <input type="text" nz-input placeholder="{{column2['placeholder'] || ''}}" [(ngModel)]="data2[column2.key]" (blur)="getBlurEvent(column2.key, data2)">
+                </ng-container>
+                <ng-container *ngSwitchCase="'click'">
+                  <ng-container *ngIf="column2.templateOptions">
+                    <a (click)="getClickEvent(btn['value'], data2)" *ngFor="let btn of column2.templateOptions.options; trackBy: trackByFn" style="margin: 0 6px;">{{btn['label']}}</a>
+                  </ng-container>
+                  <ng-container *ngIf="!column2.templateOptions">
+                    <ng-container *ngIf="!column2['hideClick']">
+                      <a (click)="getClickEvent(column2.key, data2)">{{data2[column2.key] ? data2[column2.key] : 'NA'}}</a>
+                    </ng-container>
+                    <ng-container *ngIf="column2['hideClick']">
+                      {{data2[column2.key] ? data2[column2.key] : 'NA'}}
+                    </ng-container>
+                  </ng-container>
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                  <ng-container [ngSwitch]="column2.key">
+                    <ng-container *ngSwitchCase="'thing_code'">
+                      <a (click)="getClickEvent(column2.key, data2)">{{data2[column2.key] ? data2[column2.key] : 'NA'}}</a>
+                    </ng-container>
+                    <ng-container *ngSwitchDefault>{{data2[column2.key] && data2[column2.key] !== '0.00' ? data2[column2.key] : 'NA'}}</ng-container>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+            </td>
+          </tr>
+          </tbody>
+        </nz-table>
+        </td>
+        </tr>
+        </ng-template>
+      </tbody>
+    </nz-table>
+  </div>
+
+  <div class="body-pagination">
+    <nz-pagination
+      style="margin-top: 8px;float: right;"
+      nzShowSizeChanger
+      [nzShowTotal]="totalTemplate"
+      [nzTotal]="pagination.total_count"
+      [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+      [(nzPageIndex)]="pagination.page_index"
+      [(nzPageSize)]="pagination.page_size"
+      (nzPageIndexChange)="pageIndexChange($event)"
+      (nzPageSizeChange)="pageSizeChange($event)"
+      [nzHideOnSinglePage]="false"
+    >
+    </nz-pagination>
+  </div>
+</div>
+<ng-template #totalTemplate let-total>
+  Total {{pagination.total_count}} items
+</ng-template>

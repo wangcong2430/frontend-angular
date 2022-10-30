@@ -1,0 +1,64 @@
+<nz-modal
+  #thingLabel
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  [nzZIndex]="nzZIndex"
+  [nzWidth]="750"
+  nzOkText="保存"
+  [nzOkLoading]="isOkLoading"
+  (nzOnCancel)="modalCancel()"
+  (nzOnOk)="handleOk()"
+
+
+>
+<ng-template #modalTitle>
+  <div
+    cdkDrag
+    cdkDragRootElement=".ant-modal-content"
+    cdkDragHandle>
+    标签编辑
+  </div>
+</ng-template>
+
+  <ng-template #modalContent>
+
+    <ng-container *ngIf="loading">
+      <div class="example" style="min-height: 200px;">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!loading">
+      <ng-container *ngFor="let item of list; trackBy: trackByFn">
+        <div class="bg-primary mb-0 p-2 text-white">
+          {{item['category']}}: {{item['thing_names']}}
+        </div>
+        <nz-table nzTemplateMode #thingTable>
+          <thead>
+            <tr>
+              <ng-container *ngFor="let column of columns; trackBy: trackByFn">
+                <th>{{column.label}}</th>
+              </ng-container>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <ng-container *ngFor="let column of columns; trackBy: trackByFn">
+                <td><app-label-edit [required]="false" [(data)]="item[column.key]" edit="true"></app-label-edit></td>
+              </ng-container>
+            </tr>
+          </tbody>
+        </nz-table>
+      </ng-container>
+
+      <ng-container *ngIf="!list.length">
+        <nz-empty></nz-empty>
+      </ng-container>
+    </ng-container>
+  </ng-template>
+</nz-modal>
+
+
+
+

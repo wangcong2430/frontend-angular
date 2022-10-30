@@ -1,0 +1,6 @@
+::ng-deep [data-theme="artcool"] {
+  
+}
+::ng-deep [data-theme="artcool"] .ant-layout-footer{
+    display: none;
+}

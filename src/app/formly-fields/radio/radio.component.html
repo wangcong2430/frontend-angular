@@ -1,0 +1,13 @@
+<div class="custom-control-group">
+  <div class="custom-control custom-radio custom-control-inline" *ngFor="let item of to.options;let i = index;">
+    <input type="radio"
+           id="{{key + '_'+ i}}"
+           name="{{key + '_'+ i}}"
+           [(ngModel)]="model[key]"
+           [value]="item[to.valueProp || 'value']"
+           (change)="updateForm()"
+           [disabled]="to.disabled"
+           class="custom-control-input">
+    <label class="custom-control-label" for="{{key + '_'+ i}}">{{item[to.labelProp || 'label']}}</label>
+  </div>
+</div>

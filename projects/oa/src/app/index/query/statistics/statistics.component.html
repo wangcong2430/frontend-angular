@@ -1,0 +1,102 @@
+<app-component-crumb>
+   <button nzSize="small" nz-button (click)="export()" *ngIf="can">导出</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <nz-card class="search-filters bg-white m-3">
+    <ng-container *ngIf="searchFields">
+      <form [formGroup]="searchForm" nz-form [nzLayout]="'horizontal'">
+        <button type="submit" style="display: none"></button>
+        <formly-form [model]="searchModel" [fields]="searchFields" [options]="searchOptions" [form]="searchForm">
+          <div class="search d-block text-center">
+            <button nzType="primary" nz-button (click)="search()" [disabled]="is_disabled">查询</button>
+            <button nz-button (click)="export()" nzType="primary">导出</button>
+          </div>
+        </formly-form>
+      </form>
+    </ng-container>
+  </nz-card>
+
+    <!--列表-->
+    <nz-card class="search-results bg-white m-3" *ngIf="list">
+      <nz-table  #listTable [nzFrontPagination]="false" [nzShowPagination]="false" [nzLoading]="listLoading" [nzData]="list">
+        <thead (nzSortChange)="sort($event, listTable.data)" nzSingleSort>
+          <tr>
+            <ng-container *ngFor="let columns of config; trackBy: trackByFn">
+              <ng-container [ngSwitch]="columns.type">
+                <ng-container *ngSwitchCase="'sort'">
+                  <th
+                    nzShowSort
+                    [nzSortKey]="columns.key"
+                  >{{columns.label}}</th>
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                  <th>{{columns.label}}</th>
+                </ng-container>
+              </ng-container>
+            </ng-container>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="bg-light">
+            <ng-container *ngFor="let columns of config; trackBy: trackByFn">
+              <td> {{ columns.type == 'sort' ?  (totalitem[columns.key] | mycurrency:true) : totalitem[columns.key]  }}</td>
+            </ng-container>
+          </tr>
+
+          <ng-container *ngFor="let data of listTable.data; trackBy: trackByFn">
+            <ng-container *ngIf="!data.children">
+              <tr>
+                <ng-container *ngFor="let columns of config; trackBy: trackByFn">
+                  <td>{{columns.type == 'sort' ? (data[columns.key] | mycurrency:true) : data[columns.key]  }}</td>
+                </ng-container>
+              </tr>
+            </ng-container>
+            <ng-container *ngIf="data.children">
+              <ng-container *ngFor="let item of data.children; let i = index; trackBy: trackByFn">
+                <tr>
+                  <ng-container *ngFor="let columns of config; trackBy: trackByFn">
+
+                    <ng-container *ngIf="columns.key == 'parent_name'">
+                      <td *ngIf="i == 0" [attr.rowspan]="data.children.length">{{ columns.type == 'sort' ?  (item[columns.key] | mycurrency:true) : item[columns.key]  }}</td>
+                    </ng-container>
+
+                    <ng-container *ngIf="columns.key != 'parent_name'">
+                      <td>{{ columns.type == 'sort' ?  (item[columns.key] | mycurrency:true) : item[columns.key]  }}</td>
+                    </ng-container>
+
+                  </ng-container>
+                </tr>
+              </ng-container>
+              <tr class="bg-light">
+                <ng-container *ngFor="let columns of config; trackBy: trackByFn">
+                  <!-- <td>{{ columns.type == 'sort' ?  (data[columns.key] | mycurrency:true) : data[columns.key]  }}</td> -->
+
+                  <ng-container *ngIf="columns.key == 'parent_name'">
+                    <td [attr.colspan]="2">{{ columns.type == 'sort' ?  (data[columns.key] | mycurrency:true) : data[columns.key]  }}总计</td>
+                  </ng-container>
+
+                  <ng-container *ngIf="columns.key != 'parent_name' && columns.key != 'group_name'">
+                    <td>{{ columns.type == 'sort' ?  (data[columns.key] | mycurrency:true) : data[columns.key]  }}</td>
+                  </ng-container>
+                </ng-container>
+              </tr>
+            </ng-container>
+          </ng-container>
+
+          <tr class="bg-light">
+            <ng-container *ngFor="let columns of config; trackBy: trackByFn">
+              <td> {{ columns.type == 'sort' ?  (totalitem[columns.key] | mycurrency:true) : totalitem[columns.key]  }}</td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-card>
+</ng-container>

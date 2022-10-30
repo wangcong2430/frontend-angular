@@ -1,0 +1,57 @@
+:host ::ng-deep tbody > tr:hover  > td {
+  background: none;
+}
+
+:host ::ng-deep .parent-th > th{
+  background: #E8EFFB;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  color: rgba(0,0,0,0.90);
+  border: none;
+  font-weight: 400;
+
+}
+
+:host ::ng-deep .thing-th > th {
+  background-color: #fff;
+  color: rgba(0,0,0,0.40);
+}
+
+:host ::ng-deep .ant-table-thead > tr > th,.ant-table-tbody > tr > td {
+  padding: 10px;
+}
+
+:host ::ng-deep .ant-table-body .ant-table-tbody> tr:hover > td {
+  background-color: #F9FBFF;
+}
+:host ::ng-deep .ant-table-body .ant-table-tbody .checked{
+  background-color: #F9FBFF;
+}
+
+
+:host ::ng-deep .ant-table-thead > tr > th .ant-table-header-column {
+  width: 100%;
+}
+:host ::ng-deep .body-pagination{
+  position: relative;
+  z-index: 999;
+}
+
+:host ::ng-deep .ant-card-body {
+  padding: 16px;
+}
+
+:host ::ng-deep .ant-table-thead > tr:first-child > th:first-child {
+  border-radius: none;
+}
+:host ::ng-deep .body-pagination  .ant-btn-default {
+  background-color: #2575e6!important ;
+  color: #fff;
+}
+:host ::ng-deep .body-pagination  .ant-btn-default:hover {
+  background-color: #2575e6!important ;
+  color: #fff;
+}
+:host ::ng-deep .body-pagination .ant-btn-primary{
+  background-color: #2575e6!important ;
+  color: #fff;
+}

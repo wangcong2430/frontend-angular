@@ -1,0 +1,106 @@
+<app-component-crumb
+  [isCheckAll]="false"
+  [isCheckReverse]="false"
+  [isChildren]="false"
+  (changeDisabledButton)="changeDisabledButton($event)">
+  <button nzSize="small" nz-button nzType="primary"  (click)="isVisible = true">WBP数据导入</button>
+  <nz-dropdown *ngIf="importData">
+    <button nzSize="small" nz-button nzType="primary" nz-dropdown><span>EPO数据导入</span> <i nz-icon type="down"></i></button>
+    <ul nz-menu nzSize="small">
+      <li nz-menu-item>
+        <a  target="_blank">下载导入模板</a>
+      </li>
+      <li nz-menu-item style="overflow: hidden;">
+          <nz-upload
+          nzLimit="1"
+          nzSize="small"
+          [nzAction]="'/web/cos/upload?type=1600'"
+          [nzCustomRequest]="cos.customReqs"
+          [nzBeforeUpload]="cos.beforeUploadExcel"
+          [nzShowUploadList]="false"
+          (click)="$event.stopPropagation();"
+          (nzChange)="epoUploadChange($event)">
+            <i nz-icon type="upload" class="mr-2"></i><span>数据导入</span>
+        </nz-upload>
+      </li>
+    </ul>
+  </nz-dropdown>
+  <nz-dropdown *ngIf="importData">
+    <button nzSize="small" nz-button nzType="primary" nz-dropdown><span>BFC数据导入</span> <i nz-icon type="down"></i></button>
+    <ul nz-menu nzSize="small">
+      <li nz-menu-item>
+        <a  target="_blank">下载导入模板</a>
+      </li>
+      <li nz-menu-item style="overflow: hidden;">
+          <nz-upload
+          nzLimit="1"
+          nzSize="small"
+          [nzAction]="'/web/cos/upload?type=1600'"
+          [nzCustomRequest]="cos.customReqs"
+          [nzBeforeUpload]="cos.beforeUploadExcel"
+          [nzShowUploadList]="false"
+          (click)="$event.stopPropagation();"
+          (nzChange)="BfcUploadChange($event)">
+            <i nz-icon type="upload" class="mr-2"></i><span>数据导入</span>
+        </nz-upload>
+      </li>
+      <li nz-menu-item style="overflow: hidden;">
+          <nz-upload
+          nzLimit="1"
+          nzSize="small"
+          [nzAction]="'/web/cos/upload?type=1600'"
+          [nzCustomRequest]="cos.customReqs"
+          [nzBeforeUpload]="cos.beforeUploadExcel"
+          [nzShowUploadList]="false"
+          (click)="$event.stopPropagation();"
+          (nzChange)="BfcUploadChange2($event)">
+            <i nz-icon type="upload" class="mr-2"></i><span>导入验收审批人数据</span>
+        </nz-upload>
+      </li>
+    </ul>
+  </nz-dropdown>
+  <!-- <a href="/applets/main/export" target="_blank">下载</a> -->
+  <button nzSize="small" nz-button nzType="primary" (click)="export()">下载</button>
+  <button nzSize="small" nz-button nzType="primary">预览</button>
+  <button nzSize="small" nz-button nzType="primary">通知</button>
+  <button nzSize="small" nz-button nzType="primary">提交</button>
+  <button nzSize="small" nz-button nzType="primary">撤回</button>
+  <button nzSize="small" nz-button nzType="primary">发布</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+</ng-container>
+<!-- <div class="container register-work-container">
+  <form [formGroup]="form" (ngSubmit)="submit()" autocomplete="off">
+      <formly-form [form]="form" [fields]="form_fields" [model]="form_data">
+          <div class="text-right">
+              <button type="submit" class="btn btn-primary" i18n>Submit</button>
+          </div>
+      </formly-form>
+  </form>
+</div> -->
+
+<!-- 导入wbp数据 -->
+<nz-modal *ngIf="isVisible" [(nzVisible)]="isVisible" nzTitle="导入wbp数据" (nzOnCancel)="isVisible = false" (nzOnOk)="submitReject()">
+  
+  <nz-form-item>
+    <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="email">请选择导入日期</nz-form-label>
+    <nz-form-control [nzSm]="14" [nzXs]="24">
+      <nz-range-picker
+      [(ngModel)]="dateRange"
+      nzFormat="yyyy-MM-dd"
+       nzShowTime>
+    </nz-range-picker>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>

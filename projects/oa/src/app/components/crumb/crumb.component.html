@@ -1,0 +1,62 @@
+<!--
+ * @Author: v_swwu v_swwu@tencent.com
+ * @Date: 2022-07-01 14:45:22
+ * @LastEditors: v_swwu v_swwu@tencent.com
+ * @LastEditTime: 2022-07-18 15:38:07
+ * @FilePath: \cpm\frontend\projects\oa\src\app\components\crumb\crumb.component.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<div class="d-flex flex-row bg-white mb-3 py-1 px-3 border-bottom sticky-top  justify-content-between">
+  <div class="d-flex align-items-center" style="min-width: 300px; max-width: 40%; height: 40px;" >
+    <nz-breadcrumb *ngIf="menuService.curr_menu.name">
+      <nz-breadcrumb-item>
+        <i nz-icon [type]="menuService.curr_menu.icon" theme="outline"></i>
+        {{menuService.curr_menu.parent_name}}
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+      <span class="f16" style="color: #555;">
+        {{menuService.curr_menu.name}}
+        <span class="red f12">  {{title}}</span>
+      </span>
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </div>
+  <div class="d-flex justify-content-center align-items-center flex-wrap">
+    <ng-container *ngIf="list">
+      <button nz-button nzType="primary"  nzSize="small" (click)="openOrCloseAll(false)" *ngIf="isChildren">全部展开</button>
+      <button nz-button nzType="primary" nzSize="small" (click)="openOrCloseAll(true)" *ngIf="isChildren">全部收起</button>
+      <button nz-button nzType="primary" nzSize="small" *ngIf="isSetSecrecy" (click)="setSecrecy()">保密设置</button>
+      <button nz-button nzType="primary" nzSize="small" *ngIf="isCheckAll" (click)="checkAll(true)">全选</button>
+      <button nz-button nzType="primary" nzSize="small" *ngIf="isCheckReverse" (click)="checkReverse()">反选</button>
+      <button nz-button nzType="primary" nzSize="small" *ngIf="isDownloadCheckFile" [nzLoading]="isLoadingCheckFile" (click)="downloadCheckFile(1005);" [disabled]="disabled">批量下载作品</button>
+      <button nz-button nzType="primary" nzSize="small" *ngIf="isDownloadCheckImage"  [nzLoading]="isLoadingCheckImage"  (click)="downloadPerview();" [disabled]="disabled">批量下载预览图</button>
+
+      <nz-dropdown *ngIf="importData">
+        <button nzSize="small" nz-button nzType="primary" nz-dropdown><span>导入</span> <i nz-icon type="down"></i></button>
+        <ul nz-menu nzSize="small">
+          <li nz-menu-item>
+            <a (click)="downloadTemplate()" target="_blank">下载导入模板</a>
+          </li>
+          <li nz-menu-item style="overflow: hidden;">
+              <nz-upload
+              nzLimit="1"
+              nzSize="small"
+              [nzAction]="'/web/cos/upload?type=' + importData['key']"
+              [nzCustomRequest]="cos.customReqs"
+              [nzBeforeUpload]="cos.beforeUploadExcel"
+              [nzShowUploadList]="false"
+              (click)="$event.stopPropagation();"
+              (nzChange)="uploadChange($event)">
+                <i nz-icon type="upload" class="mr-2"></i><span>数据导入</span>
+            </nz-upload>
+          </li>
+        </ul>
+      </nz-dropdown>
+    </ng-container>
+    <ng-content></ng-content>
+  </div>
+</div>
+
+
+
+

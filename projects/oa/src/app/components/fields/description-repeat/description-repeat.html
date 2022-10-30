@@ -1,0 +1,56 @@
+<ng-container *ngFor="let fields of field.fieldGroup; trackBy: trackByFn; let i = index;">
+  <ng-container *ngIf="!fields.hide">
+    <nz-descriptions [nzTitle]="TitleTemplate" nzBordered [nzSize]="'small'" [nzColumn]="{ xxl: 4, xl: 3, lg: 3, md: 3, sm: 2, xs: 1 }">
+      <ng-container *ngFor="let item of fields.fieldGroup; trackBy: trackByFn">
+        <ng-container *ngIf="!item.hide">
+          <nz-descriptions-item [nzTitle]="nzTitle">
+            <formly-field
+                [form]="item.formControl"
+                [options]="options"
+                [model]="item.model"
+                [field]="item">
+            </formly-field>
+          </nz-descriptions-item>
+
+          <ng-template #nzTitle>
+            <td class="ant-descriptions-item-label" [class.required]="item.templateOptions.required">{{ item.templateOptions.label }}</td>
+          </ng-template>
+        </ng-container>
+    </ng-container>
+    </nz-descriptions>
+
+    <ng-template #TitleTemplate>
+      <ng-container >
+        <div class="d-flex bg-primary text-white font-weight-normal" style="font-size: 13px;">
+          <div class="right flex-fill">
+            <ul class="mb-0 p-2">
+              <li class="d-inline-block mr-2">No. {{ fields?.model?.id}}</li>
+              <li class="d-inline-block mr-2" *ngIf="fields?.model?.prepayments_status_type">是否预付款: {{ fields?.model?.prepayments_status_type || 'NA'}} </li>
+              <li class="d-inline-block mr-2">项目名称: {{ fields?.model?.project_name || 'NA'}} </li>
+              <li class="d-inline-block mr-2">立项: {{ fields?.model?.project_product_budget_name || 'NA'}} </li>
+              <li class="d-inline-block mr-2">供应商名称: {{ fields?.model?.supplier_name || 'NA'}} </li>
+              <li class="d-inline-block mr-2">合同号: {{ fields?.model?.contract_number || 'NA'}} </li>
+              <li class="d-inline-block mr-2">合同我方主体: {{ fields?.model?.contract_org_name || 'NA'}}</li>
+              <li class="d-inline-block mr-2">物件数量: {{ fields?.model?.thing_num || 'NA'}}</li>
+              <li class="d-inline-block mr-2">当前处理人: {{ fields?.model?.current_user_id_txt || 'NA'}}</li>
+            </ul>
+            <p class="red mx-2 mb-2" *ngIf="fields?.model?.errMsg">错误提示: {{fields?.model?.errMsg}}</p>
+            <p class="red mx-2 mb-2" *ngIf="fields?.model?.orgIdMsg">{{fields?.model?.orgIdMsg}}</p>
+
+          </div>
+          <div class="p-2 bg-danger text-white" style="width: 200px; text-align: right; font-size: 12px;">
+            <p class="mb-0"> 总金额: {{fields.model.thing_total_price?(fields.model.thing_total_price|mycurrency):""}} {{fields?.model?.currency_symbol}}</p>
+            <p class="mb-0" *ngIf="fields?.model?.contract_tax_type === '2'"> 含税总金额: {{ fields.model.thing_tax_total_price?(fields.model.thing_tax_total_price|mycurrency):"" }} {{fields?.model?.currency_symbol }}</p>
+          </div>
+        </div>
+      </ng-container>
+    </ng-template>
+  </ng-container>
+</ng-container>
+
+
+
+
+
+
+

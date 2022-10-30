@@ -1,0 +1,117 @@
+
+:host ::ng-deep .ant-table-expanded-row th{
+  background: none !important;
+}
+:host ::ng-deep .body-border {
+  border: 1px solid #e7e7f0;
+  margin-left: -6px;
+  margin-right: -6px;
+}
+
+:host ::ng-deep .quote-td {
+  width: 310px;
+  min-width: 310px;
+}
+
+:host ::ng-deep .quote-td .ant-form-item-label label {
+  color: rgba(0, 0, 0, 0.65);
+}
+:host ::ng-deep .quote-td .td-col a {
+  line-height: 38px;
+}
+
+.ant-table-tbody  .checked {
+  background-color: #F9FBFF;
+}
+
+.ant-table-tbody .children-tr:hover > td {
+  background-color: rgba(96, 171, 114, 0.15);
+}
+
+:host ::ng-deep  tr.ant-table-expanded-row td > .ant-table-wrapper {
+  padding: 0;
+  margin: 0;
+}
+
+
+:host ::ng-deep .ant-table-thead > tr > th, :host ::ng-deep .ant-table-tbody > tr > td {
+  padding: 8px 16px;
+}
+
+
+
+:host ::ng-deep .ant-card-body {
+  padding: 12px;
+  zoom: 1;
+}
+
+:host ::ng-deep .ant-table-thead > tr > th, 
+:host ::ng-deep .ant-table-tbody > tr > td {
+  padding: 12px
+}
+
+:host ::ng-deep .ant-table-middle > .ant-table-content > .ant-table-body > table > .ant-table-thead > tr > th {
+  padding: 12px 4px;
+  font-size: 12px;
+  min-width: 100px;
+}
+
+:host ::ng-deep .ant-table-content > .ant-table-body > table > .ant-table-tbody > tr > td{
+  padding: 8px 4px;
+  font-size: 12px;
+}
+
+:host .ant-table-content > .ant-table-body > table > .ant-table-tbody > tr > td img  {
+  max-width: 80px;
+}
+
+:host ::ng-deep .ant-table-tbody  tr  td img  {
+  max-width: 80px;
+}
+
+
+
+.isRed {
+  color: red;
+}
+
+
+:host ::ng-deep .ant-spin-nested-loading {
+  min-height: 100px;
+}
+
+:host .body-pagination {
+  overflow: hidden;
+}
+
+:host ::ng-deep .ant-calendar-picker-input {
+  font-size: 12px;
+}
+
+
+:host ::ng-deep  .ant-table-fixed-header .ant-table-scroll .ant-table-header  {
+  margin-bottom: 0 !important;
+}
+
+
+:host ::ng-deep .children-tr .ant-table-tbody > tr > td  {
+  height: 116px;
+}
+
+:host ::ng-deep .children-tr .ant-table-thead  tr  th, 
+:host ::ng-deep .children-tr .ant-table-tbody > tr > td  {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  word-wrap: break-word;
+}
+
+
+
+:host ::ng-deep .ant-table-thead > tr > th, .ant-table-tbody > tr > td {
+  padding: 8px;
+}
+
+:host ::ng-deep tr.ant-table-expanded-row td > .ant-table-wrapper {
+  margin: 0;
+}

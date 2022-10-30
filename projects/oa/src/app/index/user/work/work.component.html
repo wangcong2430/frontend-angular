@@ -1,0 +1,60 @@
+<app-component-crumb [(list)]="list" (changeDisabledButton)="changeDisabledButton($event)">
+  <button nzSize="small" nz-button nzType="primary" (click)="showWorkModal()">工作交接</button>
+</app-component-crumb>
+
+<ng-container *ngIf="loading">
+  <div class="example m-3">
+    <nz-spin></nz-spin>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading">
+  <!--筛选-->
+  <div class="search-filters m-3">
+    <app-container-search-form
+      style="width: 100%"
+      [(data)]="queryFields"
+      [searchFormData]="searchFormData"
+      (submit)="submitSearchForm($event)"
+    >
+    </app-container-search-form>
+  </div>
+
+  <!--列表-->
+  <div class="search-results bg-white m-3">
+    <app-container-table
+      [loading]="listLoading"
+      (getList)="getList($event)"
+      [(list)]="list"
+      [(columns)]="columns"
+      [(pagination)]="pagination"
+      (changeDisabledButton)="changeDisabledButton($event)"
+      (clickEvent)="clickEvent($event)"
+      [(disabledButton)]="disabledButton"
+    >
+    </app-container-table>
+  </div>
+</ng-container>
+
+<!--编辑弹窗-->
+<app-modal-save
+  (submit)="submitSaveForm($event)">
+</app-modal-save>
+
+<nz-modal
+  [(nzVisible)]="isWorkVisible"
+  nzMaskClosable="false"
+  nzWidth="900px"
+  [nzTitle]="modalTitle"
+  [nzOkLoading]="isLoading"
+  (nzOnCancel)="workModalCancel()"
+  (nzOnOk)="workModalOk()">
+  <ng-template #modalTitle>
+    <div
+      cdkDrag
+      cdkDragHandle
+      cdkDragRootElement=".ant-modal-content"> 工作交接
+    </div>
+  </ng-template>
+  <formly-form  [model]="model" [fields]="fields" [options]="options" [form]="form" class="ant-row"></formly-form>
+</nz-modal>

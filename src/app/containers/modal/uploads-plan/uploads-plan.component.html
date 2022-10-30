@@ -1,0 +1,38 @@
+<nz-modal
+  [nzWidth]="600"
+  [(nzVisible)]="uploadsService.uploadsModal.isShow"
+  [nzContent]="uploadModalContent"
+  nzClosable="false"
+  nzMaskClosable="true"
+  [nzOkText]="null"
+  [nzCancelText]="null"
+  [nzFooter]="null"
+  [nzTitle]="modalTitle"
+  >
+  <ng-template #modalTitle>
+    批量
+    <div class="close" (click)="closeModal(uploadsService.uploadsModal)">
+      <i nz-icon [nzType]="'close'"></i>
+    </div>
+  </ng-template>
+
+  <ng-template #uploadModalContent>
+    <div class="content">
+      <ng-container *ngFor="let pro of uploadsService.uploadsModal.options; let index = index; trackBy: trackByFn">
+        <div class="percent-box">
+          <span class="index">{{index+1}}</span>
+          <span style="width: 130px;">{{pro.thing_code}}</span>
+          <span class="percent-progress">
+            <nz-progress [nzPercent]="pro.percent" [nzStrokeWidth]="12" [nzShowInfo]="false" nzType="line" [nzWidth]="120"></nz-progress>
+            <span *ngIf="pro.percent < 100" class="percent-num">{{pro.percent + '%'}}</span>
+            <span *ngIf="pro.percent >= 100" class="percent-num">上传完成</span>
+          </span>
+        </div>
+      </ng-container>
+    </div>
+  </ng-template>
+</nz-modal>
+
+
+
+

@@ -1,0 +1,134 @@
+<!-- 采购经理验收评分 -->
+<nz-modal [(nzVisible)]="acceptanceVisible" nzMaskClosable="false" [nzTitle]="modalTitle" [nzContent]="modalContent"
+  [nzFooter]="modalFooter" (nzOnCancel)="acceptanceHandleCancel()">
+
+
+
+
+  <ng-template #modalTitle>
+    <div cdkDrag cdkDragHandle cdkDragRootElement=".ant-modal-content">请评价作品
+    </div>
+  </ng-template>
+
+
+  <ng-template #modalContent >
+    <ng-container *ngIf="acceptanceVisible&&newVersion=='2'">
+      <nz-radio-group [(ngModel)]="type" [nzButtonStyle]="'solid'" [ngModelOptions]="{standalone: true}"
+        (ngModelChange)="change($event)" style="margin-bottom: 30px;">
+        <label nz-radio-button [nzValue]="i" class="mr-3" *ngFor="let item of acceptanceScore;let i=index">{{item.label}}</label>
+      </nz-radio-group>
+
+      <ng-container *ngIf="isNogood&&type==2">
+        <nz-form-item class="ant-form-horizontal" *ngFor="let item of optionsNogood">
+          <nz-form-label [nzNoColon]="true" nzFor="email" nzSpan="2">
+            <label nz-checkbox [nzValue]="item.status" [(ngModel)]="item.checked" [ngModelOptions]="{standalone: true}"
+              (ngModelChange)="saveKey(item.key,$event)">
+            </label>
+          </nz-form-label>
+          <nz-form-control nzSpan="20">
+            {{item.title}}
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item *ngFor="let item of optionsNogood2; let i=index">
+
+          <nz-form-label [nzSpan]="4" style="margin-left:15px ;">
+            <label nz-checkbox nzValue="item.status" (ngModelChange)="saveKey(item.key,$event)"
+              [(ngModel)]="item.checked" [ngModelOptions]="{standalone: true}" style="margin-right: 20px;">
+            </label>
+            {{item.title}}
+          </nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <input nz-input (input)="changeContent(i,item.key,$event)" placeholder="请填写原因" style="margin-left: 10px;" />
+          </nz-form-control>
+        </nz-form-item>
+      </ng-container>
+      <nz-form-item *ngIf="isGood&&type==0">
+        <nz-form-item class="ant-form-horizontal" *ngFor="let item of optionsGood">
+          <nz-form-label [nzNoColon]="true" nzFor="email" nzSpan="2">
+            <label nz-checkbox nzValue="item.status" (ngModelChange)="saveKey(item.key,$event)"
+              [(ngModel)]="item.checked" [ngModelOptions]="{standalone: true}"></label>
+          </nz-form-label>
+          <nz-form-control nzSpan="20">
+            {{item.title}}
+          </nz-form-control>
+
+        </nz-form-item>
+        <nz-form-item *ngFor="let item of optionsGood2; let i=index">
+          <nz-form-label [nzSpan]="4" style="margin-left:15px ;">
+            <label nz-checkbox nzValue="item.status" (ngModelChange)="saveKey(item.key,$event)"
+              [(ngModel)]="item.checked" [ngModelOptions]="{standalone: true}" style="margin-right: 20px;">
+            </label>
+            {{item.title}}
+          </nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <input nz-input (input)="changeContent(i,item.key,$event)" placeholder="请填写原因" style="margin-left: 10px;" />
+          </nz-form-control>
+        </nz-form-item>
+
+
+      </nz-form-item>
+      <nz-form-item *ngIf="isSuccess&&type==1">
+        <nz-form-item *ngFor="let item of optionsSuccess">
+          <label nz-checkbox nzValue="item.status" (ngModelChange)="saveKey(item.key,$event)" [(ngModel)]="item.checked"
+            [ngModelOptions]="{standalone: true}">{{item.title}}</label>
+        </nz-form-item>
+
+        <nz-form-item *ngFor="let item of optionsSuccess2; let i=index">
+          <nz-form-label [nzSpan]="4">
+            <label nz-checkbox nzValue="item.status" (ngModelChange)="saveKey(item.key,$event)"
+              [(ngModel)]="item.checked" [ngModelOptions]="{standalone: true}" style="margin-right: 20px;">
+            </label>
+            {{item.title}}
+          </nz-form-label>
+          <nz-form-control [nzSpan]="18">
+            <input nz-input (input)="changeContent(i,item.key,$event)" placeholder="请填写原因" style="margin-left: 10px;" />
+          </nz-form-control>
+        </nz-form-item>
+      </nz-form-item>
+    </ng-container>
+
+    <ng-container *ngIf="acceptanceVisible&&newVersion!='2'">
+      <div *ngFor="let item of score; index as scoreIndex;trackBy: trackByFn">
+        <span style="padding-right: 15px;">{{item['label']}}</span>
+        <nz-rate [(ngModel)]="score[scoreIndex]['value']"></nz-rate>
+        <span *ngIf="isNewAcceptance == false" class="red">{{scoreLabel[score[scoreIndex]['value']]}}</span>
+        <span *ngIf="isNewAcceptance == true" class="red">{{item['star_describe'][score[scoreIndex]['value'] -1]}}</span>        
+        <p style="color: #FF751A">{{item['description']?item['description']:''}}</p>
+      </div>
+      <textarea rows="4" nz-input [(ngModel)]="acceptanceRemark"></textarea>
+    </ng-container>
+
+
+
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="acceptanceHandleCancel()">取消</button>
+    <button nz-button nzType="primary" (click)="acceptanceHandleOk()" [nzLoading]="isAcceptanceLoading">确定</button>
+  </ng-template>
+
+
+</nz-modal>
+<nz-modal [(nzVisible)]="is_SurePrice" nzMaskClosable="false" [nzTitle]="modalTitle2" [nzContent]="modalContent2" [nzFooter]="modalFooter2" (nzOnCancel)="surePriceCancel()">
+   
+
+  <ng-template #modalTitle2>
+    <div cdkDrag cdkDragHandle cdkDragRootElement=".ant-modal-content">提示
+    </div>
+  </ng-template>
+  <ng-template #modalContent2>
+
+   <ng-container>
+   <div>您选择了{{storys.size}}个订单的{{thingId.length}}个物件，总金额{{tamount ? Number(amount).toFixed(2) : amount}}。是否确认？</div>
+   </ng-container>
+   
+  
+  </ng-template>
+  
+ 
+  <ng-template #modalFooter2>
+    <button nz-button nzType="default" (click)="surePriceCancel()">取消</button>
+    <button nz-button nzType="primary" (click)="surePriceOK()" [nzLoading]="isAcceptanceLoading">确定</button>
+  </ng-template>
+</nz-modal>

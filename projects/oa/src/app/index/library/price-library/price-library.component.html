@@ -1,0 +1,135 @@
+<app-component-crumb>
+  <button nzSize="small" nz-button [nzType]="'primary'" (click)="showModal(null)">新建</button>
+</app-component-crumb>
+<nz-card class=" m-3">
+<nz-table #basicTable [nzData]="dataSet" [nzFrontPagination]="false" [nzShowPagination]="false" [(nzLoading)]="pagination.nzLoading">
+  <thead>
+  <tr>
+    <th>序号</th>
+    <th>价格库编码</th>
+    <th>类别</th>
+    <th>制作明细</th>
+    <th>制作等级</th>
+    <th>工作量单位</th>
+    <th>单价</th>
+    <th>有效期</th>
+    <th>备注</th>
+    <th>操作</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let data of basicTable.data;trackBy: trackByFn; let i = index">
+    <td>{{i + 1}}</td>
+    <td>{{data['price_code']}}</td>
+    <td>{{data['category']}}</td>
+    <td>{{data['produce_breakdown']}}</td>
+    <td>{{data['produce_grade']}}</td>
+    <td>{{data['workload_unit']}}</td>
+    <td>{{data['unit_price']}}</td>
+    <td>{{data['start_date']}} - {{data['end_date']}}</td>
+    <td>{{data['remark']}}</td>
+    <td>
+      <a (click)="showModal(data)">编辑</a>
+    </td>
+  </tr>
+  </tbody>
+</nz-table>
+
+<nz-pagination
+  style="margin-top: 8px; float: right;"
+  [nzTotal]="pagination.total_count"
+  [nzShowTotal]="totalTemplate"
+  [nzHideOnSinglePage]="true"
+  nzShowSizeChanger
+  [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+  [(nzPageIndex)]="pagination.page_index"
+  [(nzPageSize)]="pagination.page_size"
+  (nzPageIndexChange)="pageIndexChange($event)"
+  (nzPageSizeChange)="pageSizeChange($event)"
+>
+</nz-pagination>
+
+<ng-template #totalTemplate let-total>
+  Total {{pagination.total_count}} items
+</ng-template>
+
+</nz-card>
+
+<!-- 新建、编辑modal -->
+<nz-modal
+  [(nzVisible)]="isVisible"
+  nzMaskClosable="false"
+  nzTitle="{{this.modalData['title']}}"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzWidth]="640"
+  [nzOkLoading]="isOkLoading">
+
+  <div nz-form *ngIf="isVisible" >
+    <!--<form >-->
+    <nz-form-item style="margin-bottom: 10px;">
+      <nz-form-label [nzSpan]="4">类别</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+          <nz-select [nzShowSearch]="true" [nzMaxMultipleCount]="1" style="width: 100%;"  nzPlaceHolder="请选择" [(ngModel)]="modalData.category_id" (ngModelChange)="typeSelect($event)" >
+          <nz-option *ngFor="let option of ModalListData.categoryList;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item >
+
+    <nz-form-item style="margin-bottom: 10px;">
+      <nz-form-label [nzSpan]="4">制作明细</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <nz-select [nzShowSearch]="true" [nzMaxMultipleCount]="1" style="width: 100%;"  nzPlaceHolder="请选择" [(ngModel)]="modalData.produce_breakdown_id" (ngModelChange)="makeDetailSelect($event)">
+          <nz-option *ngFor="let option of ModalListData.produceBreakdownList;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item >
+
+    <nz-form-item style="margin-bottom: 10px;">
+      <nz-form-label [nzSpan]="4">制作等级</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <nz-select [nzShowSearch]="true" [nzMaxMultipleCount]="1" style="width: 100%;"  nzPlaceHolder="请选择" [(ngModel)]="modalData.produce_grade_id" (ngModelChange)="makeLevelSelect($event)">
+          <nz-option *ngFor="let option of ModalListData.produceGradeList;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item >
+
+    <nz-form-item style="margin-bottom: 10px;">
+      <nz-form-label [nzSpan]="4">工作量单位</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <nz-select [nzShowSearch]="true" [nzMaxMultipleCount]="1" style="width: 100%;"  nzPlaceHolder="请选择" [(ngModel)]="modalData.workload_unit_id" (ngModelChange)="workSelect($event)">
+          <nz-option *ngFor="let option of ModalListData.workloadUnitList;trackBy: trackByFn" [nzLabel]="option.label" [nzValue]="option.value"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item >
+
+    <nz-form-item  style="margin-bottom: 10px;">
+      <nz-form-label [nzSpan]="4">单价</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <nz-input-group>
+          <nz-input-number [(ngModel)]="modalData.unit_price" > </nz-input-number>
+        </nz-input-group>
+      </nz-form-control>
+    </nz-form-item >
+
+    <nz-form-item style="margin-bottom: 10px;">
+      <nz-form-label [nzSpan]="4">有效期</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <nz-range-picker
+          [(ngModel)]="modalData.date_range"
+          (nzOnCalendarChange)="rangPickerModelChange($event, modalData.date_range)"></nz-range-picker>
+        <nz-form-explain *ngIf="modalData.date_range == '' || modalData.date_range == undefined" class="red">请选择有效期!</nz-form-explain>
+      </nz-form-control>
+    </nz-form-item >
+
+    <nz-form-item style="margin-bottom: 10px;">
+      <nz-form-label [nzSpan]="4">备注</nz-form-label>
+      <nz-form-control [nzSpan]="19">
+        <input nz-input [(ngModel)]="modalData.remark">
+      </nz-form-control>
+    </nz-form-item >
+    <!--</form>-->
+
+  </div>
+
+</nz-modal>

@@ -1,0 +1,994 @@
+<nz-modal
+  #thingDetail
+  [(nzVisible)]="isOpen"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  nzMaskClosable="false"
+  [nzFooter]="null"
+  [nzWidth]="1250"
+  [nzZIndex]="nzZIndex"
+  (nzOnCancel)="modalCancel()"
+>
+  <ng-template #modalTitle>
+    <div
+      cdkDrag
+      cdkDragRootElement=".ant-modal-content"
+      cdkDragHandle>
+      物件详情 {{ info && info['thing'] ?  info['thing']['thing_code'] + '/' + info['thing']['thing_name'] : '' }}
+    </div>
+  </ng-template>
+
+  <ng-template #modalContent>
+    <div *ngIf="isOpen">
+
+      <ng-container *ngIf="loading">
+        <div class="example">
+          <nz-spin></nz-spin>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!loading && info">
+
+        <div class="modal-section border mb-3" *ngIf="info['base']">
+
+          <div class="border-bottom p-2" style="background-color: #fafafa;">
+            <span class="font-weight-bold">采购经理</span>：
+            <span class="d-inline-block align-top" [innerHtml]="info['base']['last_pm_name'] | user"></span>
+            <span class="font-weight-bold">当前状态</span>：
+            <span class="mr-3">{{ info['base']['current_workflow_name'] }}</span>
+            <span class="font-weight-bold">当前处理人</span>：
+            <span class="d-inline-block align-top" [innerHtml]="urlList | user"></span>
+
+            <ng-container *ngIf="info['base']['is_test'] == '1' && info['base']['can_test'] == '1'">
+              <button *ngIf="info['base']['test_pass_degree'] == '0'" class="ml-4" nz-button nzSize="small" nzType="primary" (click)="passDegree()">通过测试</button>
+              <span *ngIf="info['base']['test_pass_degree'] == '1'" class="ml-4">已通过测试</span>
+              <span *ngIf="info['base']['test_pass_degree'] == '2'" class="isRed">未通过测试</span>
+            </ng-container>
+          </div>
+
+          <div nz-row [nzGutter]="24" class="py-2 d-flex align-items-stretch flex-wrap">
+            <div nz-col nzSpan="8" class="d-flex">
+              <label style="width: 60px; text-align: right;">项目名称</label>
+              <span class="text-overflow-5" [title]="info['base']['project_name']">{{info['base']['project_name'] | format}}</span>
+            </div>
+            <div nz-col nzSpan="8" class="d-flex" *ngIf="info['base']['project_product_budget_number'] !== ''">
+              <label style="width: 60px; text-align: right;">立项名称</label>
+              <span class="text-overflow-5" [title]="info['base']['project_product_budget_name']">{{info['base']['project_product_budget_name'] | format}}</span>
+            </div>
+            <div nz-col nzSpan="8" class="d-flex" *ngIf="info['base']['project_product_budget_number'] !== ''">
+              <label style="width: 60px; text-align: right;">立项单号</label>
+              <span [title]="info['base']['project_product_budget_number']">{{info['base']['project_product_budget_number'] | format}}</span>
+            </div>
+            <div nz-col nzSpan="8" class="d-flex">
+              <label style="width: 60px; text-align: right;">需求单号</label>
+              <span [title]="info['base']['story_code']">{{info['base']['story_code'] | format}}</span>
+            </div>
+            <div nz-col nzSpan="8" class="d-flex">
+              <label style="width: 60px; text-align: right;">需求名称</label>
+              <span class="text-overflow-5" [title]="info['base']['story_name']">{{info['base']['story_name'] | format}}</span>
+            </div>
+            <div nz-col nzSpan="8" class="d-flex">
+              <label style="width: 60px; text-align: right;">需求说明</label>
+              <span class="text-overflow-5" [title]="info['base']['story_remark']">{{info['base']['story_remark'] | format}}</span>
+            </div>
+
+            <div nz-col nzSpan="8" class="d-flex">
+              <label>预算类型</label>
+              <span [title]="info['base']['budget_type_text']">{{info['base']['budget_type_text'] | format}}</span>
+            </div>
+            <div nz-col nzSpan="8" class="d-flex">
+              <label>数据来源</label>
+              <span [title]="info['base']['story_sources']">{{info['base']['story_sources'] | format}}</span>
+            </div>
+            <div nz-col nzSpan="8" class="d-flex">
+              <label>需求种类</label>
+              {{ info['thing']['demand_type'] }}
+            </div>
+
+
+            <div nz-col nzSpan="8" class="d-flex">
+              <label>需求附件</label>
+              <ng-container *ngFor="let val of info['base']['story_attachment_id']; index as i; trackBy: trackByFn">
+                <a class="mr-2" [href]="'/web/file/'+val['id']" target="_blank" [title]="val['file_name']">
+                  <span [title]="info['base']['story_remark']">附件{{(i+1)}}</span>
+                </a>
+              </ng-container>
+              <span>{{ info['base']['story_attachment_id'] ? '' : 'NA'}}</span>
+            </div>
+          </div>
+        </div>
+
+
+        <nz-tabset [nzTabPosition]="'top'" [nzType]="'card'" [nzSelectedIndex]="tabsetIndex">
+          <!--物件详情-->
+          <nz-tab [nzTitle]="'物件详情'" *ngIf="info['thing']">
+            <div class="modal-section">
+              <!-- 物件信息 -->
+              <div nz-row class="border py-3 d-flex align-items-stretch flex-wrap" >
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>物件单号</label>
+                  <span *ngIf="info['thing']['is_test'] == '1'"  class="text-red">[测试单]</span>
+                  <span *ngIf="info['thing']['demand_type2'] === '画师'" class="text-red">[画师]</span>
+                  <ng-container *ngIf="info['thing']['demand_type'] === '基地'">
+                    <img style="width: 40px;height: 14px; margin-top: 4px; margin-right: 2px;" src="/assets/images/base.png" />
+                  </ng-container>
+                  {{ info['thing']['thing_code'] }}
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>物件名称</label>
+                  <span class="text-overflow-5">{{ info['thing']['thing_name'] }}</span>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>制单人</label>
+                  <span [innerHtml]="info['base']['create_name'] | user"></span>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>经办人</label>
+                  <span [innerHtml]="info['base']['brand_product_manager_name'] | user"></span>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>品牌经理</label>
+                  <span [innerHtml]="info['base']['brand_manager_name'] | user"></span>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>验收审批人</label>
+                  <span [innerHtml]="info['thing']['acceptance_audit_people'] | user"></span>
+                </div>
+
+                <div nz-col nzSpan="16" class="d-flex">
+                  <label>保密范围</label>
+                  <span>{{info['thing']['secrecy_names']}}</span>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>预估工作量</label>
+                  {{ info['thing']['pre_workload'] }}
+                  <a *ngIf="isShowDetail2"  (click)="showPriceDetail(info['thing'], 'pre_produce_breakdown', $event)">明细</a>
+                  <a *ngIf="info['thing']['price_type'] == 1"  (click)="showPriceDetail(info['thing'], 'pre_produce_breakdown', $event)">模板</a>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>预计花费</label>
+                  {{ info['thing']['expected_expenditure']|mycurrency }} CNY
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>所属品类</label>
+                  <span [title]="info['thing']['category']">{{ info['thing']['category'] | format }}</span>
+                </div>
+                <ng-container *ngIf="thing_quote!==null">                              
+                <div nz-col nzSpan="8" class="d-flex" *ngFor="let quote_list of thing_quote;let quoreIndex = index" >
+                  <label>总价</label>
+                  {{ quote_list['total_price_text'] }}
+                  <a *ngIf="quote_list.produce_breakdown.length > 0&&quote_list['price_type']=='2'"  
+                  
+                  (click)="showPriceDetail2(quote_list, 'produce_breakdown', true,quote_list.produce_breakdown, 1,modelClass); $event.stopPropagation()"
+                  >明细</a>
+                  <a *ngIf="quote_list.produce_breakdown.length > 0&&quote_list['price_type']=='3'"  
+                  
+                    (click)="showPriceDetail2(quote_list, 'produce_breakdown', true,quote_list.produce_breakdown, 1,modelClass); $event.stopPropagation()"
+                    >明细</a>
+                    <a *ngIf="quote_list.produce_breakdown.length > 0&&quote_list['price_type']=='4'"  
+                  
+                      (click)="showPriceDetail2(quote_list, 'produce_breakdown', true,quote_list.produce_breakdown, 1,modelClass); $event.stopPropagation()"
+                      >明细</a>
+                  <a *ngIf="quote_list.produce_breakdown.length > 0&&quote_list['price_type']=='1'" (click)="showPriceDetail2(quote_list, 'produce_breakdown', true);$event.stopPropagation()">模板</a>                  
+                </div>
+                </ng-container>
+
+                <ng-container *ngIf="thingQuote!==null">                              
+                  <div nz-col nzSpan="8" class="d-flex"  >
+                    <label>总价</label>
+                   {{info['thing'].total_price}}
+                    <a *ngIf="thingQuote.produce_breakdown!=null&&thingQuote.produce_breakdown.length>0&&thingQuote['price_type']=='3'"                   
+                    (click)="showPriceDetail2(thingQuote, 'produce_breakdown', true,thingQuote.produce_breakdown, 1,modelClass); $event.stopPropagation()" >明细</a> 
+                    <a *ngIf="thingQuote.produce_breakdown!=null&&thingQuote.produce_breakdown.length>0&&thingQuote['price_type']=='2'"                   
+                      (click)="showPriceDetail2(thingQuote, 'produce_breakdown', true,thingQuote.produce_breakdown, 1,modelClass); $event.stopPropagation()" >明细</a>
+                    <a *ngIf="thingQuote.produce_breakdown!=null &&thingQuote.produce_breakdown.length>0&&thingQuote['price_type']=='4'"                   
+                        (click)="showPriceDetail2(thingQuote, 'produce_breakdown', true,thingQuote.produce_breakdown, 1,modelClass); $event.stopPropagation()" >明细</a>                    
+                    <a *ngIf="thingQuote['price_type']=='1'" (click)="showPriceDetail2(thingQuote, 'produce_breakdown', true);$event.stopPropagation()">模板</a>                  
+                  </div>
+                </ng-container>
+
+
+
+
+
+               
+
+               
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>供应商名称</label>
+                  <span class="text-overflow-5" [class.link]="!!info['thing']['supplier_id']" [title]="info['thing']['supplier_name']" (click)="openSupplierInfo(info['thing']['supplier_id'])">
+                    {{ info['thing']['supplier_name'] | format }}
+                  </span>
+                </div>
+
+                <div *ngIf="info['thing']['relevancy_thing']" nz-col nzSpan="8" class="d-flex">
+                  <label>关联物件</label>
+                  <span class="text-overflow-5" [title]="info['thing']['relevancy_thing']">{{ info['thing']['relevancy_thing'] | format }}</span>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>合同编号</label>
+                  <span class="text-overflow-5" [class.link]="!!info['thing']['contract_id']" (click)="openContractInfo(info['thing']['contract_id'])">{{ info['thing']['contract_number'] ? info['thing']['contract_number'] : 'NA' }}</span>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>期望交付日期</label>
+                  <span class="text-overflow-5">{{ info['thing']['expected_complete_date'] }}</span>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>承诺交付日期</label>
+                  <span class="text-overflow-5">{{ info['thing']['committed_delivery_date'] ? info['thing']['committed_delivery_date'] : 'NA' }}</span>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>实际开工日期</label>
+                    <span class="text-overflow-2">{{ info['thing']['actual_start_time'] | format }}</span>
+                </div>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>实际完成日期</label>
+                    <span class="text-overflow-2">{{ info['thing']['actual_delivery_time'] | format }}</span>
+                </div>
+
+                <div *ngIf="info['order'] && info['order']['order_code']" nz-col nzSpan="8" class="d-flex">
+                  <label>订单号</label>
+                  <span [class.link]="!!info['order']['order_id']" (click)="openOrderInfo(info['order']['order_id'])">{{ info['order']['order_code'] }}</span>
+                </div>
+
+                <div *ngIf="info['order'] && info['order']['order_name']" nz-col nzSpan="8" class="d-flex">
+                  <label>订单名称</label>
+                  <span class="text-overflow-5">{{ info['order']['order_name'] }}</span>
+                </div>
+
+                <ng-container *ngIf="info['statement']">
+                  <div nz-col nzSpan="8" class="d-flex">
+                    <label>验收对账单号</label>
+                    <span>{{ info['statement']['acceptance_code'] }} </span>
+                  </div>
+
+                  <div *ngIf="info['statement']['epo_order_code']" nz-col nzSpan="8" class="d-flex">
+                    <label>EPO订单号</label>
+                    <span>{{ info['statement']['epo_order_code']}}</span>
+                  </div>
+
+                  <div *ngIf="info['statement']['epo_receipt_num']" nz-col nzSpan="8" class="d-flex">
+                    <label>EPO验收单号</label>
+                    <span>{{ info['statement']['epo_receipt_num'] }}</span>
+                  </div>
+
+                  <div *ngIf="info['statement']['epo_pay_apply_num']" nz-col nzSpan="8" class="d-flex">
+                    <label>EPO付款单号</label>
+                    <span [innerHTML]=" info['statement']['epo_pay_apply_num']" ></span>
+                  </div>
+                </ng-container>
+
+                <div nz-col nzSpan="8" class="d-flex">
+                  <label>非全线上流程</label>
+                  {{ info['thing']['is_reduce_process_text'] }}
+                </div>
+                <ng-container *ngIf="info['thing']['is_reduce_process'] == '1'">
+                  <div nz-col nzSpan="8" class="d-flex">
+                    <label>线上接受订单</label>
+                    {{ info['thing']['online_accept_order'] ? info['thing']['online_accept_order'] : 'NA' }}
+                  </div>
+                  <div nz-col nzSpan="8" class="d-flex">
+                    <label>线上交付及变更</label>
+                    {{ info['thing']['online_make_order'] ? info['thing']['online_make_order'] : 'NA' }}
+                  </div>
+                </ng-container>
+
+                <ng-container *ngIf="info['thing']['is_reduce_process'] == '1'">
+                  <div nz-col nzSpan="8" class="d-flex">
+                    <label>线上确认价格</label>
+                    {{ info['thing']['online_commit_price'] ? info['thing']['online_commit_price'] : 'NA' }}
+                  </div>
+                </ng-container>
+
+                <div nz-col nzSpan="8" *ngIf="info['thing']['relation_thing']" class="d-flex">
+                  <label>关联物件</label>
+                  <span>{{ info['thing']['relation_thing'] ? info['thing']['relation_thing'] : 'NA' }}</span>
+                </div>
+
+                <ng-container *ngIf="info['thing']['is_test'] == '1'">
+                  <div nz-col nzSpan="8" class="d-flex">
+                    <label>不通过结算比例</label>
+                    {{ info['thing']['not_pass_percent'] ? info['thing']['not_pass_percent'] : 'NA' }}
+                  </div>
+                </ng-container>
+
+                <ng-container *ngIf="info['thing']['pre_supplier_name']">
+                  <div nz-col nzSpan="8" class="d-flex">
+                    <label>意向供应商</label>
+                    <span [class.link]="!!info['thing']['pre_supplier_id']" (click)="openSupplierInfo(info['thing']['pre_supplier_id'])">{{ info['thing']['pre_supplier_name'] ? info['thing']['pre_supplier_name'] : 'NA' }}</span>
+                  </div>
+                </ng-container>
+
+                <ng-container *ngIf="info['thing']['remark']">
+                  <div nz-col nzSpan="8" class="d-flex">
+                    <label>备注</label>
+                    <span class="text-overflow-5">{{ info['thing']['remark'] ? info['thing']['remark'] : 'NA' }} </span>
+                  </div>
+                </ng-container>
+
+                <div nz-col nzSpan="8" *ngIf="info['thing']['pass_degree_str']" class="d-flex">
+                  <label>通过程度</label>
+                  {{ info['thing']['pass_degree_str'] ? info['thing']['pass_degree_str'] : 'NA' }}
+                </div>
+                <div nz-col nzSpan="8" *ngIf="info['thing']['settlement_ratio']" class="d-flex">
+                  <label>推荐结算比例</label>
+                  {{ info['thing']['settlement_ratio'] ? info['thing']['settlement_ratio'] : 'NA' }}
+                </div>
+                <div nz-col nzSpan="8" *ngIf="info['thing']['epo_contract_number']" class="d-flex">
+                  <label>EPO合同</label>
+                  {{ info['thing']['epo_contract_number'] ? info['thing']['epo_contract_number'] : 'NA' }}
+                </div>
+                <div nz-col nzSpan="8" *ngIf="info['thing']['prepayments_status']" class="d-flex">
+                  <label>是否有预付款</label>
+                  {{ info['thing']['prepayments_status'] ? info['thing']['prepayments_status'] : 'NA' }}
+                </div>
+              </div>
+
+              <!-- 交付单信息 -->
+              <div class="border my-3 ">
+                <div class="px-3 py-2 " style="background-color: #fafafa;"> 交付单信息</div>
+                <div class="py-3">
+                  <div nz-row [nzGutter]="24" class="d-flex align-items-stretch flex-wrap">
+                    <!-- <div nz-col nzSpan="8" class="d-flex">
+                      <label>验收人</label>
+                      <span [innerHtml]="info['thing']['acceptors'] | user"></span>
+                    </div> -->
+                    <div nz-col [nzSpan]="8" class="d-flex">
+                      <label>交付来源</label>
+                      <span class="text-overflow-2">{{ info['thing']['delivery_sources'] || 'NA' }}</span>
+                    </div>
+                    <div nz-col [nzSpan]="8" class="d-flex">
+                      <label>交付关联物件</label>
+                      <span class="text-overflow-2">{{ info['thing']['associated_delivery_thing_code'] || 'NA' }}</span>
+                    </div>
+                    <div nz-col [nzSpan]="8" class="d-flex">
+                      <label>交付说明</label>
+                      <span class="text-overflow-5">{{ info['thing']['delivery_instructions'] || 'NA' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!--标签信息-->
+              <div class="body-change border mb-3" *ngIf="info['thing']['attribute']">
+                <h6 class="px-3 py-2 mb-0" style="background-color: #fafafa;">
+                  标签信息
+                  <span>
+                    <a class="float-right mr-2 text-primary"  style="font-size: 12px; " (click)="openHistoryModal()">历史记录</a>
+                    <a class="float-right mr-2 text-primary"  style="font-size: 12px;" (click)="editThingLabel()">编辑</a>
+                  </span>
+                </h6>
+                <nz-table
+                  #smallTableChange1
+                  nzSize="small"
+
+                  nzNoResult="暂无数据"
+                  nzPageSize="10"
+                  nzHideOnSinglePage="true"
+                  [nzData]="info['thing']['attribute']">
+                  <thead>
+                  <tr>
+                    <th>标签分类</th>
+                    <th>标签名称</th>
+                    <th>标签内容</th>
+                    <th>操作</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of smallTableChange1.data;index as i;trackBy: trackByFn">
+                      <td>{{item.label_category_name}}</td>
+                      <td>{{item.title}}</td>
+                      <td><span [innerHtml]="item | label"></span></td>
+
+                      <td><a class="text-primary" (click)="openHistoryModal(item.type_id)">历史记录</a></td>
+                    </tr>
+                    <ng-container *ngIf="info['thing']['attribute_check']">
+                      <tr *ngFor="let item of info['thing']['attribute_check'];index as i;trackBy: trackByFn">
+                        <td>{{item.label_category_name}}</td>
+                        <td>{{item.title}}</td>
+                        <td><span [innerHtml]="item | label"></span></td>
+                        <td><a class="text-primary" (click)="openHistoryModal(item.type_id)">历史记录</a></td>
+                      </tr>
+                    </ng-container>
+                  </tbody>
+                </nz-table>
+              </div>
+
+              <!--评估结果-->
+              <div class="body-change border mb-3" *ngIf="isEvalute">
+                <h6 class="px-3 py-2 mb-0" style="background-color: #fafafa;">评估结果
+                    <span *ngIf="acceptance_evaluate_type === 1" >(共{{set_total_score}}分)：{{acceptance_evaluate_total_score}}</span>
+                </h6>
+                <nz-table  #basicTable nzHideOnSinglePage="true" nzBordered="false" nzSize="small" [nzData]="info['thing']['thing_score_all']">
+                  <thead>
+                    <tr>
+                      <th *ngFor="let column of info.scoreConfig" >{{ column.label }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of basicTable.data" [class.line-error]="item['status'] == '-1'">
+                      <td *ngFor="let column of info.scoreConfig"  >{{ item[column.key] ? item[column.key] : 'NA' }}</td>
+                    </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+              <!--评分详情-->
+              <div class="body-change border mb-3" *ngIf="isScore_detail">
+                <h6 class="px-3 py-2 mb-0" style="background-color: #fafafa;">评分详情</h6>                  
+                <div [innerHTML]="score_detail"></div>
+              </div>
+
+              <!-- 供应商和价格 -->
+              <div class="border" *ngIf="info['isShowPrice']">
+                <h6 class="px-3 py-2" style="background-color: #fafafa;"> 供应商和价格</h6>
+                <div class="px-3 py-2">
+                  <label class="font-weight-bold" style="width: auto;min-width: auto;">CP名称</label>{{info['thing']['supplier_name'] | format}}
+                  <label class="font-weight-bold" style="width: auto;min-width: auto;">合同号</label>{{info['thing']['contract_number'] | format}}
+                  <label class="font-weight-bold" style="width: auto;min-width: auto;">设计师</label>{{info['thing']['producer_user_id_str'] | format}}
+                  <label class="font-weight-bold" style="width: auto;min-width: auto;">采购经理</label>{{info['thing']['last_pm_name'] | format}}
+                  <label class="font-weight-bold" style="width: auto;min-width: auto;">联系方式</label>{{info['thing']['tel'] | format}}
+                </div>
+                <nz-table
+                  #smallTable
+                  class="mx-3"
+                  nzSize="small"
+                  nzFrontPagination="false"
+                  nzNoResult="'暂无数据'"
+                  nzBordered="true"
+                  nzShowPagination="true"
+                  nzHideOnSinglePage="true"
+                  [nzData]="quoteList.list">
+                  <thead>
+                  <tr>
+                    <th *ngFor="let column of quoteList.columns; trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                      <ng-container [ngSwitch]="column.type">
+                        <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                      </ng-container>
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let item of smallTable.data;index as i;trackBy: trackByFn">
+                    <td *ngFor="let column of quoteList.columns;trackBy: trackByFn">
+                      <ng-container [ngSwitch]="column.type">
+                        <ng-container *ngSwitchDefault>
+                          {{item[column.key] ? item[column.key] : 'NA'}}
+                          <ng-container [ngSwitch]="column.key">
+                            <ng-container *ngSwitchCase="'total_price'">
+                              <ng-container *ngIf="item['breakdowns'] && item['breakdowns']!==''">
+                                <a *ngIf="isShowDetail(item, 'breakdowns')"  (click)="showPriceDetail(item, 'breakdowns', $event)">明细</a>
+                                <a *ngIf="item.price_type == 1"  (click)="showPriceDetail(item, 'breakdowns', $event)">模板</a>
+                              </ng-container>
+                            </ng-container>
+                          </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+                <p class="px-3 py-2" style="font-size: 12px; color: 999999;">* 你可以在处理记录中查看报价历史记录</p>
+              </div>
+            </div>
+          </nz-tab>
+
+          <!--操作记录-->
+          <nz-tab [nzTitle]="'操作记录'" *ngIf="info['isChangeList']" (nzSelect)="tabsetChange('changeData')">
+            <!--处理记录-->
+            <div class="body-change" *ngIf="changeData.changeColumns">
+              <div class="change-title">
+                <h6 >处理记录</h6>
+              </div>
+              <div class="change-list">
+                <nz-table
+                  #smallTableChange1
+                  nzSize="small"
+                  nzNoResult="暂无数据"
+                  nzBordered="true"
+                  nzPageSize="10"
+                  [nzLoading]="changeData.changeLoading"
+                  [nzData]="changeData.changeList">
+                  <thead>
+                  <tr>
+                    <th *ngFor="let column of changeData.changeColumns; trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                      <ng-container [ngSwitch]="column.type">
+                        <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                      </ng-container>
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let item of smallTableChange1.data; index as i;  trackBy: trackByFn">
+                    <td *ngFor="let column of changeData.changeColumns;  trackBy: trackByFn">
+                      <ng-container [ngSwitch]="column.type">
+                        <ng-container *ngSwitchDefault>{{item[column.key] ? item[column.key] : 'NA'}}</ng-container>
+                      </ng-container>
+                    </td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </div>
+
+            <!--报价记录-->
+            <div class="body-change" *ngIf="changeData.quoteColumns && info['isShowPrice']">
+              <div class="change-title">
+                <h6 >报价记录</h6>
+              </div>
+
+              <div class="change-list">
+                <nz-table
+                  #smallTableChange2
+                  nzSize="small"
+
+                  [nzNoResult]="'暂无数据'"
+                  [nzBordered]="true"
+                  [nzPageSize]="5"
+                  [nzLoading]="changeData.quoteLoading"
+                  [nzData]="changeData.quoteList">
+                  <thead>
+                  <tr>
+                    <th *ngFor="let column of changeData.quoteColumns; trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                      <ng-container [ngSwitch]="column.type">
+                        <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                      </ng-container>
+                    </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let item of smallTableChange2.data; index as i; trackBy: trackByFn">
+                    <td *ngFor="let column of changeData.quoteColumns; trackBy: trackByFn">
+                      <ng-container [ngSwitch]="column.type">
+                        <ng-container *ngSwitchCase="'unit_price'">
+                          <ng-container *ngIf="item[column.key]">
+                            {{ item[column.key] }} <span *ngIf="item.fixed_price_status">固定价</span>
+                          </ng-container>
+                          <span *ngIf="!data[column.key]">NA</span>
+                        </ng-container>
+                        <ng-container *ngSwitchCase="'file'">
+                          <ng-container *ngIf="item[column.key] && item[column.key] != 0">
+                            <td> <a download="下载" [href]="'/web/file/' + item[column.key] ">下载</a></td>
+                          </ng-container>
+                          <ng-container *ngIf="!(item[column.key] && item[column.key] != 0)">
+                           <td> NA</td>
+                          </ng-container>
+                        </ng-container>
+
+                        <ng-container *ngSwitchDefault>{{item[column.key] ? item[column.key] : 'NA'}}</ng-container>
+                      </ng-container>
+                    </td>
+                  </tr>
+                  </tbody>
+                </nz-table>
+              </div>
+            </div>
+            <!--物件备注列表-->
+            <div class="body-change mt-3" *ngIf="changeData.remarkColumns">
+              <div class="change-title">
+                <h6>采购经理备注
+                  <button  *ngIf="changeData.isAddRemark === '1'" nzSize="small" nz-button (click)="addThingRemarkModal()">添加</button>
+                </h6>
+              </div>
+              <div class="change-list">
+                <div nz-row [nzGutter]="24">
+                  <div nz-col nzSpan="24">
+                    <nz-table
+                      #smallTableChange3
+                      nzSize="small"
+                      [nzNoResult]="'暂无数据'"
+                      [nzPageSize]="5"
+                      [nzLoading]="changeData.remarkLoading"
+                      [nzData]="changeData.remarkList">
+                      <thead>
+                      <tr>
+                        <th *ngFor="let column of changeData.remarkColumns; trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                          <ng-container [ngSwitch]="column.type">
+                            <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                          </ng-container>
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let item of smallTableChange3.data;index as i;trackBy: trackByFn">
+                        <td *ngFor="let column of changeData.remarkColumns;trackBy: trackByFn">
+                          <ng-container [ngSwitch]="column.key">
+                            <ng-container *ngSwitchCase="'operate'">
+                              <ng-container *ngFor="let btn of column['optionBtns'];index as ii; trackBy: trackByFn">
+
+                                <ng-container *ngIf="btn['key'] === 'del' && item['upload_file_url'] && changeData.isAddRemark === '1'">
+                                  <nz-popconfirm [nzTitle]="'确定要删除？'" (nzOnConfirm)="changeRemark(btn['key'], item)">
+                                    <a nz-popconfirm style="margin-right: 8px">{{btn['label']}}</a>
+                                  </nz-popconfirm>
+                                </ng-container>
+
+                                <ng-container *ngIf="btn['key'] !== 'del' && item['upload_file_url']">
+                                  <a [href]="item['upload_file_url']" target="_blank" style="margin-right: 8px">{{btn['label']}}</a>
+                                </ng-container>
+                              </ng-container>
+                            </ng-container>
+                            <ng-container *ngSwitchDefault>{{item[column.key] ? item[column.key] : 'NA'}}</ng-container>
+                          </ng-container>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </nz-table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </nz-tab>
+
+          <!--附件及互动-->
+          <nz-tab [nzTitle]="'附件及互动'" *ngIf="info['attachment']">
+            <!--上传作品展示-->
+            <div class="body-upload">
+              <div class="upload-btn mb-2">
+                <nz-upload
+                  *ngIf="info['isUpload'] === '1'"
+                  [nzAccept]="attachment.show_figure_uploadfile_exts|fileexts"
+                  [nzAction]="'/web/cos/upload?type=1000&id=' + info['base']['id']"
+                  [nzShowUploadList]="false"
+                  [nzBeforeUpload]="beforeUploadShowFigure"
+                  [nzCustomRequest]="cos.customReqs"
+                  class="mr-2"
+                  (nzChange)="uploadChange($event)">
+                  <button nz-button>
+                    <i nz-icon type="upload"></i><span>上传展示文件</span>
+                  </button>
+                </nz-upload>
+
+                <h6 *ngIf="info['isUpload'] !== '1'">展示文件</h6>
+                <span> 文件格式：{{attachment.show_figure_uploadfile_exts | fileexts}}</span>
+               
+        
+                <nz-alert *ngIf="info['isUpload'] === '1'" nzType="warning" class="my-2" nzShowIcon nzMessage="上传展示图原图大小不应超过32MB、宽高不超过30000像素且总像素不超过2.5亿像素, 处理结果图宽高设置不超过9999像素; 针对动图, 原图宽 x 高 x 帧数不超过2.5亿像素。"></nz-alert>
+              
+              </div>
+              <div class="upload-list">
+                <div nz-row [nzGutter]="24">
+                  <div nz-col nzSpan="24">
+                    <nz-table
+                      #smallTableUpload1
+
+                      nzSize="small"
+                      [nzNoResult]="'暂无数据'"
+                      [nzBordered]="true"
+                      [nzPageSize]="5"
+                      [nzData]="attachment.list['1000']">
+                      <thead>
+                      <tr>
+                        <th *ngFor="let column of attachment.columns;trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                          <ng-container [ngSwitch]="column.type">
+                            <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                          </ng-container>
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let item of smallTableUpload1.data;index as i;trackBy: trackByFn">
+                        <td *ngFor="let column of attachment.columns;trackBy: trackByFn">
+                          <ng-container [ngSwitch]="column.key">
+                            <ng-container *ngSwitchCase="'operate'">
+                              <a style="margin-right: 9px" (click)="showImg(item['file_path'] + '/900')">
+                                <i nz-icon type="search" theme="outline"></i>预览
+                              </a>
+
+                              <a style="margin-right: 9px" (click)="download(item['file_path'], item['file_name'])" target="_blank">
+                                <i nz-icon type="cloud-download" theme="outline"></i>下载
+                              </a>
+
+                              <nz-popconfirm *ngIf="info['isUpload'] === '1'" [nzTitle]="'确定要删除？'" (nzOnConfirm)="delThingFile(item)">
+                                <a nz-popconfirm style="margin-right: 8px">删除</a>
+                              </nz-popconfirm>
+
+                              <ng-container *ngIf="info['thing'] && info['thing']['show_figure_id'] != item.id && info['isUpload'] === '1'">
+                                <a style="margin-left: 9px" (click)="thingFigure(item)"><i nz-icon type="file-search" theme="outline"></i>设置为封面</a>
+                              </ng-container>
+
+                            </ng-container>
+                            <ng-container *ngSwitchDefault>
+                              <ng-container *ngIf="info['thing'] && info['thing']['show_figure_id'] == item.id && column.key == 'file_name'">
+                                <span [ngStyle]="{color: 'red'}">[封面]</span>
+                              </ng-container>
+                              {{item[column.key]}}
+                            </ng-container>
+                          </ng-container>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </nz-table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--上传最终作品-->
+            <div class="body-upload">
+              <div class="upload-btn mb-2">
+                <nz-upload
+                  *ngIf="info['isUpload'] === '1'"
+                  [nzAccept]="attachment.final_work_uploadfile_exts|fileexts"
+                  [nzAction]="'/web/cos/upload?type=1005&id=' + info['base']['id']"
+                  [nzShowUploadList]="false"
+                  [nzBeforeUpload]="beforeUploadFinalWork"
+                  [nzCustomRequest]="cos.customReqs"
+                  (nzChange)="uploadChange($event)">
+                  <button nz-button>
+                    <i nz-icon type="upload"></i><span>上传最终作品</span>
+                  </button>
+                </nz-upload>
+                <h6 *ngIf="info['isUpload'] !== '1'">上传最终作品</h6>
+                <span> 文件格式：{{attachment.final_work_uploadfile_exts|fileexts}}</span>
+              </div>
+              <div class="upload-list">
+                <div nz-row [nzGutter]="24">
+                  <div nz-col nzSpan="24">
+                    <nz-table
+                      #smallTableUpload2
+                      nzSize="small"
+                      [nzNoResult]="'暂无数据'"
+                      [nzBordered]="true"
+                      [nzPageSize]="5"
+                      [nzData]="attachment.list['1005']">
+                      <thead>
+                      <tr>
+                        <th *ngFor="let column of attachment.columns2;trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                          <ng-container [ngSwitch]="column.type">
+                            <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                          </ng-container>
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let item of smallTableUpload2.data;index as i;trackBy: trackByFn">
+                        <td *ngFor="let column of attachment.columns2;trackBy: trackByFn">
+                          <ng-container [ngSwitch]="column.key">
+                            <ng-container *ngSwitchCase="'operate'">
+
+                              <a style="margin-right: 9px" (click)="showImg(item['file_path'] + '/900')">
+                                <i nz-icon type="search" theme="outline"></i>预览
+                              </a>
+
+                              <ng-container *ngIf="info['isPullSpider'] && info['isPullSpider'] == 1">
+                                <a style="margin-right: 9px" nz-popconfirm [nzTitle]="'确定要同步蜘蛛系统？'" (nzOnConfirm)="synchronou(item)">
+                                  <i nz-icon type="api" theme="outline" style="margin-right: 2px;"></i>同步蜘蛛
+                                </a>
+                              </ng-container>
+
+                              <a style="margin-right: 9px"  (click)="download(item['file_path'], item['file_name'])" target="_blank"><i nz-icon type="cloud-download" theme="outline"></i>下载</a>
+
+                              <nz-popconfirm *ngIf="info['isUpload'] === '1'" [nzTitle]="'确定要删除？'" (nzOnConfirm)="delThingFile(item)">
+                                <a nz-popconfirm style="margin-right: 8px">删除</a>
+                              </nz-popconfirm>
+
+                            </ng-container>
+                            <ng-container *ngSwitchDefault>{{item[column.key]}}</ng-container>
+                          </ng-container>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </nz-table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--上传过程附件-->
+            <div class="body-upload">
+              <div class="upload-btn mb-2">
+                <nz-upload
+                  *ngIf="info['isUpload'] == '1'"
+                  [nzAction]="'/web/cos/upload?type=1010&id=' + info['base']['id'] "
+                  [nzCustomRequest]="cos.customReqs"
+                  [nzBeforeUpload]="cos.beforeUploadFile"
+                  [nzShowUploadList]="false"
+                  (click)="$event.stopPropagation();"
+                  (nzChange)="uploadChange($event)"
+                >
+                  <button nz-button>
+                    <i nz-icon type="upload"></i><span>上传过程附件</span>
+                  </button>
+                </nz-upload>
+                <h6 *ngIf="info['isUpload'] !== '1'">上传过程附件</h6>
+                <span> 文件格式：jpg,gif,png,psd,ai,jpeg,bmp,doc,docx,xls,xlsx,ppt,pptx,pdf,zip,7z,tga,rar,mp3,mp4,mov,wmv,avi,swf,fla,wav,ogg,aif,aiff,flac,caf,mpg,mpeg,wma。</span>
+              </div>
+              <div class="upload-list">
+                <div nz-row [nzGutter]="24">
+                  <div nz-col nzSpan="24">
+                    <nz-table
+                      #smallTableUpload3
+                      nzSize="small"
+
+                      [nzNoResult]="'暂无数据'"
+                      [nzBordered]="true"
+                      [nzPageSize]="5"
+                      [nzData]="attachment.list['1010']">
+                      <thead>
+                      <tr>
+                        <th *ngFor="let column of attachment.columns2;trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                          <ng-container [ngSwitch]="column.type">
+                            <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                          </ng-container>
+                        </th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let item of smallTableUpload3.data;index as i;trackBy: trackByFn">
+                        <td *ngFor="let column of attachment.columns2;trackBy: trackByFn">
+                          <ng-container [ngSwitch]="column.key">
+                            <ng-container *ngSwitchCase="'operate'">
+
+                              <a style="margin-right: 9px" (click)="showImg(item['file_path'] + '/900')">
+                                <i nz-icon type="search" theme="outline"></i>预览
+                              </a>
+
+                              <ng-container *ngIf="info['isPullSpider'] && info['isPullSpider'] == 1">
+                                <a style="margin-right: 9px" nz-popconfirm [nzTitle]="'确定要同步蜘蛛系统？'" (nzOnConfirm)="synchronou(item)">
+                                  <i nz-icon type="api" theme="outline" style="margin-right: 2px;"></i>同步蜘蛛
+                                </a>
+                              </ng-container>
+
+                              <a style="margin-right: 9px"  (click)="download(item['file_path'], item['file_name'])" target="_blank"><i nz-icon type="cloud-download" theme="outline"></i>下载</a>
+
+                              <nz-popconfirm *ngIf="info['isUpload'] === '1'" [nzTitle]="'确定要删除？'" (nzOnConfirm)="delThingFile(item)">
+                                <a nz-popconfirm style="margin-right: 8px">删除</a>
+                              </nz-popconfirm>
+
+                            </ng-container>
+                            <ng-container *ngSwitchDefault>{{item[column.key]}}</ng-container>
+                          </ng-container>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </nz-table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </nz-tab>
+    <nz-tab [nzTitle]="'延时提醒记录'" (nzSelect)="tabsetChange('changeDelayData')">
+      <div class="body-change" *ngIf="delayChangeData.delayChangeColumns">
+        <div class="change-list">
+          <nz-table
+            #smallTableChange1
+            nzSize="small"
+            nzNoResult="暂无数据"
+            nzBordered="true"
+            nzPageSize="10"
+            [nzLoading]="delayChangeData.delayChangeLoading"
+            [nzData]="delayChangeData.delayChangeList">
+            <thead>
+            <tr>
+              <th *ngFor="let column of delayChangeData.delayChangeColumns; trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                <ng-container [ngSwitch]="column.type">
+                  <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                </ng-container>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of smallTableChange1.data; index as i;  trackBy: trackByFn">
+              <td *ngFor="let column of delayChangeData.delayChangeColumns;  trackBy: trackByFn" style="max-width: 300px;">
+                <ng-container [ngSwitch]="column.type">
+                  <ng-container *ngSwitchCase="'file'">
+                    <ng-container *ngIf="item[column.key]">
+                      {{item[column.key]}} <a *ngIf="item['file_id'] != 0" download="下载" [href]="'/web/file/' + item['file_id'] ">查看附件</a>
+                    </ng-container>
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>{{item[column.key] ? item[column.key] : 'NA'}}</ng-container>
+                </ng-container>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </div>
+    </nz-tab>
+        </nz-tabset>
+      </ng-container>
+    </div>
+
+  </ng-template>
+</nz-modal>
+
+<!--添加采购经理备注-->
+<nz-modal #thingDetailRemark
+          [(nzVisible)]="remarkModalData.isShow"
+          nzTitle="添加备注"
+          nzMaskClosable="false"
+          [nzZIndex]="1000"
+          [nzOkLoading]="remarkModalData.submitLoading"
+          (nzOnCancel)="addThingRemarkModalCancel()"
+          (nzOnOk)="addThingRemarkModalOk()">
+
+  <div for="textreaa" class="mb-2">备注信息:</div>
+
+  <textarea class="w-100 mb-2" id="textarea" rows="4" nz-input placeholder="输入备注内容..." [(ngModel)]="remarkModalData.remark"></textarea>
+
+  <nz-upload
+
+    [nzAction]="'/web/cos/upload?type=1055'"
+    [nzCustomRequest]="cos.customReqs"
+    [nzBeforeUpload]="cos.beforeUploadFile"
+    [nzLimit]="1"
+    [(nzFileList)]="remarkModalData.fileList"
+    (click)="$event.stopPropagation();"
+    (nzChange)="uploadRemarkChange($event)"
+  >
+    <button nz-button>
+      <i nz-icon type="upload"></i><span>附件上传</span>
+    </button>
+  </nz-upload>
+
+</nz-modal>
+
+
+<!--图片展示-->
+<app-modal-show-img></app-modal-show-img>
+
+<!--同步蜘蛛系统错误提示-->
+<nz-modal
+  [(nzVisible)]="syncModal.isShow"
+  [nzTitle]="syncModalTitle"
+  nzMaskClosable="false"
+  [nzContent]="syncModalContent"
+  [nzOkText]="null"
+  (nzOnCancel)="syncModal.isShow = !syncModal.isShow">
+  <ng-template #syncModalTitle>
+    同步失败
+  </ng-template>
+  <ng-template #syncModalContent style="padding-bottom: 8px">
+    <ng-container *ngIf="syncModal.list">
+      <nz-form-item *ngFor="let item of syncModal.list;trackBy: trackByFn">
+        <nz-form-label style="height: 30px;">文件 {{item.filename}}</nz-form-label>
+        <nz-form-control>
+          <ul *ngFor="let item2 of item.errors;trackBy: trackByFn">
+            <li style="height: 30px;">-{{item2.error}}</li>
+          </ul>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-divider style="margin: 20px 0"></nz-divider>
+      <p style="margin-bottom: 0">想要<span class="red">避免错误</span>？请使用IEG官方团队开发的专题构建工具：<a href="https://github.com/allanguys/tg-cli" target="_blank">tg-cli</a></p>
+    </ng-container>
+  </ng-template>
+</nz-modal>
+
+<!-- 测试单通过测试 -->
+<nz-modal
+  [(nzVisible)]="testModal.isVisible"
+  nzTitle="测试通过原因"
+  [nzContent]="testModalContent"
+  nzMaskClosable="false"
+  (nzOnOk)="passDegreeSubmit()"
+  (nzOnCancel)="testModal.isVisible = !testModal.isVisible">
+  <ng-template #testModalContent style="padding-bottom: 8px">
+      <p>输入测试通过原因：</p>
+      <textarea class="mb-2" rows="4" nz-input [(ngModel)]="testModal.pass_reason"></textarea>
+      <nz-upload
+        [nzAction]="'/web/cos/upload?type=1055'"
+        [nzCustomRequest]="cos.customReqs"
+        [nzBeforeUpload]="cos.beforeUploadFile"
+        [nzLimit]="1"
+        [(nzFileList)]="remarkModalData.fileList"
+        (click)="$event.stopPropagation();"
+        (nzChange)="uploadTestChange($event)">
+        <button nz-button>
+          <i nz-icon type="upload"></i><span>附件上传</span>
+        </button>
+      </nz-upload>
+  </ng-template>
+</nz-modal>
+

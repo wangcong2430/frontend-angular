@@ -1,0 +1,65 @@
+<!--
+ * @Author: v_swwu v_swwu@tencent.com
+ * @Date: 2022-07-01 14:45:22
+ * @LastEditors: v_swwu v_swwu@tencent.com
+ * @LastEditTime: 2022-07-17 19:22:31
+ * @FilePath: \cpm\frontend\projects\oa\src\app\index\thing\create-demand\create-demand.component.html
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
+<!-- 操作栏 -->
+<app-component-crumb title="(按照风控要求, 需求人和需求审核的人员不可以为同一人)">
+  <button nzSize="small" *ngIf="from" nz-button (click)="unbindStory()" [nzLoading]="isUnbindStoryLoading">解除绑定</button>
+</app-component-crumb>
+
+<!-- 主体栏 -->
+<div class="w-100 main" style="margin-top: -20px;" >
+  <nz-card id='body'
+    (drop)="fileDrop($event)"
+    (dragover)="fileDrop($event)"
+    (dragleave)="fileDrop($event)">
+
+    <ng-container *ngIf="!(isAuth && isRenderForm && model) && !this.isAuthErrorMsg">
+      <div class="example">
+        <nz-spin></nz-spin>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="isAuth && isRenderForm && model">
+      <form *ngIf="isRenderForm && model" [formGroup]="formGroup" nz-form nzLayout="horizontal" style="margin-top: -15px" >
+        <button type="submit" style="display: none"></button>
+        <formly-form [model]="model" [fields]="formFields" [options]="options" [form]="form"></formly-form>
+      </form>
+    </ng-container>
+    <div *ngIf="!isAuth && this.isAuthErrorMsg" class="text-center">
+      {{isAuthErrorMsg}}
+    </div>
+  </nz-card>
+</div>
+<ng-container>
+  <div style="width: 100%;
+  height: 72px;
+  line-height: 72px;
+  padding-right: 24px;
+  box-sizing: border-box;
+  display: flex;
+  position: relative;
+  flex-direction: row-reverse;
+  background: #FFFFFF;
+  box-shadow: 0 -6px 22px 0 rgba(0,0,0,0.06);">
+  <div style="position: absolute;right:0" >
+  <button nzSize="large" nz-button (click)="save()" [nzLoading]="isSaveLoading" style="margin-right:16px ;width: 116px;border: 1px solid #0052D9;
+  border-radius: 3px;color: #0052D9;">保存</button>
+  <button nzSize="large" nz-button (click)="submit()" nzType="primary" [nzLoading]="isSubmitLoading" style="margin-right:24px;width: 116px;background-image: linear-gradient(-37deg, #0EA5FF 0%, #005FE3 100%);border-radius: 2px;">提交</button>
+  </div>
+  </div>
+</ng-container>
+
+
+
+<nz-modal [(nzVisible)]="msgHint.isShow" nzTitle="提交确认" [nzOkLoading]="msgHint.isSubmitLoading" (nzOnCancel)="msgHint.isShow = false" (nzOnOk)="unbindStory(false)">
+  <p>{{msgHint.msg}}</p>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isVisible" nzTitle="需求管理已迁移" nzOkText="前往" (nzOnCancel)="isVisible = false" (nzOnOk)="handleOk()">
+  <p>需求管理已迁移至IOMC系统，请前往IOMC系统新建需求及跟进单据。对IOMC系统有任何疑问可联系brucepsun(孙鹏)。<a target='_blank' href='http://iomc.oa.com'>【前往：http://iomc.oa.com】</a></p>
+</nz-modal>

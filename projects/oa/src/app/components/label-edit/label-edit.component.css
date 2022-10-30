@@ -1,0 +1,70 @@
+.attribute-item{
+  display: flex;
+  line-height: 21px;
+  width: 296px;
+  /* height: 21px; */
+
+}
+
+.attribute-item .label,
+.attribute-item label {
+  position: relative;
+  font-size: 12px;
+  margin-bottom: 8px;
+  margin-left: 10px;
+}
+
+.attribute-item .label::after,
+.attribute-item label::after {
+  content: ":";
+  width: 10px;
+  position: relative;
+  text-align: center;
+  display: inline-block;
+}
+
+ .attribute-item .attribute-unit {
+  display: inline-block;
+  text-align: right;
+}
+
+ .attribute-item .attribute-control {
+  flex: 1;
+  display: flex;
+  white-space:nowrap;
+}
+
+.attribute-show .attribute-item {
+  display: block;
+  width: 100%;
+}
+
+.attribute-show .attribute-item .label {
+  margin-left: 0;
+  margin-bottom: 0;
+}
+
+.attribute-collapsed {
+  height: 63px;
+  overflow: hidden;
+}
+
+
+.ant-form-item-required::before {
+  position: absolute;
+  left: -10px;
+  top: 4px;
+}
+
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+input[type="number"]{ -moz-appearance: textfield; }
+
+.ant-input.has-warning, .ant-input.has-warning:hover {
+  border-color: #faad14;
+}
+
+
+
+
+

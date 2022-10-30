@@ -1,0 +1,212 @@
+<div *ngIf="info">
+  <div class="body-upload" >
+    <div class="upload-btn mb-2">
+      <nz-upload
+        *ngIf="info['isUpload'] === '1'"
+        [nzAccept]="attachment.show_figure_uploadfile_exts|fileexts"
+        [nzAction]="'/web/cos/upload?type=1000&id=' + info['base']['id']"
+        [nzShowUploadList]="false"
+        [nzBeforeUpload]="beforeUploadShowFigure"
+        [nzCustomRequest]="cos.customReqs"
+        (nzChange)="uploadChange($event)">
+        <button nz-button>
+          <i nz-icon type="upload"></i><span>展示文件</span>
+        </button>
+      </nz-upload>
+      <h6 *ngIf="info['isUpload'] !== '1'">展示文件</h6>
+      <span> 文件格式：{{attachment.show_figure_uploadfile_exts|fileexts}}</span>
+    </div>
+    <div class="upload-list">
+      <div nz-row [nzGutter]="24">
+        <div nz-col nzSpan="24">
+          <nz-table
+            #smallTableUpload1
+  
+            nzSize="small"
+            [nzNoResult]="'暂无数据'"
+            [nzBordered]="true"
+            [nzPageSize]="5"
+            [nzData]="attachment.list['1000']">
+            <thead>
+            <tr>
+              <th *ngFor="let column of attachment.columns;trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                <ng-container [ngSwitch]="column.type">
+                  <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                </ng-container>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of smallTableUpload1.data;index as i;trackBy: trackByFn">
+              <td *ngFor="let column of attachment.columns;trackBy: trackByFn">
+                <ng-container [ngSwitch]="column.key">
+                  <ng-container *ngSwitchCase="'operate'">
+                    <a style="margin-right: 9px" [href]="item['file_path'] + '/900'"  target="_blank" ><i nz-icon type="search" theme="outline"></i>预览</a>
+  
+                    <a style="margin-right: 9px" (click)="downloadImage(item['file_path'], item['file_name'])"><i nz-icon type="cloud-download" theme="outline"></i>下载</a>
+  
+                    <nz-popconfirm *ngIf="info['isUpload'] === '1'" [nzTitle]="'确定要删除？'" (nzOnConfirm)="delThingFile(item)">
+                      <a nz-popconfirm style="margin-right: 8px">删除</a>
+                    </nz-popconfirm>
+  
+                    <ng-container *ngIf="info['thing'] && info['thing']['show_figure_id'] != item.id && info['isUpload'] === '1'">
+                      <a style="margin-left: 9px" (click)="thingFigure(item)"><i nz-icon type="file-search" theme="outline"></i>设置为封面</a>
+                    </ng-container>
+  
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>
+                    <ng-container *ngIf="info['thing'] && info['thing']['show_figure_id'] == item.id && column.key == 'file_name'">
+                      <span [ngStyle]="{color: 'red'}">[封面]</span>
+                    </ng-container>
+                    {{item[column.key]}}
+                  </ng-container>
+                </ng-container>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!--上传最终作品-->
+  <div class="body-upload">
+    <div class="upload-btn mb-2">
+      <nz-upload
+        *ngIf="info['isUpload'] === '1'"
+        [nzAccept]="attachment.final_work_uploadfile_exts|fileexts"
+        [nzAction]="'/web/cos/upload?type=1005&id=' + info['base']['id']"
+        [nzShowUploadList]="false"
+        [nzBeforeUpload]="beforeUploadFinalWork"
+        [nzCustomRequest]="cos.customReqs"
+        (nzChange)="uploadChange($event)">
+        <button nz-button>
+          <i nz-icon type="upload"></i><span>上传最终作品</span>
+        </button>
+      </nz-upload>
+      <h6 *ngIf="info['isUpload'] !== '1'">上传最终作品</h6>
+      <span> 文件格式：{{attachment.final_work_uploadfile_exts|fileexts}}文件大小：4G以下。</span>
+    </div>
+    <div class="upload-list">
+      <div nz-row [nzGutter]="24">
+        <div nz-col nzSpan="24">
+          <nz-table
+            #smallTableUpload2
+            nzSize="small"
+            [nzNoResult]="'暂无数据'"
+            [nzBordered]="true"
+            [nzPageSize]="5"
+            [nzData]="attachment.list['1005']">
+            <thead>
+            <tr>
+              <th *ngFor="let column of attachment.columns2;trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                <ng-container [ngSwitch]="column.type">
+                  <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                </ng-container>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of smallTableUpload2.data;index as i;trackBy: trackByFn">
+              <td *ngFor="let column of attachment.columns2;trackBy: trackByFn">
+                <ng-container [ngSwitch]="column.key">
+                  <ng-container *ngSwitchCase="'operate'">
+<!--   
+                    <ng-container *ngIf="info['isPullSpider'] && info['isPullSpider'] == 1">
+                      <a style="margin-right: 9px" nz-popconfirm [nzTitle]="'确定要同步蜘蛛系统？'" (nzOnConfirm)="synchronou(item)">
+                        <i nz-icon type="api" theme="outline" style="margin-right: 2px;"></i>同步蜘蛛
+                      </a>
+                    </ng-container> -->
+  
+                    <a style="margin-right: 9px" (click)="downloadImage(item['file_path'], item['file_name'])">
+                      <i nz-icon type="cloud-download" theme="outline"></i>下载
+                    </a>
+  
+                    <nz-popconfirm *ngIf="info['isUpload'] === '1'" [nzTitle]="'确定要删除？'" (nzOnConfirm)="delThingFile(item)">
+                      <a nz-popconfirm style="margin-right: 8px">删除</a>
+                    </nz-popconfirm>
+  
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>{{item[column.key]}}</ng-container>
+                </ng-container>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!--上传过程附件-->
+  <div class="body-upload">
+    <div class="upload-btn mb-2">
+      <nz-upload
+        *ngIf="info['isUpload'] == '1'"
+        [nzAction]="'/web/cos/upload?type=1010&id=' + info['base']['id'] "
+        [nzCustomRequest]="cos.customReqs"
+        [nzBeforeUpload]="cos.beforeUploadFile"
+        [nzShowUploadList]="false"
+        (click)="$event.stopPropagation();"
+        (nzChange)="uploadChange($event)"
+      >
+        <button nz-button>
+          <i nz-icon type="upload"></i><span>上传过程附件</span>
+        </button>
+      </nz-upload>
+      <h6 *ngIf="info['isUpload'] !== '1'">上传过程附件</h6>
+      <span> 文件格式：jpg,gif,png,psd,ai,jpeg,bmp,doc,docx,xls,xlsx,ppt,pptx,pdf,zip,7z,tga,rar,mp3,mp4,mov,wmv,avi,swf,fla,wav,ogg,aif,aiff,flac,caf,mpg,mpeg,wma。文件大小：4G以下。</span>
+    </div>
+    <div class="upload-list">
+      <div nz-row [nzGutter]="24">
+        <div nz-col nzSpan="24">
+          <nz-table
+            #smallTableUpload3
+            nzSize="small"
+  
+            [nzNoResult]="'暂无数据'"
+            [nzBordered]="true"
+            [nzPageSize]="5"
+            [nzData]="attachment.list['1010']">
+            <thead>
+            <tr>
+              <th *ngFor="let column of attachment.columns2;trackBy: trackByFn" [ngStyle]="{'width':column.width ? column.width : '' }">
+                <ng-container [ngSwitch]="column.type">
+                  <ng-container *ngSwitchDefault>{{column.label}}</ng-container>
+                </ng-container>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of smallTableUpload3.data;index as i;trackBy: trackByFn">
+              <td *ngFor="let column of attachment.columns2;trackBy: trackByFn">
+                <ng-container [ngSwitch]="column.key">
+                  <ng-container *ngSwitchCase="'operate'">
+  
+                    <!-- <ng-container *ngIf="info['isPullSpider'] && info['isPullSpider'] == 1">
+                      <a style="margin-right: 9px" nz-popconfirm [nzTitle]="'确定要同步蜘蛛系统？'" (nzOnConfirm)="synchronou(item)">
+                        <i nz-icon type="api" theme="outline" style="margin-right: 2px;"></i>同步蜘蛛
+                      </a>
+                    </ng-container> -->
+  
+                    <a style="margin-right: 9px" (click)="downloadImage(item['file_path'], item['file_name'])">
+                      <i nz-icon type="cloud-download" theme="outline"></i>下载
+                    </a>
+  
+                    <nz-popconfirm *ngIf="info['isUpload'] === '1'" [nzTitle]="'确定要删除？'" (nzOnConfirm)="delThingFile(item)">
+                      <a nz-popconfirm style="margin-right: 8px">删除</a>
+                    </nz-popconfirm>
+  
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>{{item[column.key]}}</ng-container>
+                </ng-container>
+              </td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

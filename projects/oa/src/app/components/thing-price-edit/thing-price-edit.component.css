@@ -1,0 +1,53 @@
+::ng-host ::ng-deep .ant-input {
+  width: 100px;
+  margin: 0 8px 8px 0;
+}
+
+.attribute-item {
+  display: flex;
+  line-height: 21px;
+  flex-direction: row;
+  width: 160px;
+  overflow: hidden;
+}
+
+.attribute-item .label {
+  font-size: 12px;
+}
+
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+input[type="number"]{ -moz-appearance: textfield; }
+
+.attribute-edit-component {
+  width: 280px;
+}
+
+.attribute-item {
+  width: 100%;
+  min-width: 160px;
+  display: flex;
+  justify-items: left;
+}
+
+.attribute-item label {
+  min-width: 80px;
+  float: right;
+  text-align: right;
+  margin-right: 8px;
+}
+
+.attribute-item label::after {
+  content: ":";
+  width: 8px;
+}
+
+.attribute-item .unit {
+  display: inline-block;
+  width: 40px;
+  min-width: 40px;
+}
+
+.attribute-item .control {
+  margin-right: 8px;
+}

@@ -1,0 +1,13 @@
+<div class="checkbox-inline">
+
+  <div class="btn-group btn-group-sm checkbox" *ngIf='to.batchSelect'>
+    <button type="button" class="btn btn-default" (click)="batchSelectHandler('1')" [disabled]="to.disabled">全选</button>
+    <button type="button" class="btn btn-default" (click)="batchSelectHandler('2')" [disabled]="to.disabled">反选</button>
+  </div>
+
+  <div class="checkbox" [class]="'checkbox '+to.labelClass" *ngFor="let item of to.checkList" (click)="checkClickHandler(item.id.toString())">
+    <input type="checkbox" [value]="item.id" [checked]="curCheckList?.indexOf(item.id.toString()) > -1" [disabled]="to.disabled">
+    <i></i>
+    <span>{{item.name}}</span>
+  </div>
+</div>

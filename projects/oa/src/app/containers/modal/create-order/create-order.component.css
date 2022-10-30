@@ -1,0 +1,49 @@
+::ng-deep .create-order-modal .children-tr td {
+  background: #fbfbfb !important;
+}
+
+::ng-deep .create-order-modal .example {
+  text-align: center;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  padding: 30px 50px;
+  margin: 20px 0;
+}
+
+::ng-deep .create-order-modal  tr.ant-table-expanded-row, tr.ant-table-expanded-row:hover {
+  background: unset;
+}
+
+::ng-deep .create-order-modal  .ant-table-thead > tr.ant-table-row-hover:not(.ant-table-expanded-row) > td,
+::ng-deep .create-order-modal  .ant-table-tbody > tr.ant-table-row-hover:not(.ant-table-expanded-row) > td,
+::ng-deep .create-order-modal  .ant-table-thead > tr:hover:not(.ant-table-expanded-row) > td,
+::ng-deep .create-order-modal  .ant-table-tbody > tr:hover:not(.ant-table-expanded-row) > td {
+  background: #f5f8ff;
+}
+
+::ng-deep .create-order-modal  .ant-descriptions .ant-descriptions-view table {
+  border-collapse: collapse;
+}
+
+::ng-deep .create-order-modal  .ant-descriptions.bordered .ant-descriptions-item-label {
+  background-color: #fafafa;
+  width: 120px;
+  max-width: 140px;
+  text-align: right;
+  padding: 8px ;
+}
+
+::ng-deep .create-order-modal  .ant-descriptions.bordered .ant-descriptions-item-content {
+  width: 200px;
+  max-width: 200px;
+}
+
+::ng-deep .ant-descriptions-item-label.required::before {
+  display: inline-block;
+  margin-right: 4px;
+  color: #f5222d;
+  font-size: 14px;
+  font-family: SimSun,sans-serif;
+  line-height: 1;
+  content: '*';
+}

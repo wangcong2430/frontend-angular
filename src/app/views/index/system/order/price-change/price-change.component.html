@@ -1,0 +1,871 @@
+<app-component-crumb [(list)]="list" [isChildren]="true" (changeDisabledButton)="changeDisabledButton($event)">
+  <button nz-button nzSize="small" nzType="primary" (click)="isFill = true" [disabled]="disabledButton">{{ 'BATCH_FILL' | translate}}</button>
+  <button nz-button nzSize="small" nzType="primary" (click)="changeProducer(false)" [disabled]="disabledButton" >{{'CHANGE_PRODUCER' | translate}}</button>
+  <button nz-button nzSize="small" nzType="primary" (click)="changePass(false)" [disabled]="disabledButton">{{'REQUEST_FEE_CHANGE' | translate}}</button>
+  <button nz-button nzSize="small" nzType="primary" (click)="clickEndMake()" [nzLoading]="isSubmitLoading" [disabled]="disabledButton">{{'END_MAKE' | translate}}</button>
+</app-component-crumb>
+
+<div class="main-body mx-3">
+  <!-- loading -->
+  <ng-container *ngIf="loading">
+    <div class="example mt-4"><nz-spin></nz-spin></div>
+  </ng-container>
+
+  <!-- list -->
+  <ng-container *ngIf="!loading">
+
+    <nz-card class="bg-white">
+      <div class="body-pagination" *ngIf="list && list.length > 0 && pagination.total_count != 0">
+        <nz-pagination
+          style="float: right;"
+          class="mr-n2"
+          nzShowSizeChanger
+          [nzShowTotal]="totalTemplate"
+          [nzTotal]="pagination.total_count"
+          [(nzPageIndex)]="pagination.page_index"
+          [(nzPageSize)]="pagination.page_size"
+          [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+          (nzPageIndexChange)="pageIndexChange($event)"
+          (nzPageSizeChange)="pageSizeChange($event)"
+        >
+        </nz-pagination>
+      </div>
+
+      <span cdkDrag (cdkDragMoved)="dragmove($event)" (cdkDragStarted)="dragstart($event)">
+        <nz-table
+          #nestedTable
+          [nzData]="list"
+          [nzFrontPagination]="false"
+          [nzShowPagination]="false"
+          [(nzLoading)]="listLoading"
+          [nzScroll]="{ x: '1100px', y: null }">
+          <tbody>
+            <ng-template ngFor let-data [ngForOf]="nestedTable.data" [ngForTrackBy]="trackByFn">
+              <tr class="parent-tr" (click)="expandChange($event, data);">
+                <td nzShowCheckbox class="px-1" [(nzChecked)]="data.checked" (click)="$event.stopPropagation();" [nzIndeterminate]="data.indeterminate" [nzDisabled]="data['disabled']" (nzCheckedChange)="refreshStatus(true)"></td>
+                <td [attr.colspan]="columns.length" style="line-height: 28px;">
+                  <ng-container *ngFor="let column of columns; trackBy: trackByFn">
+                    <ng-container [ngSwitch]="column.type">
+                      <ng-container *ngSwitchCase="'change_status'">
+                        <div class="parent-title"></div>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'bubble_tip'">
+                        <div class="parent-title" *ngIf="data[column.key]" >{{column.label}}：
+                          <ng-container *ngIf="data[column.key] != ''">
+                            <i nz-icon type="info-circle" theme="outline" nz-popover [nzTitle]="false"
+                                [nzContent]="contentTemplate"></i>
+                            <!-- 引用模板，可输出html -->
+                            <ng-template #contentTemplate><a [innerHTML]="data[column.key]"></a></ng-template>
+                          </ng-container>
+                        </div>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'fr'">
+                        <ng-container *ngIf="column.label === ''">
+                          <div class="parent-title" style="float: right">{{data[column.key]}}</div>
+                        </ng-container>
+                        <ng-container *ngIf="column.label !== ''">
+                          <div class="parent-title" style="float: right">{{column.label}}: {{data[column.key]}}</div>
+                        </ng-container>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'order_amount'">
+                        <ng-container *ngIf="column.key == 'content_order_amount'">
+                          <div [ngStyle]="{'float': column.float ? column.float : '', 'margin-right': '16px'}" *ngIf="data['content_order_amount']">{{column.label}}:
+                            <!-- <span [ngStyle]="{'color': (data[column.param1] < data['content_order_amount']) ? 'red' : ''}">{{data['content_order_amount']}} CNY</span> -->
+                            <span>{{data['content_order_amount']|mycurrency}}</span>
+                          </div>
+                        </ng-container>
+                      </ng-container>
+                      <ng-container *ngSwitchCase="'click'">
+                        <ng-container *ngIf="data.can_withdraw">
+                          <button class="mb-0" style="font-size: 12px;" nz-button nzType="default" nzSize="small" (click)="getClickEvent(column.key, data, false, $event)">{{column.label}}</button>
+                        </ng-container>
+                      </ng-container>
+                      <ng-container *ngSwitchDefault><div class="parent-title" *ngIf="data[column.key] && data[column.key] != '0.00' && data[column.key] != ''">{{column.label}}: {{data[column.key]}}</div></ng-container>
+                    </ng-container>
+                  </ng-container>
+                </td>
+              </tr>
+              <!--子表格-->
+              <tr [nzExpand]="!data.expand" class="children-tr">
+                <td [attr.colspan]="columns.length + 2" style="padding: 0px;">
+                  <nz-table
+                    #innerTable
+                    [nzData]="data.children"
+                    [nzFrontPagination]="false"
+                    [nzShowPagination]="false"
+
+                    nzVirtualScroll
+                    [nzVirtualItemSize]="116"
+                    [nzVirtualMaxBufferPx]="2320"
+                    [nzVirtualMinBufferPx]="1160"
+                    [nzLoading]="data.tbloading"
+                    [nzScroll]="{ x: (120 * columns.length) + 'px', y: (data.children.length > 10 ? 116 * 10 : (data.children.length + 1) * 116) + 'px' }"
+
+                  >
+                      <thead>
+                        <tr class="children-th" cdkDragHandle style="cursor: move;">
+                          <th></th>
+                          <ng-container *ngFor="let column2 of childrenColumns; trackBy: trackByFn">
+                            <ng-container *ngIf="(column2['hidden_category'] | some : data['category_type']) || (column2['hidden_test'] && (column2['hidden_test'] == data['is_test'])); else elseBlock1 "></ng-container>
+
+                            <ng-template #elseBlock1>
+                              <th [nzRight]="column2?.templateOptions?.nzRight" [ngStyle]="{ 'width': column2?.width, 'max-width': column2?.width, 'min-width': column2?.width }" >
+                                {{column2.label}}
+                              </th>
+                            </ng-template>
+                          </ng-container>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <ng-template nz-virtual-scroll let-data2 let-index="index">
+                          <tr (click)="data.disabled ? null : data2.checked = !data2.checked; refreshChildrenStatus()" [ngStyle]="{'background':data2.checked?'#F9FBFF':'' }">
+                            <td nzShowCheckbox [(nzChecked)]="data2.checked" (click)="$event.stopPropagation();" [nzDisabled]="(data2['is_price_apply'] === '1' ? true : false) || data['disabled']"  (nzCheckedChange)="refreshChildrenStatus()" ></td>
+
+                            <ng-container *ngFor="let column2 of childrenColumns; trackBy: trackByFn">
+                              <ng-container *ngIf="(column2['hidden_category'] | some : data['category_type']) ||  (column2['hidden_test'] && (column2['hidden_test'] == data['is_test'])); else elseBlock2 "></ng-container>
+                              <ng-template #elseBlock2>
+                                <td [nzRight]="column2?.templateOptions?.nzRight" [ngStyle]="{ 'width': column2?.width, 'max-width': column2?.width, 'min-width': column2?.width }">
+                                  <ng-container [ngSwitch]="column2.type">
+
+                                    <!-- <ng-container *ngSwitchCase="'image'">
+                                      <ng-container *ngIf="data2[column2.key]">
+                                        <img defaultImage="/assets/images/pic-thumb-default.60.jpg"  (click)="preview(data2[column2.key]); $event.stopPropagation()" [lazyLoad]="data2[column2.key]"/>
+                                      </ng-container>
+                                      <ng-container *ngIf="!data2[column2.key]">NA</ng-container>
+                                    </ng-container>
+
+
+
+                                    <ng-container *ngSwitchCase="'thumb'">
+                                      <ng-container *ngIf="data2[column2.key]" >
+                                        <img defaultImage="/assets/images/pic-thumb-default.60.jpg" (click)="preview(data2[column2.key]); $event.stopPropagation()" [lazyLoad]="data2[column2.key]"/>
+                                      </ng-container>
+                                      <ng-container *ngIf="!data2[column2.key]">NA</ng-container>
+                                    </ng-container> -->
+
+
+                                      <ng-container *ngSwitchCase="'image'">
+                                        <ng-container  *ngIf="data2[column2.key]">
+                                          <img 
+                                            nz-popover 
+                                            [nzContent]="contentTemplate"
+                                            nzTrigger="hover" 
+                                            nzOverlayClassName="preview-image"
+                                            defaultImage="/assets/images/pic-thumb-default.60.jpg" 
+                                            (click)="preview(data2[column2.key]); $event.stopPropagation()" 
+                                            [lazyLoad]="data2[column2.key]"/> 
+                                          <ng-template #contentTemplate>
+                                            <div [innerHtml]="data2[column2.key] | preview | async"></div>
+                                          </ng-template>
+                                        </ng-container>
+
+                                        <span *ngIf="!data2[column2.key]">NA</span>
+                                      </ng-container>
+
+                                      <ng-container *ngSwitchCase="'thumb'">
+                                        <ng-container  *ngIf="data2[column2.key]">
+                                          <img 
+                                            nz-popover 
+                                            [nzContent]="contentTemplate"
+                                            nzTrigger="hover" 
+                                            nzOverlayClassName="preview-image"
+                                            defaultImage="/assets/images/pic-thumb-default.60.jpg" 
+                                            (click)="preview(data2[column2.key]); $event.stopPropagation()" 
+                                            [lazyLoad]="data2[column2.key]"/> 
+                                          <ng-template #contentTemplate>
+                                            <div [innerHtml]="data2[column2.key] | preview | async"></div>
+                                          </ng-template>
+                                        </ng-container>
+
+                                        <span *ngIf="!data2[column2.key]">NA</span>
+                                      </ng-container>
+
+                                    <ng-container *ngSwitchCase="'unit_price'">
+                                      <ng-container *ngIf="data2[column2.key]">
+                                        {{ data2[column2.key] }} <span *ngIf="data2.fixed_price_status">固定价</span>
+                                      </ng-container>
+                                      <span *ngIf="!data2[column2.key]">NA</span>
+                                    </ng-container>
+
+                                    <ng-container  *ngSwitchCase="'attribute'">
+                                     <app-label-edit [data]="data2[column2.key]"></app-label-edit>
+                                   </ng-container>
+
+                                    <ng-container *ngSwitchCase="'click'">
+                                      <ng-container *ngIf="data2.can_withdraw == 1; else elseWithdraw">
+                                        <ng-container *ngIf="column2.templateOptions">
+                                          <a (click)="withdraw(data2);" *ngFor="let btn of column2.templateOptions.options;trackBy: trackByFn" style="margin: 0 6px;">{{btn['label']}}</a>
+                                        </ng-container>
+                                      </ng-container>
+                                      <ng-template #elseWithdraw>
+                                        <ng-container>
+                                          <ng-container *ngIf="column2.templateOptions">
+                                            <a (click)="getClickEvent(btn['value'], data2);$event.stopPropagation();" *ngFor="let btn of column2.templateOptions.options;trackBy: trackByFn" style="margin: 0 6px;">{{btn['label']}}</a>
+                                          </ng-container>
+                                          <ng-container *ngIf="!column2.templateOptions && column2.img">
+                                            <ng-container *ngIf="data2[column2.key]">
+                                              <a (click)="getClickEvent(column2.key, data2, data2[column2.img]); $event.stopPropagation();">
+                                                <img defaultImage="/assets/images/pic-thumb-default.60.jpg" [lazyLoad]="data2[column2.key]"/>
+                                              </a>
+                                            </ng-container>
+                                            <ng-container *ngIf="!data2[column2.key]">NA</ng-container>
+                                          </ng-container>
+                                          <ng-container *ngIf="!column2.templateOptions && !column2.img">
+                                            <a (click)="getClickEvent(column2.key, data2);$event.stopPropagation();">{{data2[column2.key] ? data2[column2.key] : 'NA'}}</a>
+                                          </ng-container>
+                                        </ng-container>
+                                      </ng-template>
+                                    </ng-container>
+
+                                      <ng-container *ngSwitchCase="'select'">
+                                        <ng-container  >
+                                          <nz-select style="width: 100%;"
+                                            nzMode="multiple"
+                                            nzSize="small"
+                                            *ngIf="data2[column2.key + '_options'] "
+                                            [(ngModel)]="data2[column2.key]"
+                                            (click)="$event.stopPropagation();"
+                                            [nzShowSearch]="true"
+                                            [nzAllowClear]="true">
+                                            <nz-option *ngFor="let option of data2[column2.key + '_options']; trackBy: trackByFn"
+                                              [nzValue]="option.value"
+                                              [nzLabel]="option.label">
+                                            </nz-option>
+                                          </nz-select>
+                                        </ng-container>
+                                      </ng-container>
+
+                                      <ng-container *ngSwitchDefault>
+                                        <ng-container [ngSwitch]="column2.key">
+
+                                          <ng-container *ngSwitchCase="'thing_code'">
+                                            <ng-container  style="max-width: 160px; min-width: 120px">
+                                              <ng-container *ngIf="data2['is_price_apply'] === '1'">
+                                                <span style="color: red">[变更中]</span>
+                                              </ng-container>
+                                              <ng-container *ngIf="data2['is_price_apply'] === '2'">
+                                                <span style="color: #0052D9">[{{'CHANGED' | translate}}]</span>
+                                              </ng-container>
+                                              <ng-container *ngIf="data2['is_rejected'] === '1'">
+                                                <ng-container *ngIf="data2['auto_record_data'] && data2['auto_record_data'] != ''">
+                                                  <span style="color: red" nz-popover [nzContent]="contentRejected1">[{{'REJECTED' | translate}}]</span>
+                                                  <!-- 引用模板，可输出html -->
+                                                  <ng-template #contentRejected1><a [innerHTML]="data2['auto_record_data'] || 'NA'"></a></ng-template>
+                                                </ng-container>
+                                                <ng-container *ngIf="!data2['auto_record_data'] || data2['auto_record_data'] == ''">
+                                                  <span style="color: red">[{{'REJECTED' | translate}}]</span>
+                                                </ng-container>
+                                              </ng-container>
+                                              <ng-container *ngIf="data2['is_withdraw'] == 1">
+                                                <span style="color: red">[{{'WITHDRAW' | translate}}]</span>
+                                              </ng-container>
+                                              <ng-container *ngIf="data2['is_test'] === '1'">
+                                                <span style="color: red">[{{'TEST' | translate}}]</span>
+                                              </ng-container>
+                                              <a (click)="getClickEvent(column2.key, data2);$event.stopPropagation();" (click)="$event.stopPropagation();">
+                                                {{data2[column2.key] ? data2[column2.key] : 'NA'}}
+                                              </a>
+                                            </ng-container>
+                                          </ng-container>
+
+                                          <ng-container *ngSwitchCase="'quote_complete_date'">
+                                            <nz-date-picker nzSize="small"
+                                              (ngModelChange)="changePicker($event, data2)"
+                                              (click)="$event.stopPropagation();"
+                                              [ngClass]="{'hint-red' : (data2['isChangePicker'])}"
+                                              [nzFormat]="dateFormat"
+                                              [(ngModel)]="data2[column2.key]">
+                                            </nz-date-picker>
+                                            <p class="mb-0 red f12 mt-0" *ngIf="data2[column2.key + '_change']">
+                                              变更为: {{ data2[column2.key + '_change'] }}
+                                            </p>
+                                          </ng-container>
+
+                                          <ng-container *ngSwitchCase="'change_price'">
+                                            <ng-container class="quote-td">
+                                              <!--显示固定明细及价格-->
+                                              <ng-container *ngIf="data2['price_type'] == 1">
+                                                <a (click)="selctPriceModal(data2);$event.stopPropagation();">{{ data2['quote_total_price'] }} {{ data2['currency_symbol'] }}</a>
+                                                <p class="mb-0 red f12 mt-2" *ngIf="data2['quote_total_price_change']">
+                                                  变更为: {{ data2['quote_total_price_change'] }}
+                                                </p>
+                                              </ng-container>
+
+                                              <!--明细报价-->
+                                              <ng-container *ngIf="data2['price_type'] == 2">
+                                                <a (click)="breakdownPriceModal(data2);$event.stopPropagation();">
+                                                  <ng-container *ngIf="data2['quote_total_price'] == '' ">
+                                                    {{'QUOTATION' | translate}}
+                                                  </ng-container>
+                                                  <ng-container *ngIf="data2['quote_total_price'] != ''">
+                                                    {{data2['quote_total_price']}} {{ data2['currency_symbol'] }}
+                                                  </ng-container>
+                                                </a>
+                                                <div class="red f12 mt-2" *ngIf="data2['quote_total_price_change']">
+                                                  变更为: {{ data2['quote_total_price_change']|mycurrency }}
+                                                </div>
+                                              </ng-container>
+
+                                              <!--按数量报价 or 明细报价-->
+                                              <ng-container *ngIf="data2['price_type'] == 3">
+                                                <div nz-row [nzGutter]="0" style="width: 100%">
+                                                  <div nz-col nzSpan="9" class="td-col">
+                                                    <nz-form-label [nzSpan]="8" nzFor="workload_unit_id">{{ 'UNIT' | translate}}</nz-form-label>
+                                                    <nz-form-control [nzSpan]="16">
+                                                      <nz-select nzSize="small" style="width: 78px;" [ngClass]="{'hint-red' : (data2['quote_workload_unit_id'] != data2['workload_unit_id'])}" [(ngModel)]="data2['quote_workload_unit_id']" *ngIf="data2['contract_price_groups']" (click)="$event.stopPropagation();">
+                                                        <nz-option nzValue="{{option.value}}" nzLabel="{{option.label}}" *ngFor="let option of data2['contract_price_groups']['workload_unit_list'];trackBy: trackByFn"></nz-option>
+                                                      </nz-select>
+                                                      <p class="mb-0 red f12 mt-2" *ngIf="data2['quote_workload_unit_id_change']">
+                                                        变更为: {{ data2['quote_workload_unit_id_change'] }}
+                                                      </p>
+                                                    </nz-form-control>
+                                                  </div>
+
+                                                  <div nz-col nzSpan="9" class="td-col">
+                                                    <nz-form-label [nzSpan]="8">{{"UNIT_PRICE" | translate}}</nz-form-label>
+                                                    <nz-form-control [nzSpan]="16">
+                                                      <nz-input-number nzSize="small" [ngClass]="{'hint-red' : (data2['quote_unit_price'] != data2['unit_price'])}" [(ngModel)]="data2['quote_unit_price']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="2" (ngModelChange)="getPrice(data2, 'quote_unit_price', data2['is_disabled'])" style="width: 78px;" (click)="$event.stopPropagation();"></nz-input-number>
+                                                      <p class="mb-0 red f12 mt-2" *ngIf="data2['quote_unit_price_change']">
+                                                        变更为: {{ data2['quote_unit_price_change'] }}
+                                                      </p>
+                                                    </nz-form-control>
+                                                  </div>
+
+                                                  <div nz-col nzSpan="6" class="td-col" style="line-height: 41px;">
+                                                    <a href="javascript:;" style="color: rgba(0, 0, 0, 0.65)">{{ data2['currency_symbol'] }}</a>
+                                                  </div>
+
+                                                  <div nz-col nzSpan="9" class="td-col">
+                                                    <nz-form-label [nzSpan]="8">{{"QUANTITY" | translate}}</nz-form-label>
+                                                    <nz-form-control [nzSpan]="16">
+                                                      <nz-input-number nzSize="small" [ngClass]="{'hint-red' : (data2['quote_workload'] != data2['workload'])}" [(ngModel)]="data2['quote_workload']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="3" (ngModelChange)="getPrice(data2, 'quote_workload', data2['is_disabled'])" style="width: 78px;" (click)="$event.stopPropagation();"></nz-input-number>
+                                                      <p class="mb-0 red f12 mt-2" *ngIf="data2['quote_workload_change']">
+                                                        变更为: {{ data2['quote_workload_change'] }}
+                                                      </p>
+                                                    </nz-form-control>
+                                                  </div>
+
+                                                  <div nz-col nzSpan="9" class="td-col">
+                                                    <nz-form-label [nzSpan]="8">{{"TOTAL" | translate}}</nz-form-label>
+                                                    <nz-form-control [nzSpan]="16">
+                                                      <nz-input-number nzSize="small" [ngClass]="{'hint-red' : (data2['quote_total_price'] != data2['total_price'])}" [nzDisabled]="data2['is_disabled']" [(ngModel)]="data2['quote_total_price']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="2" (ngModelChange)="getPrice(data2, 'quote_total_price', data2['is_disabled'])" style="width: 78px;" (click)="$event.stopPropagation();"></nz-input-number>
+                                                      <p class="mb-0 red f12 mt-0" *ngIf="data2['quote_total_price_change']">
+                                                        变更为: {{ data2['quote_total_price_change'] }}
+                                                      </p>
+                                                    </nz-form-control>
+                                                  </div>
+
+                                                  <div nz-col nzSpan="6" class="td-col" style="line-height: 41px;">
+                                                    <a (click)="breakdownPriceModal(data2, true, data2['is_disabled']);$event.stopPropagation();">{{'DETAILS' | translate}}</a>
+                                                  </div>
+                                                </div>
+                                              </ng-container>
+
+                                             <!--数量报价-->
+                                              <ng-container *ngIf="data2['price_type'] == 4">
+                                                <div nz-row [nzGutter]="0" style="width: 100%">
+                                                  <div nz-col nzSpan="9" class="td-col">
+                                                    <nz-form-label [nzSpan]="8" nzFor="workload_unit_id">{{'UNIT' | translate}}</nz-form-label>
+                                                    <nz-form-control [nzSpan]="16">
+                                                      <nz-select nzSize="small" style="width: 78px;" [ngClass]="{'hint-red' : (data2['quote_workload_unit_id'] != data2['workload_unit_id'])}" [(ngModel)]="data2['quote_workload_unit_id']" *ngIf="data2['contract_price_groups']" (click)="$event.stopPropagation();">
+                                                        <nz-option nzValue="{{option.value}}" nzLabel="{{option.label}}" *ngFor="let option of data2['contract_price_groups']['workload_unit_list'];trackBy: trackByFn"></nz-option>
+                                                      </nz-select>
+                                                      <p class="mb-0 red f12 mt-2" *ngIf="data2['quote_workload_unit_id_change']">
+                                                        变更为: {{ data2['quote_workload_unit_id_change'] }}
+                                                      </p>
+                                                    </nz-form-control>
+                                                  </div>
+
+                                                  <div nz-col nzSpan="9" class="td-col">
+                                                    <nz-form-label [nzSpan]="8">{{"UNIT_PRICE" | translate}}</nz-form-label>
+                                                    <nz-form-control [nzSpan]="16">
+                                                      <nz-input-number
+                                                      nzSize="small"
+                                                        [ngClass]="{'hint-red' : (data2['quote_unit_price'] != data2['unit_price'])}"
+                                                        [(ngModel)]="data2['quote_unit_price']"
+                                                        [nzMin]="0"
+                                                        [nzMax]="9999999999"
+                                                        [nzPrecision]="2"
+                                                        (ngModelChange)="getPrice(data2, 'quote_unit_price')" style="width: 78px;"
+                                                        (click)="$event.stopPropagation();">
+                                                      </nz-input-number>
+                                                      <p class="mb-0 red f12 mt-2" *ngIf="data2['quote_unit_price_change']">
+                                                        变更为: {{ data2['quote_unit_price_change'] }}
+                                                      </p>
+                                                    </nz-form-control>
+                                                  </div>
+
+                                                  <div nz-col nzSpan="9" class="td-col">
+                                                    <nz-form-label [nzSpan]="8">{{"QUANTITY" | translate}}</nz-form-label>
+                                                    <nz-form-control [nzSpan]="16">
+                                                      <nz-input-number nzSize="small" [ngClass]="{'hint-red' : (data2['quote_workload'] != data2['workload'])}" [(ngModel)]="data2['quote_workload']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="3" (ngModelChange)="getPrice(data2, 'quote_workload')" style="width: 78px;" (click)="$event.stopPropagation();"></nz-input-number>
+                                                      <p class="mb-0 red f12 mt-2" *ngIf="data2['quote_workload_change']">
+                                                        变更为: {{ data2['quote_workload_change'] }}
+                                                      </p>
+                                                    </nz-form-control>
+                                                  </div>
+
+                                                  <div nz-col nzSpan="9" class="td-col">
+                                                    <nz-form-label [nzSpan]="8">{{"TOTAL" | translate}}</nz-form-label>
+                                                    <nz-form-control [nzSpan]="16">
+                                                      <nz-input-number nzSize="small" [ngClass]="{'hint-red' : (data2['quote_total_price'] != data2['total_price'])}" [(ngModel)]="data2['quote_total_price']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="2" (ngModelChange)="getPrice(data2, 'quote_total_price')" style="width: 78px;" (click)="$event.stopPropagation();"> </nz-input-number>
+                                                      <p class="mb-0 red f12 mt-2" *ngIf="data2['quote_total_price_change']">
+                                                        变更为: {{ data2['quote_total_price_change'] }}
+                                                      </p>
+                                                    </nz-form-control>
+                                                  </div>
+
+                                                  <div nz-col nzSpan="6" class="td-col" style="line-height: 41px;">
+                                                    <a href="javascript:;" style="color: rgba(0, 0, 0, 0.65)">{{ data2['currency_symbol'] }}</a>
+                                                  </div>
+                                                </div>
+                                              </ng-container>
+                                            </ng-container>
+                                          </ng-container>
+
+
+                                          <ng-container *ngSwitchCase="'change_reason'">
+                                            <nz-select style="width: 100%;" nzSize="small" [(ngModel)]="data2[column2.key]" (click)="$event.stopPropagation();">
+                                              <nz-option nzValue="需求变更" nzLabel="需求变更"></nz-option>
+                                              <nz-option nzValue="价格变更" nzLabel="价格变更"></nz-option>
+                                              <nz-option nzValue="延期交付" nzLabel="延期交付"></nz-option>
+                                            </nz-select>
+                                          </ng-container>
+
+                                          <ng-container *ngSwitchCase="'change_memo'">
+                                            <textarea [(ngModel)]="data2[column2.key]"
+                                              nz-input
+                                              rows="2"
+                                              nzSize="small"
+                                              maxlength="200"
+                                              style="width: 100%"
+                                              (click)="$event.stopPropagation();"
+                                              [placeholder]="'CHANGE_MEMO_PLACEHOLDER' | translate ">
+                                            </textarea>
+                                          </ng-container>
+
+                                          <ng-container  *ngSwitchCase="'attribute'">
+                                            <app-label-edit [data]="data2[column2.key]"></app-label-edit>
+                                          </ng-container>
+
+
+                                          <ng-container *ngSwitchDefault>
+                                              {{data2[column2.key] ? data2[column2.key] : 'NA'}}
+                                          </ng-container>
+                                        </ng-container>
+                                      </ng-container>
+                                  </ng-container>
+                                </td>
+
+                              </ng-template>
+                            </ng-container>
+                          </tr>
+                        </ng-template>
+                      </tbody>
+                    </nz-table>
+                  </td>
+              </tr>
+            </ng-template>
+          </tbody>
+        </nz-table>
+      </span>
+
+      <div class="body-pagination" *ngIf="list && list.length > 0 && pagination.total_count != 0">
+        <nz-pagination
+          style="margin-top: 8px;float: right;"
+          nzShowSizeChanger
+          [nzShowTotal]="totalTemplate"
+          [nzTotal]="pagination.total_count"
+          [(nzPageIndex)]="pagination.page_index"
+          [(nzPageSize)]="pagination.page_size"
+          [nzPageSizeOptions]="[20, 50, 100, 500, 1000]"
+          (nzPageIndexChange)="pageIndexChange($event)"
+          (nzPageSizeChange)="pageSizeChange($event)"
+        >
+        </nz-pagination>
+      </div>
+      <ng-template #totalTemplate let-total>
+        {{ 'PAGINATION_COUNT' | translate }} {{pagination.total_count}}
+      </ng-template>
+    </nz-card>
+  </ng-container>
+</div>
+
+<!--报价详情-->
+<nz-modal
+  [(nzVisible)]="selctPriceModalData.isShow"
+  [nzTitle]="modalTitle"
+  [nzContent]="modalContent"
+  [nzFooter]="null"
+  [nzWidth]="600"
+  (nzOnCancel)="selctPriceModalCancel()"
+>
+  <ng-template #modalTitle>
+    报价详情
+  </ng-template>
+
+  <ng-template #modalContent>
+    <ng-container *ngIf="selctPriceModalData.data['list']">
+      <div nz-row [nzGutter]="24">
+
+        <div nz-col [nzSpan]="24">
+          <nz-table #selctPriceTable [nzFrontPagination]="false" [nzShowPagination]="false" [nzSize]="'small'" [nzData]="selctPriceModalData.data['list']">
+            <thead>
+            <tr>
+              <th>{{"DETAILED_NAME" | translate}}</th>
+              <th>{{"DETAILED_QUANTITY" | translate}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of selctPriceTable.data;trackBy: trackByFn">
+              <td>{{item.label}}</td>
+              <td>{{item.value}}</td>
+            </tr>
+            </tbody>
+          </nz-table>
+        </div>
+        <div nz-col [nzSpan]="24">
+          <nz-form-item [nzFlex]="true" style="margin-bottom: 0px">
+            <nz-form-label>{{"DETAILED_TOTAL" | translate}} </nz-form-label>
+            <nz-form-control class="control-padding">{{selctPriceModalData.data['price']}}</nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="24" *ngIf="selctPriceModalData.data['sample_package_url']">
+          <nz-form-item [nzFlex]="true" style="margin-bottom: 0px">
+            <nz-form-label>示例压缩包 </nz-form-label>
+            <nz-form-control class="control-padding"><a [href]="selctPriceModalData.data['sample_package_url']" target="_blank">{{'DOWNLOAD' | translate}} </a></nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="24" *ngIf="selctPriceModalData.data['sketch_map_url']">
+          <nz-form-item [nzFlex]="true" style="margin-bottom: 0px">
+            <nz-form-label>示例效果图 </nz-form-label>
+            <nz-form-control class="control-padding"><a [href]="selctPriceModalData.data['sketch_map_url']" target="_blank">{{'DOWNLOAD' | translate}}</a></nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </ng-container>
+
+    <div nz-row [nzGutter]="24" style="margin-top: 36px;">
+      <div nz-col [nzSpan]="24">
+        <nz-form-item style="text-align: center">
+          <button nz-button nzType="default" (click)="selctPriceModalCancel()">{{'CLOSE' | translate}}</button>
+        </nz-form-item>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<!--明细报价-->
+<nz-modal
+  [(nzVisible)]="breakdownPriceModalData.isShow"
+  [nzTitle]="modalTitle2"
+  [nzContent]="modalContent2"
+  [nzFooter]="null"
+  [nzWidth]="850"
+  [nzMaskClosable]="false"
+  (nzOnCancel)="breakdownPriceModalCancel()"
+>
+  <ng-template #modalTitle2>
+    {{'DETAILS' | translate}}
+  </ng-template>
+
+  <ng-template #modalContent2>
+    <ng-container *ngIf="breakdownPriceModalData.data['produce_breakdown_list']">
+      <div nz-row [nzGutter]="24">
+        <div nz-col [nzSpan]="24">
+          <ng-container *ngIf="breakdownPriceModalData.data['isEmpty'] && breakdownPriceModalData.data['quote_total_price'] > 0">
+            <div class="fl m-r-6">{{'CONSISTENT_WITH_CURRENT_SUM' | translate}}</div>
+          </ng-container>
+        </div>
+        <div nz-col [nzSpan]="24">
+          <nz-table #breakdownPriceTable
+                    [nzFrontPagination]="false"
+                    [nzShowPagination]="false"
+                    [nzSize]="'small'"
+                    [nzData]="breakdownPriceModalData.data['produce_breakdown_list']"
+          >
+            <thead>
+            <tr>
+              <th>{{"DETAILED_NAME" | translate}}</th>
+              <th>{{"DETAILED_UNIT" | translate}}</th>
+              <th>{{"DETAILED_QUANTITY" | translate}}</th>
+              <th>{{"DETAILED_UNIT_PRICE" | translate}}</th>
+              <th>{{"DETAILED_PRICE" | translate}}</th>
+              <th>{{'REMARK' | translate}}</th>
+              <th>{{ 'FILE' | translate }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let data of breakdownPriceTable.data;trackBy: trackByFn">
+              <td>{{data.label}}</td>
+
+              <td>
+                <nz-select style="width: 84px;"  [(ngModel)]="data['workload_unit_id']" (ngModelChange)="workloadUnitChange(data)">
+                  <nz-option nzValue="{{option.value}}" nzLabel="{{option.label}}" *ngFor="let option of data['workload_unit_list'];trackBy: trackByFn"></nz-option>
+                </nz-select>
+              </td>
+
+              <td><nz-input-number [(ngModel)]="data['value']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="3" (ngModelChange)="calculatePriceModa(data, 'value')" style="width: 100px;"></nz-input-number></td>
+
+              <!--单价-->
+              <td>
+                <ng-container *ngIf="data['workload_unit_id'] && data['workload_unit_data'] &&  data['workload_unit_data'][data['workload_unit_id']]['tooltipTitle']; else elseBlock1">
+                  <nz-input-number
+                    [nzTitle]="data['workload_unit_data'][data['workload_unit_id']]['tooltipTitle']"
+                    nzPlacement="top"
+                    nz-tooltip
+                    [nzDisabled]="data['workload_unit_data'][data['workload_unit_id']]['isPriceDisabled']"
+                    [(ngModel)]="data['price']"
+                    [nzMin]="0"
+                    [nzMax]="9999999999"
+                    [nzPrecision]="2"
+                    (ngModelChange)="calculatePriceModa(data, 'price')" style="width: 100px;">
+                  </nz-input-number>
+                </ng-container>
+                <ng-template #elseBlock1>
+                  <nz-input-number
+                    [(ngModel)]="data['price']"
+                    [nzDisabled]="data['workload_unit_data'][data['workload_unit_id']]['isPriceDisabled']"
+                    [nzMin]="0"
+                    [nzMax]="9999999999"
+                    [nzPrecision]="2"
+                    (ngModelChange)="calculatePriceModa(data, 'price')" style="width: 100px;">
+                  </nz-input-number>
+                </ng-template>
+                {{breakdownPriceModalData.data['currency_symbol'] ? breakdownPriceModalData.data['currency_symbol'] : ''}}
+              </td>
+
+              <td>
+                <nz-input-number [(ngModel)]="data['count_price']" [nzMin]="0" [nzMax]="9999999999" [nzPrecision]="2" (ngModelChange)="calculatePriceModa(data, 'count_price')" style="width: 100px;"></nz-input-number>
+                {{breakdownPriceModalData.data['currency_symbol'] ? breakdownPriceModalData.data['currency_symbol'] : ''}}
+              </td>
+
+              <td [ngStyle]="{width: '200px'}"><input type="text" nz-input [(ngModel)]="data['remark']" /></td>
+
+              <td>
+                <ng-container *ngIf="data['file_id'] && data['file_id'] != ''">
+                  <a target="_blank" href="{{ '/web/file/' + data['file_id']}}">{{'DOWNLOAD' | translate}}</a>
+
+                  <nz-popconfirm [nzTitle]="'ARE_YOU_SURE_YOU_WANT_TO_DELETE' | translate" (nzOnConfirm)="data['file_id'] = ''">
+                    <a nz-popconfirm > {{'DELETE' | translate}}</a>
+                  </nz-popconfirm>
+
+                </ng-container>
+                <ng-container *ngIf="!data['file_id'] || data['file_id'] == ''">
+                  <nz-upload
+                    class="fl"
+                    nzAction="/web/cos/upload?type=1200"
+                    [nzCustomRequest]="cos.customReqs"
+                    [nzShowUploadList]="false"
+                    [nzMultiple]="false"
+                    (nzChange)="uploadChange($event, data)">
+                      <a>{{'UPLOAD' | translate}}</a>
+                  </nz-upload>
+                </ng-container>
+              </td>
+
+            </tr>
+            </tbody>
+          </nz-table>
+        </div>
+
+        <div nz-col [nzSpan]="24">
+          <ng-container *ngIf="breakdownPriceModalData.data['isEmpty']">
+            <div class="fl m-r-6">{{'CURRENT_TOTAL' | translate}}:</div>
+            <div class="fl m-r-16">{{breakdownPriceModalData.data['quote_total_price']}}&nbsp;</div>
+          </ng-container>
+          <div class="fl m-r-6">{{"DETAILED_TOTAL" | translate}}:</div>
+          <div class="fl">
+            {{breakdownPriceModalData.data['total_price']|mycurrency}} {{breakdownPriceModalData.data['currency_symbol'] ? breakdownPriceModalData.data['currency_symbol'] : ''}}
+            <a (click)="breakdownPriceModalEmpty()">{{'CLEAR_QUOTE' | translate}}</a>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div nz-row [nzGutter]="24" style="margin-top: 36px;">
+      <div nz-col [nzSpan]="24">
+        <nz-form-item style="text-align: center">
+          <button nz-button nzType="primary" (click)="breakdownPriceModalOk()" style="margin-right: 10px;">{{'CONFIRM' | translate}}</button>
+          <button nz-button nzType="default" (click)="breakdownPriceModalCancel()">{{'CLOSE' | translate}}</button>
+        </nz-form-item>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<!--提交-->
+<nz-modal [(nzVisible)]="changePassModal.isShow" [nzTitle]="'CONFIRM_INFORMATION' | translate" (nzOnOk)="changePass(true)" [nzWidth]="770" (nzOnCancel)="changePassModal.isShow = !changePassModal.isShow">
+  <nz-alert class="mb-2" nzType="warning" nzMessage='确认提交申请变更后，请耐心等待审批，审批通过的单据将标记为"已变更"!' nzShowIcon></nz-alert>
+  <p>{{changePassModal.title}}</p>
+  <p>
+    <nz-table [(nzData)]="changePassModal.changeData" [nzSize]="'small'" [nzFrontPagination]="false" [nzShowPagination]="false" nzBordered>
+      <thead>
+      <tr>
+        <th>{{'ORDER_NUMBER' | translate}}</th>
+        <th>{{"ITEM_NUMBER" | translate}}</th>
+        <th>{{"ITEM_NAME" | translate}}</th>
+        <th>{{'OLD_PRICE' | translate}}</th>
+        <th>{{'NEW_PRICE' | translate}}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of changePassModal.changeData; trackBy: trackByFn; index as i">
+        <td>{{item.order_code}}</td>
+        <td>{{item.thing_code}}</td>
+        <td>{{item.thing_name}}</td>
+        <td>{{item.old_price|mycurrency}} {{item.currency_symbol}}</td>
+        <td>{{item.new_price|mycurrency}} {{item.currency_symbol}}</td>
+      </tr>
+      </tbody>
+    </nz-table>
+  </p>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="'THE_REASON_OF_WITHDRAW' | translate" (nzOnCancel)="isVisible = false" (nzOnOk)="withdraw()">
+  <div style="margin: -10px 0 10px;">{{'WITHDRAW_ORDER_CHANGE' | translate}}</div>
+  <nz-form-item>
+    <nz-form-control>
+      <textarea nz-input [placeholder]="'ENTER_THE_REASON_OF_WITHDRAW' | translate" [(ngModel)]="reason" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+</nz-modal>
+
+<!--操作提示-->
+<nz-modal [(nzVisible)]="msgHint.isShow" [nzTitle]="'CONFIRM_INFORMATION' | translate" [nzOkLoading]="isSubmitLoading" (nzOnCancel)="msgHintModalCancel()" (nzOnOk)="msgHintModalOk()">
+  <p>{{msgHint.msg}}</p>
+</nz-modal>
+
+<!--操作提示-->
+<nz-modal [(nzVisible)]="cpadChange.isShow" [nzTitle]="'BATCH_CHANGE_PRODUCER' | translate" [nzOkLoading]="cpadChange.isSubmitLoading" (nzOnCancel)="cpadChangeModalCancel()" (nzOnOk)="cpadChangeModalOk()">
+  <p>
+    <nz-form-item>
+      <nz-form-label nzRequired [nzSm]="8" [nzXs]="24">{{ 'PRODUCER' | translate }}</nz-form-label>
+      <nz-form-control [nzSm]="16" [nzXs]="24">
+        <nz-select style="width: 220px;" [(ngModel)]="cpadChange.newAdIds" (click)="$event.stopPropagation();" nzMode="multiple" [nzShowSearch]="true" [nzAllowClear]="true">
+          <nz-option *ngFor="let option of cpAdOptions;trackBy: trackByFn" [nzValue]="option.value" [nzLabel]="option.label"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+  </p>
+</nz-modal>
+
+<!--物件详情-->
+<app-modal-thing-detail></app-modal-thing-detail>
+
+<!--批量填写-->
+<nz-modal [(nzVisible)]="isFill" [nzTitle]="'BATCH_FILL' | translate" (nzOnCancel)="isFill = false" (nzOnOk)="fillAll()">
+    <div class="modal-section">
+      <div nz-row [nzGutter]="24">
+        <div nz-col [nzSpan]="8">
+          <nz-form-item [nzFlex]="true">
+            <nz-form-label>{{"UNIT_PRICE" | translate}} </nz-form-label>
+            <nz-form-control class="control-padding">
+              <nz-input-number
+                nzSize="small"
+                [(ngModel)]="fillForm['quote_unit_price']"
+                [nzMin]="0" [nzMax]="9999999999"
+                [nzPrecision]="2"
+                (ngModelChange)="getFillPrice('quote_unit_price')"
+                style="width: 80px;"
+                (click)="$event.stopPropagation();">
+              </nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="8">
+          <nz-form-item [nzFlex]="true">
+            <nz-form-label>{{"QUANTITY" | translate}} </nz-form-label>
+            <nz-form-control class="control-padding">
+                <nz-input-number
+                nzSize="small"
+                [(ngModel)]="fillForm['quote_workload']"
+                [nzMin]="0"
+                [nzMax]="9999999999"
+                [nzPrecision]="3"
+                (ngModelChange)="getFillPrice('quote_workload')"
+                style="width: 78px;"
+                (click)="$event.stopPropagation();">
+              </nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="8">
+          <nz-form-item [nzFlex]="true">
+            <nz-form-label>{{"TOTAL" | translate}} </nz-form-label>
+            <nz-form-control class="control-padding">
+                <nz-input-number
+                nzSize="small"
+                [(ngModel)]="fillForm['quote_total_price']"
+                [nzMin]="0"
+                [nzMax]="9999999999"
+                [nzPrecision]="2"
+                (ngModelChange)="getFillPrice('quote_total_price')"
+                style="width: 78px;"
+                (click)="$event.stopPropagation();">
+              </nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </div>
+    <div nz-row [nzGutter]="24">
+      <div nz-col [nzSpan]="24">
+        <nz-form-item [nzFlex]="true">
+          <nz-form-label [nzSpan]="6">{{'REASON_CHANGE' | translate}} </nz-form-label>
+          <nz-form-control [nzSpan]="14">
+            <nz-select style="width: 240px;" *ngIf="isFill" [(ngModel)]="fillForm['change_reason']" nzPlaceHolder="" [nzAllowClear]="true" (click)="$event.stopPropagation();">
+              <nz-option nzValue="需求变更" nzLabel="需求变更"></nz-option>
+              <nz-option nzValue="价格变更" nzLabel="价格变更"></nz-option>
+              <nz-option nzValue="延期交付" nzLabel="延期交付"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+    <div nz-row [nzGutter]="24">
+      <div nz-col [nzSpan]="24">
+        <nz-form-item [nzFlex]="true">
+          <nz-form-label [nzSpan]="6">{{'COMFIRM_DATE' | translate}} </nz-form-label>
+          <nz-form-control [nzSpan]="14" >
+            <nz-date-picker  [nzFormat]="dateFormat" [(ngModel)]="fillForm['quote_complete_date']" (click)="$event.stopPropagation();"></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+    <div nz-row [nzGutter]="24">
+      <div nz-col [nzSpan]="24">
+        <nz-form-item [nzFlex]="true">
+          <nz-form-label [nzSpan]="6">{{'DETAILS_CHANGE' | translate}} </nz-form-label>
+          <nz-form-control [nzSpan]="14" >
+            <textarea [(ngModel)]="fillForm['change_memo']" nz-input rows="3" maxlength=200 style="resize: none; width: 100%;" (click)="$event.stopPropagation();" [placeholder]="'CHANGE_MEMO_PLACEHOLDER' | translate"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+
+  </nz-modal>
+
+<nz-modal [(nzVisible)]="endMakeVisible" [nzWidth]="'580px'" [nzTitle]="'结束制作' | translate" (nzOnCancel)="endMakeVisible = false" (nzOnOk)="endMake()">
+  <nz-form-item>
+    <!-- <nz-form-control>
+      <textarea nz-input placeholder="{{'ENTER_REASON_FOR_ABANDONING' | translate}}" [(ngModel)]="reason" [nzAutosize]="{ minRows: 2, maxRows: 6 }"></textarea>
+    </nz-form-control> -->
+    <nz-alert class="mb-2" nzType="warning" nzMessage='"结束制作"则该物件单将关闭不再支付任何费用，请确认是否需要"结束制作"' nzShowIcon></nz-alert>
+    <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>请选择结束制作的原因</nz-form-label>
+    <nz-form-control>
+      <nz-select [(ngModel)]="reason" style="width: 200px;">
+        <nz-option nzValue="需求取消" nzLabel="需求取消"></nz-option>
+        <nz-option nzValue="需求重复" nzLabel="需求重复"></nz-option>
+        <nz-option nzValue="供方原因" nzLabel="供方原因" ></nz-option>
+      </nz-select>
+    </nz-form-control>
+    <ng-container *ngIf="reason == '供方原因'">
+      <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>请填写具体变更的原因</nz-form-label>
+      <nz-form-control>
+        <textarea nz-input [(ngModel)]="endMakeReason" style="width: 200px;" [nzAutosize]="{ minRows: 3, maxRows: 6 }"></textarea>
+      </nz-form-control>
+    </ng-container>
+  </nz-form-item>
+</nz-modal>
+<app-modal-show-img></app-modal-show-img>

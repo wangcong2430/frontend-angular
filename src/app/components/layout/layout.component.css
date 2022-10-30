@@ -1,0 +1,77 @@
+.trigger {
+  font-size: 18px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: color .3s;
+}
+
+.trigger:hover {
+  color: #1890ff;
+}
+
+.main-layout-body{
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/*侧边栏*/
+.main-layout-sider {
+  overflow: auto;
+  height: 100vh;
+  left: 0;
+}
+.ant-menu-item .anticon,  .ant-menu-submenu > .ant-menu-submenu-title .anticon {
+  font-size: 18px;
+}
+.logo {
+  height: 59px;
+  overflow: hidden;
+  background: 052151;
+}
+.logo .logo-icon {
+  margin: 10px 0 0 10px;
+}
+.system-title {
+  color: #fff;
+  font-weight: bold;
+  width: 120px;
+  font-size: 15px;
+  margin-top: 9px;
+  margin-left: 4px;
+}
+.menu-trigger {
+  padding: 8px 17px 0 17px;
+  text-align: right;
+  cursor: pointer;
+}
+.menu-trigger i{
+  color: #0fa878;
+}
+.menu-trigger .anticon-right{
+  margin-right: 17px;
+}
+.sup-footer{
+  background-color: #fff;
+}
+
+/*顶部*/
+.header-menu-user {
+  height: 46px;
+}
+.header-user-info {
+  color: #e0e6e5;
+}
+
+.main-layout-sider::-webkit-scrollbar {
+  display: none;
+}
+
+.ant-menu-item.selected {
+  background-color: #60ab72;
+}
+
+.ant-menu-item.unSelected {
+  background-color: #000c17;
+}
